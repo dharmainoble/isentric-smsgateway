@@ -12,11 +12,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.example</groupId>
-    <artifactId>BulkGatewayWar</artifactId>
+    <groupId>com.isentric</groupId>
+    <artifactId>BulkGateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>BulkGatewayWar</name>
+    <name>BulkGateway</name>
     <description>Bulk Gateway API Spring Boot Application</description>
 
     <properties>

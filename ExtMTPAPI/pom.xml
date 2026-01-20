@@ -13,7 +13,7 @@
     </parent>
 
     <groupId>com.isentric</groupId>
-    <artifactId>extmtpush-springboot</artifactId>
+    <artifactId>extmtpush-api</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
     <name>ExtMTPush SMS Gateway</name>
