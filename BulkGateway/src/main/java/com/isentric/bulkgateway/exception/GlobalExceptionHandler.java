@@ -1,5 +1,5 @@
-package com.example.bulkgateway.exception;
-import com.example.bulkgateway.dto.ApiResponse;
+package com.isentric.bulkgateway.exception;
+import com.isentric.bulkgateway.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

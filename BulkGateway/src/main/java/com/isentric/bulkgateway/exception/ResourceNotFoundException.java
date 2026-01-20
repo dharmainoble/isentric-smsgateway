@@ -1,4 +1,4 @@
-package com.example.bulkgateway.exception;
+package com.isentric.bulkgateway.exception;
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
         super(message);

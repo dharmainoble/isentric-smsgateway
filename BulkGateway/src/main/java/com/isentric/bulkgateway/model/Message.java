@@ -1,4 +1,4 @@
-package com.example.bulkgateway.model;
+package com.isentric.bulkgateway.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 @Entity

@@ -1,4 +1,4 @@
-package com.example.bulkgateway;
+package com.isentric.bulkgateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

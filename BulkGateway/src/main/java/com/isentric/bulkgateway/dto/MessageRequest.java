@@ -1,4 +1,4 @@
-package com.example.bulkgateway.dto;
+package com.isentric.bulkgateway.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 public class MessageRequest {

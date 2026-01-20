@@ -1,9 +1,9 @@
-package com.example.bulkgateway.service.impl;
-import com.example.bulkgateway.dto.MessageRequest;
-import com.example.bulkgateway.dto.MessageResponse;
-import com.example.bulkgateway.model.Message;
-import com.example.bulkgateway.repository.MessageRepository;
-import com.example.bulkgateway.service.MessageService;
+package com.isentric.bulkgateway.service.impl;
+import com.isentric.bulkgateway.dto.MessageRequest;
+import com.isentric.bulkgateway.dto.MessageResponse;
+import com.isentric.bulkgateway.model.Message;
+import com.isentric.bulkgateway.repository.MessageRepository;
+import com.isentric.bulkgateway.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

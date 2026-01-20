@@ -1,4 +1,4 @@
-package com.example.bulkgateway.dto;
+package com.isentric.bulkgateway.dto;
 public class ApiResponse<T> {
     private boolean success;
     private String message;

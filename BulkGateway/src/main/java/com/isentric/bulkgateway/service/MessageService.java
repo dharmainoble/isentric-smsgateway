@@ -1,6 +1,6 @@
-package com.example.bulkgateway.service;
-import com.example.bulkgateway.dto.MessageRequest;
-import com.example.bulkgateway.dto.MessageResponse;
+package com.isentric.bulkgateway.service;
+import com.isentric.bulkgateway.dto.MessageRequest;
+import com.isentric.bulkgateway.dto.MessageResponse;
 import java.util.List;
 public interface MessageService {
     MessageResponse createMessage(MessageRequest request);

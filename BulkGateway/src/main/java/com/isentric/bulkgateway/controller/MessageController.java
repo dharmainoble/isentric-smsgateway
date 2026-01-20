@@ -1,8 +1,8 @@
-package com.example.bulkgateway.controller;
-import com.example.bulkgateway.dto.ApiResponse;
-import com.example.bulkgateway.dto.MessageRequest;
-import com.example.bulkgateway.dto.MessageResponse;
-import com.example.bulkgateway.service.MessageService;
+package com.isentric.bulkgateway.controller;
+import com.isentric.bulkgateway.dto.ApiResponse;
+import com.isentric.bulkgateway.dto.MessageRequest;
+import com.isentric.bulkgateway.dto.MessageResponse;
+import com.isentric.bulkgateway.service.MessageService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

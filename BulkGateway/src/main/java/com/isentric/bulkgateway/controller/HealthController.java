@@ -1,5 +1,5 @@
-package com.example.bulkgateway.controller;
-import com.example.bulkgateway.dto.ApiResponse;
+package com.isentric.bulkgateway.controller;
+import com.isentric.bulkgateway.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

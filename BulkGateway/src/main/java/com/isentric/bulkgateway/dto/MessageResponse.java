@@ -1,4 +1,4 @@
-package com.example.bulkgateway.dto;
+package com.isentric.bulkgateway.dto;
 import java.time.LocalDateTime;
 public class MessageResponse {
     private Long id;
