@@ -24,6 +24,7 @@ public class ValidationService {
     @Cacheable(value = "routeCache", key = "#shortcode + '_' + #custid + '_' + #ipaddr")
     public boolean validatePackage(String shortcode, String custid, String ipaddr) {
         try {
+            log.info("Validating package for shortcode: {}, custid: {}, ipaddr: {}", shortcode, custid, ipaddr);
             return cpIpRepository.findByShortcodeAndCpidentityAndCpIp(shortcode, custid, ipaddr)
                     .map(cpIp -> "1".equals(cpIp.getHlrFlag()))
                     .orElse(false);
