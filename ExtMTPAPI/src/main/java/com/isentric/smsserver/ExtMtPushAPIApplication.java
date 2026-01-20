@@ -15,15 +15,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 })
 @EnableCaching
 @EnableScheduling
-public class ExtMtPushApplication extends SpringBootServletInitializer {
+public class ExtMtPushAPIApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ExtMtPushApplication.class);
+        return application.sources(ExtMtPushAPIApplication.class);
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(ExtMtPushApplication.class, args);
+        SpringApplication.run(ExtMtPushAPIApplication.class, args);
     }
 }
 
