@@ -1,0 +1,617 @@
+{
+	"info": {
+		"_postman_id": "extmtpush-api-collection",
+		"name": "ExtMTPush API Collection",
+		"description": "Complete API collection for ExtMTPush SMS Gateway - Spring Boot Application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8087",
+			"type": "string"
+		},
+		{
+			"key": "custid",
+			"value": "TEST001",
+			"type": "string"
+		},
+		{
+			"key": "msisdn",
+			"value": "60123456789",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "health"]
+						},
+						"description": "Check if the ExtMTPush service is running"
+					},
+					"response": []
+				},
+				{
+					"name": "Application Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": ["{{baseUrl}}"],
+							"path": [""]
+						},
+						"description": "Get application information and available links"
+					},
+					"response": []
+				},
+				{
+					"name": "API Documentation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api-docs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api-docs"]
+						},
+						"description": "Get OpenAPI-style documentation"
+					},
+					"response": []
+				},
+				{
+					"name": "List All APIs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test"]
+						},
+						"description": "List all available API endpoints"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SMS APIs",
+			"item": [
+				{
+					"name": "Send SMS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shortcode\": \"12345\",\n    \"custid\": \"{{custid}}\",\n    \"rmsisdn\": \"{{msisdn}}\",\n    \"smsisdn\": \"SENDER\",\n    \"mtid\": \"MSG{{$timestamp}}\",\n    \"price\": \"000\",\n    \"dataStr\": \"Hello! This is a test message from ExtMTPush.\",\n    \"keyword\": \"TEST\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/send",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "send"]
+						},
+						"description": "Send a single SMS message"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Bulk SMS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"billFlag\": \"1\",\n    \"shortcode\": \"12345\",\n    \"custid\": \"{{custid}}\",\n    \"rmsisdn\": \"{{msisdn}}\",\n    \"smsisdn\": \"SENDER\",\n    \"mtid\": \"BULK{{$timestamp}}\",\n    \"mtprice\": \"000\",\n    \"productType\": 4,\n    \"productCode\": \"\",\n    \"keyword\": \"TEST\",\n    \"dataEncoding\": 0,\n    \"dataStr\": \"This is a bulk SMS test message.\",\n    \"dataUrl\": \"\",\n    \"urlTitle\": \"\",\n    \"dnrep\": 1,\n    \"groupTag\": \"GROUP1\",\n    \"ewigFlag\": \"0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/bulk/send",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "bulk", "send"]
+						},
+						"description": "Send a bulk SMS message with extended parameters"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Unicode SMS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shortcode\": \"12345\",\n    \"custid\": \"{{custid}}\",\n    \"rmsisdn\": \"{{msisdn}}\",\n    \"smsisdn\": \"SENDER\",\n    \"mtid\": \"UNI{{$timestamp}}\",\n    \"price\": \"000\",\n    \"dataStr\": \"你好世界! こんにちは! 🎉\",\n    \"keyword\": \"TEST\",\n    \"dataEncoding\": 8\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/send",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "send"]
+						},
+						"description": "Send a Unicode (UCS2) SMS message"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Delivery Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/status/MSG001",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "status", "MSG001"]
+						},
+						"description": "Check the delivery status of a sent message"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Credit",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/credit/{{custid}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "credit", "{{custid}}"]
+						},
+						"description": "Get credit balance for a customer"
+					},
+					"response": []
+				},
+				{
+					"name": "Deduct Credit",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sms/credit/deduct?custid={{custid}}&amount=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sms", "credit", "deduct"],
+							"query": [
+								{
+									"key": "custid",
+									"value": "{{custid}}"
+								},
+								{
+									"key": "amount",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Deduct credit from customer account"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HLR Lookup APIs",
+			"item": [
+				{
+					"name": "HLR Lookup - Single",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/lookup/{{msisdn}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "lookup", "{{msisdn}}"]
+						},
+						"description": "Perform HLR lookup for a single MSISDN"
+					},
+					"response": []
+				},
+				{
+					"name": "HLR Lookup - Batch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    \"60123456789\",\n    \"60163456789\",\n    \"60173456789\",\n    \"60193456789\",\n    \"60183456789\"\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/batch",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "batch"]
+						},
+						"description": "Perform HLR lookup for multiple MSISDNs"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Network Operator - Maxis",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/network/60123456789",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "network", "60123456789"]
+						},
+						"description": "Get network operator for Maxis number (012, 017)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Network Operator - Digi",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/network/60163456789",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "network", "60163456789"]
+						},
+						"description": "Get network operator for Digi number (016, 014)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Network Operator - Celcom",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/network/60193456789",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "network", "60193456789"]
+						},
+						"description": "Get network operator for Celcom number (019, 013)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Network Operator - U Mobile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/network/60183456789",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "network", "60183456789"]
+						},
+						"description": "Get network operator for U Mobile number (018)"
+					},
+					"response": []
+				},
+				{
+					"name": "Validate MSISDN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/hlr/validate/{{msisdn}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "hlr", "validate", "{{msisdn}}"]
+						},
+						"description": "Validate if an MSISDN is valid"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delivery Notification (DN)",
+			"item": [
+				{
+					"name": "Celcom DN - Delivered",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/celcom?SMP_Txid=TX{{$timestamp}}&SUB_Mobtel=60133456789&APIType=HTTP&SMP_Keyword=TEST&SMP_ServiceID=SVC001&DNStatus=DELIVERED&SMS_SourceAddr=12345&ErrorCode=DeliveredToTerminal",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "celcom"],
+							"query": [
+								{"key": "SMP_Txid", "value": "TX{{$timestamp}}"},
+								{"key": "SUB_Mobtel", "value": "60133456789"},
+								{"key": "APIType", "value": "HTTP"},
+								{"key": "SMP_Keyword", "value": "TEST"},
+								{"key": "SMP_ServiceID", "value": "SVC001"},
+								{"key": "DNStatus", "value": "DELIVERED"},
+								{"key": "SMS_SourceAddr", "value": "12345"},
+								{"key": "ErrorCode", "value": "DeliveredToTerminal"}
+							]
+						},
+						"description": "Celcom delivery notification - Delivered status"
+					},
+					"response": []
+				},
+				{
+					"name": "Celcom DN - Undeliverable",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/celcom?SMP_Txid=TX{{$timestamp}}&SUB_Mobtel=60133456789&ErrorCode=DeliveryImpossible&DNStatus=UNDELIVERED",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "celcom"],
+							"query": [
+								{"key": "SMP_Txid", "value": "TX{{$timestamp}}"},
+								{"key": "SUB_Mobtel", "value": "60133456789"},
+								{"key": "ErrorCode", "value": "DeliveryImpossible"},
+								{"key": "DNStatus", "value": "UNDELIVERED"}
+							]
+						},
+						"description": "Celcom delivery notification - Undeliverable status"
+					},
+					"response": []
+				},
+				{
+					"name": "Celcom DN - GET Method",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/celcom?SMP_Txid=TX{{$timestamp}}&SUB_Mobtel=60133456789&ErrorCode=DeliveredToTerminal",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "celcom"],
+							"query": [
+								{"key": "SMP_Txid", "value": "TX{{$timestamp}}"},
+								{"key": "SUB_Mobtel", "value": "60133456789"},
+								{"key": "ErrorCode", "value": "DeliveredToTerminal"}
+							]
+						},
+						"description": "Celcom delivery notification using GET method"
+					},
+					"response": []
+				},
+				{
+					"name": "Digi DN - Delivered",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/digi?messageId=MSG{{$timestamp}}&status=DELIVERED&msisdn=60163456789&deliveryTime=2026-01-06 10:30:00&errorCode=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "digi"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "DELIVERED"},
+								{"key": "msisdn", "value": "60163456789"},
+								{"key": "deliveryTime", "value": "2026-01-06 10:30:00"},
+								{"key": "errorCode", "value": "0"}
+							]
+						},
+						"description": "Digi delivery notification - Delivered"
+					},
+					"response": []
+				},
+				{
+					"name": "Digi DN - Undelivered",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/digi?messageId=MSG{{$timestamp}}&status=UNDELIVERED&msisdn=60163456789&errorCode=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "digi"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "UNDELIVERED"},
+								{"key": "msisdn", "value": "60163456789"},
+								{"key": "errorCode", "value": "1"}
+							]
+						},
+						"description": "Digi delivery notification - Undelivered"
+					},
+					"response": []
+				},
+				{
+					"name": "Maxis DN - Delivered",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/maxis?messageId=MSG{{$timestamp}}&status=DELIVRD&msisdn=60173456789&deliveryTime=2026-01-06 11:00:00&errorCode=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "maxis"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "DELIVRD"},
+								{"key": "msisdn", "value": "60173456789"},
+								{"key": "deliveryTime", "value": "2026-01-06 11:00:00"},
+								{"key": "errorCode", "value": "0"}
+							]
+						},
+						"description": "Maxis delivery notification - Delivered"
+					},
+					"response": []
+				},
+				{
+					"name": "Maxis DN - Expired",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/maxis?messageId=MSG{{$timestamp}}&status=EXPIRED&msisdn=60173456789&errorCode=2",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "maxis"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "EXPIRED"},
+								{"key": "msisdn", "value": "60173456789"},
+								{"key": "errorCode", "value": "2"}
+							]
+						},
+						"description": "Maxis delivery notification - Expired"
+					},
+					"response": []
+				},
+				{
+					"name": "SilverStreet DN - Delivered",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/silverstreet?messageId=MSG{{$timestamp}}&status=1&msisdn=60123456789&errorCode=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "silverstreet"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "1"},
+								{"key": "msisdn", "value": "60123456789"},
+								{"key": "errorCode", "value": "0"}
+							]
+						},
+						"description": "SilverStreet delivery notification - Delivered (status=1)"
+					},
+					"response": []
+				},
+				{
+					"name": "SilverStreet DN - Failed",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/silverstreet?messageId=MSG{{$timestamp}}&status=-1&msisdn=60123456789&errorCode=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "silverstreet"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "-1"},
+								{"key": "msisdn", "value": "60123456789"},
+								{"key": "errorCode", "value": "1"}
+							]
+						},
+						"description": "SilverStreet delivery notification - Failed (status=-1)"
+					},
+					"response": []
+				},
+				{
+					"name": "Generic DN - U Mobile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dn/umobile?messageId=MSG{{$timestamp}}&status=DELIVERED&msisdn=60183456789&errorCode=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["dn", "umobile"],
+							"query": [
+								{"key": "messageId", "value": "MSG{{$timestamp}}"},
+								{"key": "status", "value": "DELIVERED"},
+								{"key": "msisdn", "value": "60183456789"},
+								{"key": "errorCode", "value": "0"}
+							]
+						},
+						"description": "Generic delivery notification for any operator"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Test Endpoints",
+			"item": [
+				{
+					"name": "Test - SMS Send Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test/sms/send?msisdn=60123456789&custid=TEST001&message=Hello World",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test", "sms", "send"],
+							"query": [
+								{"key": "msisdn", "value": "60123456789"},
+								{"key": "custid", "value": "TEST001"},
+								{"key": "message", "value": "Hello World"}
+							]
+						},
+						"description": "Get sample request for Send SMS API"
+					},
+					"response": []
+				},
+				{
+					"name": "Test - Bulk SMS Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test/sms/bulk",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test", "sms", "bulk"]
+						},
+						"description": "Get sample request for Bulk SMS API"
+					},
+					"response": []
+				},
+				{
+					"name": "Test - HLR Lookup Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test/hlr/60123456789",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test", "hlr", "60123456789"]
+						},
+						"description": "Get sample request for HLR Lookup API"
+					},
+					"response": []
+				},
+				{
+					"name": "Test - Celcom DN Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test/dn/celcom",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test", "dn", "celcom"]
+						},
+						"description": "Get sample request for Celcom DN API"
+					},
+					"response": []
+				},
+				{
+					"name": "Test - Run All Tests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test/all",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test", "all"]
+						},
+						"description": "Get all test cases with curl commands"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
+

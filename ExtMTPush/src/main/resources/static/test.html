@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExtMTPush API Tester</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 20px; text-align: center; }
+        h2 { color: #555; margin: 20px 0 10px; border-bottom: 2px solid #4CAF50; padding-bottom: 5px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        textarea { min-height: 80px; font-family: monospace; }
+        button { background: #4CAF50; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 10px; }
+        button:hover { background: #45a049; }
+        button.secondary { background: #2196F3; }
+        button.secondary:hover { background: #1976D2; }
+        button.danger { background: #f44336; }
+        button.danger:hover { background: #d32f2f; }
+        .response { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin-top: 15px; font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .success { border-color: #4CAF50; background: #e8f5e9; }
+        .error { border-color: #f44336; background: #ffebee; }
+        .tabs { display: flex; flex-wrap: wrap; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #ddd; border: none; cursor: pointer; font-size: 14px; }
+        .tab.active { background: #4CAF50; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .status { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .status.up { background: #4CAF50; color: white; }
+        .status.down { background: #f44336; color: white; }
+        .endpoint { font-family: monospace; background: #e3f2fd; padding: 2px 6px; border-radius: 3px; }
+        .method { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; color: white; }
+        .method.get { background: #2196F3; }
+        .method.post { background: #4CAF50; }
+        #healthStatus { font-size: 18px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ExtMTPush API Tester</h1>
+
+        <div class="card">
+            <h3>Server Status: <span id="healthStatus" class="status">Checking...</span></h3>
+            <p>Base URL: <code id="baseUrl">http://localhost:8087</code></p>
+            <button onclick="checkHealth()" class="secondary">Check Health</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('sms')">📱 SMS APIs</button>
+            <button class="tab" onclick="showTab('hlr')">🔍 HLR APIs</button>
+            <button class="tab" onclick="showTab('dn')">📬 Delivery Notification</button>
+            <button class="tab" onclick="showTab('test')">🧪 Quick Tests</button>
+        </div>
+
+        <!-- SMS APIs Tab -->
+        <div id="sms" class="tab-content active">
+            <h2>📱 SMS APIs</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h3><span class="method post">POST</span> Send SMS</h3>
+                    <p class="endpoint">/api/sms/send</p>
+                    <div class="form-group">
+                        <label>Shortcode</label>
+                        <input type="text" id="sms_shortcode" value="12345">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer ID</label>
+                        <input type="text" id="sms_custid" value="TEST001">
+                    </div>
+                    <div class="form-group">
+                        <label>Recipient MSISDN</label>
+                        <input type="text" id="sms_rmsisdn" value="60123456789">
+                    </div>
+                    <div class="form-group">
+                        <label>Sender ID</label>
+                        <input type="text" id="sms_smsisdn" value="SENDER">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="sms_message">Test message from ExtMTPush</textarea>
+                    </div>
+                    <button onclick="sendSMS()">Send SMS</button>
+                    <div id="sendSmsResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method get">GET</span> Check Delivery Status</h3>
+                    <p class="endpoint">/api/sms/status/{mtid}</p>
+                    <div class="form-group">
+                        <label>Message ID (MTID)</label>
+                        <input type="text" id="status_mtid" value="MSG001">
+                    </div>
+                    <button onclick="checkStatus()">Check Status</button>
+                    <div id="statusResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method get">GET</span> Get User Credit</h3>
+                    <p class="endpoint">/api/sms/credit/{custid}</p>
+                    <div class="form-group">
+                        <label>Customer ID</label>
+                        <input type="text" id="credit_custid" value="TEST001">
+                    </div>
+                    <button onclick="getCredit()">Get Credit</button>
+                    <div id="creditResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method post">POST</span> Deduct Credit</h3>
+                    <p class="endpoint">/api/sms/credit/deduct</p>
+                    <div class="form-group">
+                        <label>Customer ID</label>
+                        <input type="text" id="deduct_custid" value="TEST001">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="deduct_amount" value="1" step="0.01">
+                    </div>
+                    <button onclick="deductCredit()" class="danger">Deduct Credit</button>
+                    <div id="deductResponse" class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HLR APIs Tab -->
+        <div id="hlr" class="tab-content">
+            <h2>🔍 HLR Lookup APIs</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h3><span class="method get">GET</span> HLR Lookup</h3>
+                    <p class="endpoint">/api/hlr/lookup/{msisdn}</p>
+                    <div class="form-group">
+                        <label>MSISDN</label>
+                        <input type="text" id="hlr_msisdn" value="60123456789">
+                    </div>
+                    <button onclick="hlrLookup()">Lookup</button>
+                    <div id="hlrResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method get">GET</span> Get Network Operator</h3>
+                    <p class="endpoint">/api/hlr/network/{msisdn}</p>
+                    <div class="form-group">
+                        <label>MSISDN</label>
+                        <input type="text" id="network_msisdn" value="60123456789">
+                    </div>
+                    <button onclick="getNetwork()">Get Operator</button>
+                    <div id="networkResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method get">GET</span> Validate MSISDN</h3>
+                    <p class="endpoint">/api/hlr/validate/{msisdn}</p>
+                    <div class="form-group">
+                        <label>MSISDN</label>
+                        <input type="text" id="validate_msisdn" value="60123456789">
+                    </div>
+                    <button onclick="validateMsisdn()">Validate</button>
+                    <div id="validateResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method post">POST</span> Batch HLR Lookup</h3>
+                    <p class="endpoint">/api/hlr/batch</p>
+                    <div class="form-group">
+                        <label>MSISDNs (one per line)</label>
+                        <textarea id="batch_msisdns">60123456789
+60163456789
+60173456789</textarea>
+                    </div>
+                    <button onclick="batchLookup()">Batch Lookup</button>
+                    <div id="batchResponse" class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery Notification Tab -->
+        <div id="dn" class="tab-content">
+            <h2>📬 Delivery Notification APIs</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h3><span class="method post">POST</span> Celcom DN</h3>
+                    <p class="endpoint">/dn/celcom</p>
+                    <div class="form-group">
+                        <label>SMP_Txid</label>
+                        <input type="text" id="celcom_txid" value="TX123456">
+                    </div>
+                    <div class="form-group">
+                        <label>SUB_Mobtel</label>
+                        <input type="text" id="celcom_mobtel" value="60133456789">
+                    </div>
+                    <div class="form-group">
+                        <label>ErrorCode</label>
+                        <select id="celcom_errorcode">
+                            <option value="DeliveredToTerminal">DeliveredToTerminal</option>
+                            <option value="DeliveryImpossible">DeliveryImpossible</option>
+                            <option value="MessageWaiting">MessageWaiting</option>
+                        </select>
+                    </div>
+                    <button onclick="sendCelcomDN()">Send DN</button>
+                    <div id="celcomDnResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method post">POST</span> Digi DN</h3>
+                    <p class="endpoint">/dn/digi</p>
+                    <div class="form-group">
+                        <label>Message ID</label>
+                        <input type="text" id="digi_msgid" value="MSG789012">
+                    </div>
+                    <div class="form-group">
+                        <label>MSISDN</label>
+                        <input type="text" id="digi_msisdn" value="60163456789">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="digi_status">
+                            <option value="DELIVERED">DELIVERED</option>
+                            <option value="UNDELIVERED">UNDELIVERED</option>
+                            <option value="EXPIRED">EXPIRED</option>
+                        </select>
+                    </div>
+                    <button onclick="sendDigiDN()">Send DN</button>
+                    <div id="digiDnResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method post">POST</span> Maxis DN</h3>
+                    <p class="endpoint">/dn/maxis</p>
+                    <div class="form-group">
+                        <label>Message ID</label>
+                        <input type="text" id="maxis_msgid" value="MSG345678">
+                    </div>
+                    <div class="form-group">
+                        <label>MSISDN</label>
+                        <input type="text" id="maxis_msisdn" value="60173456789">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="maxis_status">
+                            <option value="DELIVRD">DELIVRD</option>
+                            <option value="UNDELIV">UNDELIV</option>
+                            <option value="EXPIRED">EXPIRED</option>
+                        </select>
+                    </div>
+                    <button onclick="sendMaxisDN()">Send DN</button>
+                    <div id="maxisDnResponse" class="response"></div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="method post">POST</span> SilverStreet DN</h3>
+                    <p class="endpoint">/dn/silverstreet</p>
+                    <div class="form-group">
+                        <label>Message ID</label>
+                        <input type="text" id="ss_msgid" value="MSG901234">
+                    </div>
+                    <div class="form-group">
+                        <label>MSISDN</label>
+                        <input type="text" id="ss_msisdn" value="60123456789">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="ss_status">
+                            <option value="1">1 - Delivered</option>
+                            <option value="0">0 - Pending</option>
+                            <option value="-1">-1 - Failed</option>
+                        </select>
+                    </div>
+                    <button onclick="sendSilverStreetDN()">Send DN</button>
+                    <div id="ssDnResponse" class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Tests Tab -->
+        <div id="test" class="tab-content">
+            <h2>🧪 Quick Tests</h2>
+
+            <div class="card">
+                <h3>Run All API Tests</h3>
+                <p>Click the button below to run all API tests sequentially.</p>
+                <button onclick="runAllTests()" class="secondary">▶️ Run All Tests</button>
+                <button onclick="clearResults()" class="danger">🗑️ Clear Results</button>
+                <div id="allTestsResponse" class="response"></div>
+            </div>
+
+            <div class="card">
+                <h3>Test Results</h3>
+                <div id="testResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8087';
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showResponse(elementId, data, success = true) {
+            const el = document.getElementById(elementId);
+            el.textContent = JSON.stringify(data, null, 2);
+            el.className = 'response ' + (success ? 'success' : 'error');
+        }
+
+        async function apiCall(url, options = {}) {
+            try {
+                const response = await fetch(url, options);
+                const data = await response.text();
+                try {
+                    return { success: response.ok, data: JSON.parse(data), status: response.status };
+                } catch {
+                    return { success: response.ok, data: data, status: response.status };
+                }
+            } catch (error) {
+                return { success: false, data: { error: error.message }, status: 0 };
+            }
+        }
+
+        async function checkHealth() {
+            const result = await apiCall(`${BASE_URL}/api/sms/health`);
+            const statusEl = document.getElementById('healthStatus');
+            if (result.success) {
+                statusEl.textContent = 'UP ✅';
+                statusEl.className = 'status up';
+            } else {
+                statusEl.textContent = 'DOWN ❌';
+                statusEl.className = 'status down';
+            }
+        }
+
+        async function sendSMS() {
+            const body = {
+                shortcode: document.getElementById('sms_shortcode').value,
+                custid: document.getElementById('sms_custid').value,
+                rmsisdn: document.getElementById('sms_rmsisdn').value,
+                smsisdn: document.getElementById('sms_smsisdn').value,
+                mtid: 'MSG' + Date.now(),
+                price: '000',
+                dataStr: document.getElementById('sms_message').value,
+                keyword: 'TEST'
+            };
+            const result = await apiCall(`${BASE_URL}/api/sms/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            showResponse('sendSmsResponse', result.data, result.success);
+        }
+
+        async function checkStatus() {
+            const mtid = document.getElementById('status_mtid').value;
+            const result = await apiCall(`${BASE_URL}/api/sms/status/${mtid}`);
+            showResponse('statusResponse', result.data, result.success);
+        }
+
+        async function getCredit() {
+            const custid = document.getElementById('credit_custid').value;
+            const result = await apiCall(`${BASE_URL}/api/sms/credit/${custid}`);
+            showResponse('creditResponse', result.data, result.success);
+        }
+
+        async function deductCredit() {
+            const custid = document.getElementById('deduct_custid').value;
+            const amount = document.getElementById('deduct_amount').value;
+            const result = await apiCall(`${BASE_URL}/api/sms/credit/deduct?custid=${custid}&amount=${amount}`, {
+                method: 'POST'
+            });
+            showResponse('deductResponse', result.data, result.success);
+        }
+
+        async function hlrLookup() {
+            const msisdn = document.getElementById('hlr_msisdn').value;
+            const result = await apiCall(`${BASE_URL}/api/hlr/lookup/${msisdn}`);
+            showResponse('hlrResponse', result.data, result.success);
+        }
+
+        async function getNetwork() {
+            const msisdn = document.getElementById('network_msisdn').value;
+            const result = await apiCall(`${BASE_URL}/api/hlr/network/${msisdn}`);
+            showResponse('networkResponse', result.data, result.success);
+        }
+
+        async function validateMsisdn() {
+            const msisdn = document.getElementById('validate_msisdn').value;
+            const result = await apiCall(`${BASE_URL}/api/hlr/validate/${msisdn}`);
+            showResponse('validateResponse', result.data, result.success);
+        }
+
+        async function batchLookup() {
+            const msisdns = document.getElementById('batch_msisdns').value.split('\n').filter(m => m.trim());
+            const result = await apiCall(`${BASE_URL}/api/hlr/batch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(msisdns)
+            });
+            showResponse('batchResponse', result.data, result.success);
+        }
+
+        async function sendCelcomDN() {
+            const params = new URLSearchParams({
+                SMP_Txid: document.getElementById('celcom_txid').value,
+                SUB_Mobtel: document.getElementById('celcom_mobtel').value,
+                ErrorCode: document.getElementById('celcom_errorcode').value,
+                DNStatus: 'DELIVERED',
+                SMP_ServiceID: 'SVC001'
+            });
+            const result = await apiCall(`${BASE_URL}/dn/celcom?${params}`, { method: 'POST' });
+            showResponse('celcomDnResponse', result.data, result.success);
+        }
+
+        async function sendDigiDN() {
+            const params = new URLSearchParams({
+                messageId: document.getElementById('digi_msgid').value,
+                msisdn: document.getElementById('digi_msisdn').value,
+                status: document.getElementById('digi_status').value,
+                errorCode: '0'
+            });
+            const result = await apiCall(`${BASE_URL}/dn/digi?${params}`, { method: 'POST' });
+            showResponse('digiDnResponse', result.data, result.success);
+        }
+
+        async function sendMaxisDN() {
+            const params = new URLSearchParams({
+                messageId: document.getElementById('maxis_msgid').value,
+                msisdn: document.getElementById('maxis_msisdn').value,
+                status: document.getElementById('maxis_status').value,
+                errorCode: '0'
+            });
+            const result = await apiCall(`${BASE_URL}/dn/maxis?${params}`, { method: 'POST' });
+            showResponse('maxisDnResponse', result.data, result.success);
+        }
+
+        async function sendSilverStreetDN() {
+            const params = new URLSearchParams({
+                messageId: document.getElementById('ss_msgid').value,
+                msisdn: document.getElementById('ss_msisdn').value,
+                status: document.getElementById('ss_status').value,
+                errorCode: '0'
+            });
+            const result = await apiCall(`${BASE_URL}/dn/silverstreet?${params}`, { method: 'POST' });
+            showResponse('ssDnResponse', result.data, result.success);
+        }
+
+        async function runAllTests() {
+            const resultsEl = document.getElementById('testResults');
+            resultsEl.innerHTML = '<p>Running tests...</p>';
+
+            const tests = [
+                { name: 'Health Check', url: `${BASE_URL}/api/sms/health`, method: 'GET' },
+                { name: 'Get Credit', url: `${BASE_URL}/api/sms/credit/TEST001`, method: 'GET' },
+                { name: 'Check Status', url: `${BASE_URL}/api/sms/status/MSG001`, method: 'GET' },
+                { name: 'HLR Lookup', url: `${BASE_URL}/api/hlr/lookup/60123456789`, method: 'GET' },
+                { name: 'Network Operator', url: `${BASE_URL}/api/hlr/network/60123456789`, method: 'GET' },
+                { name: 'Validate MSISDN', url: `${BASE_URL}/api/hlr/validate/60123456789`, method: 'GET' },
+                { name: 'Celcom DN', url: `${BASE_URL}/dn/celcom?SMP_Txid=TEST&SUB_Mobtel=60123456789&ErrorCode=DeliveredToTerminal`, method: 'GET' },
+            ];
+
+            let html = '<table style="width:100%;border-collapse:collapse;">';
+            html += '<tr style="background:#4CAF50;color:white;"><th style="padding:10px;text-align:left;">Test</th><th>Status</th><th>Response</th></tr>';
+
+            for (const test of tests) {
+                const result = await apiCall(test.url, { method: test.method });
+                const status = result.success ? '✅ PASS' : '❌ FAIL';
+                const statusColor = result.success ? '#e8f5e9' : '#ffebee';
+                html += `<tr style="background:${statusColor};">
+                    <td style="padding:10px;border:1px solid #ddd;">${test.name}</td>
+                    <td style="padding:10px;border:1px solid #ddd;text-align:center;">${status}</td>
+                    <td style="padding:10px;border:1px solid #ddd;font-family:monospace;font-size:12px;">${JSON.stringify(result.data).substring(0, 100)}...</td>
+                </tr>`;
+            }
+
+            html += '</table>';
+            resultsEl.innerHTML = html;
+
+            const summary = { testsRun: tests.length, timestamp: new Date().toISOString() };
+            showResponse('allTestsResponse', summary, true);
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('allTestsResponse').textContent = '';
+        }
+
+        // Check health on page load
+        checkHealth();
+    </script>
+</body>
+</html>
+
