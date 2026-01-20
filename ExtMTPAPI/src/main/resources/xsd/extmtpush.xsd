@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://webserviceinterface.smsserver.isentric.com"
+           targetNamespace="http://webserviceinterface.smsserver.isentric.com"
+           elementFormDefault="qualified">
+
+    <!-- SMS Push Request -->
+    <xs:element name="smsPushRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="custid" type="xs:string"/>
+                <xs:element name="shortcode" type="xs:string"/>
+                <xs:element name="rmsisdn" type="xs:string"/>
+                <xs:element name="smsisdn" type="xs:string" minOccurs="0"/>
+                <xs:element name="mtid" type="xs:string"/>
+                <xs:element name="mtprice" type="xs:string" minOccurs="0"/>
+                <xs:element name="productType" type="xs:int"/>
+                <xs:element name="productCode" type="xs:string" minOccurs="0"/>
+                <xs:element name="keyword" type="xs:string" minOccurs="0"/>
+                <xs:element name="dataEncoding" type="xs:int"/>
+                <xs:element name="dataStr" type="xs:string" minOccurs="0"/>
+                <xs:element name="dataUrl" type="xs:string" minOccurs="0"/>
+                <xs:element name="urlTitle" type="xs:string" minOccurs="0"/>
+                <xs:element name="dnRep" type="xs:int"/>
+                <xs:element name="groupTag" type="xs:string" minOccurs="0"/>
+                <xs:element name="ewigFlag" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- SMS Push Response -->
+    <xs:element name="smsPushResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="returnCode" type="xs:int"/>
+                <xs:element name="mtid" type="xs:string" minOccurs="0"/>
+                <xs:element name="rmsisdn" type="xs:string" minOccurs="0"/>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- HLR Lookup Request -->
+    <xs:element name="hlrLookupRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="custid" type="xs:string"/>
+                <xs:element name="msisdn" type="xs:string"/>
+                <xs:element name="requestId" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- HLR Lookup Response -->
+    <xs:element name="hlrLookupResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="returnCode" type="xs:int"/>
+                <xs:element name="requestId" type="xs:string" minOccurs="0"/>
+                <xs:element name="msisdn" type="xs:string" minOccurs="0"/>
+                <xs:element name="carrier" type="xs:string" minOccurs="0"/>
+                <xs:element name="status" type="xs:string" minOccurs="0"/>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Delivery Notification Request -->
+    <xs:element name="deliveryNotificationRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mtid" type="xs:string"/>
+                <xs:element name="custid" type="xs:string"/>
+                <xs:element name="msisdn" type="xs:string"/>
+                <xs:element name="status" type="xs:string"/>
+                <xs:element name="timestamp" type="xs:dateTime"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Delivery Notification Response -->
+    <xs:element name="deliveryNotificationResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="returnCode" type="xs:int"/>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
+

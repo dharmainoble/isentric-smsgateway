@@ -1,0 +1,202 @@
+{
+  "info": {
+    "name": "ExtMTPush SMS Gateway API",
+    "description": "Complete API collection for ExtMTPush SMS Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "ExtMTPush"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/actuator/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "actuator", "health"]
+        },
+        "description": "Check application health status"
+      }
+    },
+    {
+      "name": "Simple SMS - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"66399\",\n  \"custid\": \"CUST001\",\n  \"rmsisdn\": \"60123456789\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"productType\": 4,\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Hello from Postman!\",\n  \"dnRep\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "extmtpush"]
+        },
+        "description": "Send a simple text SMS"
+      }
+    },
+    {
+      "name": "SMS with Sender - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"66399\",\n  \"custid\": \"CUST001\",\n  \"rmsisdn\": \"60123456789\",\n  \"smsisdn\": \"MyCompany\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"productType\": 4,\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Welcome to our service!\",\n  \"dnRep\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "extmtpush"]
+        },
+        "description": "Send SMS with custom sender name"
+      }
+    },
+    {
+      "name": "Bulk SMS - Multiple Recipients",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"66399\",\n  \"custid\": \"CUST001\",\n  \"rmsisdn\": \"60123456789,60129876543,60187654321\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"productType\": 4,\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Bulk SMS to multiple recipients\",\n  \"dnRep\": 1,\n  \"groupTag\": \"BULK_CAMPAIGN\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "extmtpush"]
+        },
+        "description": "Send SMS to multiple recipients (comma-separated)"
+      }
+    },
+    {
+      "name": "Promotional SMS - Full Fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"66399\",\n  \"custid\": \"CUST001\",\n  \"rmsisdn\": \"60123456789\",\n  \"smsisdn\": \"Promo2024\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"mtprice\": \"0.10\",\n  \"productCode\": \"PROMO001\",\n  \"productType\": 4,\n  \"keyword\": \"OFFER\",\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Special offer! 50% discount this weekend. Visit our store now!\",\n  \"dataUrl\": \"http://example.com/promo\",\n  \"urlTitle\": \"Shop Now\",\n  \"dnRep\": 1,\n  \"groupTag\": \"PROMO_DEC2024\",\n  \"ewigFlag\": \"0\",\n  \"cFlag\": \"1\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "extmtpush"]
+        },
+        "description": "Send promotional SMS with all fields"
+      }
+    },
+    {
+      "name": "Simple SMS - GET",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush?shortcode=66399&custid=CUST001&rmsisdn=60123456789&mtid=MSG_{{$timestamp}}&productType=4&dataEncoding=0&dnRep=1&dataStr=Test from GET",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "extmtpush"],
+          "query": [
+            {
+              "key": "shortcode",
+              "value": "66399"
+            },
+            {
+              "key": "custid",
+              "value": "CUST001"
+            },
+            {
+              "key": "rmsisdn",
+              "value": "60123456789"
+            },
+            {
+              "key": "mtid",
+              "value": "MSG_{{$timestamp}}"
+            },
+            {
+              "key": "productType",
+              "value": "4"
+            },
+            {
+              "key": "dataEncoding",
+              "value": "0"
+            },
+            {
+              "key": "dnRep",
+              "value": "1"
+            },
+            {
+              "key": "dataStr",
+              "value": "Test from GET"
+            }
+          ]
+        },
+        "description": "Send SMS using GET request (backward compatibility)"
+      }
+    },
+    {
+      "name": "OTP SMS Example",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"66399\",\n  \"custid\": \"CUST001\",\n  \"rmsisdn\": \"60123456789\",\n  \"smsisdn\": \"OTP-Service\",\n  \"mtid\": \"OTP_{{$timestamp}}\",\n  \"productType\": 4,\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Your OTP is 123456. Valid for 5 minutes. Do not share this code.\",\n  \"dnRep\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8083",
+          "path": ["ExtMTPush", "extmtpush"]
+        },
+        "description": "Send OTP/verification code SMS"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083/ExtMTPush",
+      "type": "string"
+    }
+  ]
+}
+

@@ -1,0 +1,262 @@
+{
+	"info": {
+		"_postman_id": "extmtpush-complete-collection",
+		"name": "ExtMTPush Complete API Collection",
+		"description": "Complete collection for all 4 ExtMTPush APIs - Ready to run",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "API 1 - Single SMS (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/extmtpush?shortcode={{shortcode}}&custid={{custid}}&rmsisdn=60192782366&smsisdn=62003&mtid=MSG_{{$timestamp}}&mtprice=000&productCode=&productType=4&keyword=&dataEncoding=0&dataStr=Test message single&dataUrl=&dnRep=0&groupTag=1",
+					"host": ["{{base_url}}"],
+					"path": ["extmtpush"],
+					"query": [
+						{"key": "shortcode", "value": "{{shortcode}}"},
+						{"key": "custid", "value": "{{custid}}"},
+						{"key": "rmsisdn", "value": "60192782366"},
+						{"key": "smsisdn", "value": "62003"},
+						{"key": "mtid", "value": "MSG_{{$timestamp}}"},
+						{"key": "mtprice", "value": "000"},
+						{"key": "productCode", "value": ""},
+						{"key": "productType", "value": "4"},
+						{"key": "keyword", "value": ""},
+						{"key": "dataEncoding", "value": "0"},
+						{"key": "dataStr", "value": "Test message single"},
+						{"key": "dataUrl", "value": ""},
+						{"key": "dnRep", "value": "0"},
+						{"key": "groupTag", "value": "1"}
+					]
+				},
+				"description": "Send SMS to a single mobile number using GET request"
+			},
+			"response": []
+		},
+		{
+			"name": "API 1 - Single SMS (POST JSON)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"shortcode\": \"{{shortcode}}\",\n  \"custid\": \"{{custid}}\",\n  \"rmsisdn\": \"60192782366\",\n  \"smsisdn\": \"62003\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"mtprice\": \"000\",\n  \"productCode\": \"\",\n  \"productType\": 4,\n  \"keyword\": \"\",\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Test SMS from Postman POST\",\n  \"dataUrl\": \"\",\n  \"dnRep\": 1,\n  \"groupTag\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/extmtpush",
+					"host": ["{{base_url}}"],
+					"path": ["extmtpush"]
+				},
+				"description": "Send SMS to a single mobile number using POST with JSON body"
+			},
+			"response": []
+		},
+		{
+			"name": "API 2 - Multiple SMS (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/extmtpush?shortcode={{shortcode}}&custid={{custid}}&rmsisdn=60192782366,60122786404,60122879404&mtid=MSG_{{$timestamp}}&mtprice=000&productCode=&productType=4&keyword=&dataEncoding=0&dataStr=Bulk SMS message&dataUrl=&dnRep=0&groupTag=10",
+					"host": ["{{base_url}}"],
+					"path": ["extmtpush"],
+					"query": [
+						{"key": "shortcode", "value": "{{shortcode}}"},
+						{"key": "custid", "value": "{{custid}}"},
+						{"key": "rmsisdn", "value": "60192782366,60122786404,60122879404", "description": "Comma-separated numbers"},
+						{"key": "mtid", "value": "MSG_{{$timestamp}}"},
+						{"key": "mtprice", "value": "000"},
+						{"key": "productCode", "value": ""},
+						{"key": "productType", "value": "4"},
+						{"key": "keyword", "value": ""},
+						{"key": "dataEncoding", "value": "0"},
+						{"key": "dataStr", "value": "Bulk SMS message"},
+						{"key": "dataUrl", "value": ""},
+						{"key": "dnRep", "value": "0"},
+						{"key": "groupTag", "value": "10"}
+					]
+				},
+				"description": "Send SMS to multiple mobile numbers (comma-separated) using GET request. Note: smsisdn (sender ID) is optional and removed to avoid masking ID validation."
+			},
+			"response": []
+		},
+		{
+			"name": "API 2 - Multiple SMS (POST JSON)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"shortcode\": \"{{shortcode}}\",\n  \"custid\": \"{{custid}}\",\n  \"rmsisdn\": \"60192782366,60122786404,60122879404\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"mtprice\": \"000\",\n  \"productCode\": \"\",\n  \"productType\": 4,\n  \"keyword\": \"\",\n  \"dataEncoding\": 0,\n  \"dataStr\": \"Bulk SMS from Postman\",\n  \"dataUrl\": \"\",\n  \"dnRep\": 0,\n  \"groupTag\": \"10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/extmtpush",
+					"host": ["{{base_url}}"],
+					"path": ["extmtpush"]
+				},
+				"description": "Send SMS to multiple mobile numbers using POST with JSON body. Note: smsisdn (sender ID) is optional and removed to avoid masking ID validation."
+			},
+			"response": []
+		},
+		{
+			"name": "API 3 - Chinese SMS (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/extmtpush?shortcode={{shortcode}}&custid={{custid}}&rmsisdn=60192782366&smsisdn=62003&mtid=MSG_{{$timestamp}}&mtprice=000&productCode=&productType=10&keyword=&dataEncoding=8&dataStr=002854094e509a6c00297b2c0032573aff1a0038002900207a7a4e2d4f208bf4002000200053006b00790020004c006500670065006e0064002000209ad85ea663a88350002a002a002a002000370029002091d182729ece660e00200047006f006c00640065006e0020004c0061006b00730068006d00690020&dataUrl=&dnRep=0&groupTag=10",
+					"host": ["{{base_url}}"],
+					"path": ["extmtpush"],
+					"query": [
+						{"key": "shortcode", "value": "{{shortcode}}"},
+						{"key": "custid", "value": "{{custid}}"},
+						{"key": "rmsisdn", "value": "60192782366"},
+						{"key": "smsisdn", "value": "62003"},
+						{"key": "mtid", "value": "MSG_{{$timestamp}}"},
+						{"key": "mtprice", "value": "000"},
+						{"key": "productCode", "value": ""},
+						{"key": "productType", "value": "10", "description": "10 = Unicode"},
+						{"key": "keyword", "value": ""},
+						{"key": "dataEncoding", "value": "8", "description": "8 = Unicode"},
+						{"key": "dataStr", "value": "002854094e509a6c00297b2c0032573aff1a0038002900207a7a4e2d4f208bf4002000200053006b00790020004c006500670065006e0064002000209ad85ea663a88350002a002a002a002000370029002091d182729ece660e00200047006f006c00640065006e0020004c0061006b00730068006d00690020", "description": "Hex-encoded Chinese text"},
+						{"key": "dataUrl", "value": ""},
+						{"key": "dnRep", "value": "0"},
+						{"key": "groupTag", "value": "10"}
+					]
+				},
+				"description": "Send Chinese/Unicode SMS using GET request"
+			},
+			"response": []
+		},
+		{
+			"name": "API 3 - Chinese SMS (POST JSON)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"shortcode\": \"{{shortcode}}\",\n  \"custid\": \"{{custid}}\",\n  \"rmsisdn\": \"60192782366\",\n  \"smsisdn\": \"62003\",\n  \"mtid\": \"MSG_{{$timestamp}}\",\n  \"mtprice\": \"000\",\n  \"productCode\": \"\",\n  \"productType\": 10,\n  \"keyword\": \"\",\n  \"dataEncoding\": 8,\n  \"dataStr\": \"002854094e509a6c00297b2c0032573aff1a0038002900207a7a4e2d4f208bf4002000200053006b00790020004c006500670065006e0064002000209ad85ea663a88350002a002a002a002000370029002091d182729ece660e00200047006f006c00640065006e0020004c0061006b00730068006d00690020\",\n  \"dataUrl\": \"\",\n  \"dnRep\": 0,\n  \"groupTag\": \"10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/extmtpush",
+					"host": ["{{base_url}}"],
+					"path": ["extmtpush"]
+				},
+				"description": "Send Chinese/Unicode SMS using POST with JSON body"
+			},
+			"response": []
+		},
+		{
+			"name": "API 4 - Check Credit (GET)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/CheckSMSUserCredit?custid={{custid}}",
+					"host": ["{{base_url}}"],
+					"path": ["CheckSMSUserCredit"],
+					"query": [
+						{"key": "custid", "value": "{{custid}}"}
+					]
+				},
+				"description": "Check customer credit balance - Simple text response"
+			},
+			"response": []
+		},
+		{
+			"name": "API 4 - Check Credit Details (JSON)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/CheckSMSUserCredit/details?custid={{custid}}",
+					"host": ["{{base_url}}"],
+					"path": ["CheckSMSUserCredit", "details"],
+					"query": [
+						{"key": "custid", "value": "{{custid}}"}
+					]
+				},
+				"description": "Check customer credit balance - JSON response"
+			},
+			"response": []
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/actuator/health",
+					"host": ["{{base_url}}"],
+					"path": ["actuator", "health"]
+				},
+				"description": "Check if application is running"
+			},
+			"response": []
+		},
+		{
+			"name": "Cache - Evict All",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/cache/evict/all",
+					"host": ["{{base_url}}"],
+					"path": ["cache", "evict", "all"]
+				},
+				"description": "Clear all application caches"
+			},
+			"response": []
+		},
+		{
+			"name": "Cache - Evict Route Cache",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/cache/evict/route",
+					"host": ["{{base_url}}"],
+					"path": ["cache", "evict", "route"]
+				},
+				"description": "Clear route cache"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8083/ExtMTPush",
+			"type": "string"
+		},
+		{
+			"key": "shortcode",
+			"value": "66399",
+			"type": "string"
+		},
+		{
+			"key": "custid",
+			"value": "CUST001",
+			"type": "string"
+		}
+	]
+}
+

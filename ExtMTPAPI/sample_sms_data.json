@@ -1,0 +1,63 @@
+{
+  "simple_sms": {
+    "shortcode": "66399",
+    "custid": "CUST001",
+    "rmsisdn": "60123456789",
+    "mtid": "MSG001",
+    "productType": 4,
+    "dataEncoding": 0,
+    "dataStr": "Hello, this is a test SMS",
+    "dnRep": 1
+  },
+  "sms_with_sender": {
+    "shortcode": "66399",
+    "custid": "CUST001",
+    "rmsisdn": "60123456789",
+    "smsisdn": "MyCompany",
+    "mtid": "MSG002",
+    "productType": 4,
+    "dataEncoding": 0,
+    "dataStr": "Welcome to our service!",
+    "dnRep": 1
+  },
+  "promotional_sms": {
+    "shortcode": "66399",
+    "custid": "CUST001",
+    "rmsisdn": "60123456789",
+    "smsisdn": "Promo2024",
+    "mtid": "MSG003",
+    "mtprice": "0.10",
+    "productCode": "PROMO001",
+    "productType": 4,
+    "keyword": "OFFER",
+    "dataEncoding": 0,
+    "dataStr": "Special offer! 50% discount this weekend. Visit our store now!",
+    "dataUrl": "http://example.com/promo",
+    "urlTitle": "Shop Now",
+    "dnRep": 1,
+    "groupTag": "PROMO_DEC2024"
+  },
+  "bulk_sms": {
+    "shortcode": "66399",
+    "custid": "CUST001",
+    "rmsisdn": "60123456789,60129876543,60187654321",
+    "mtid": "MSG004",
+    "productType": 4,
+    "dataEncoding": 0,
+    "dataStr": "Bulk SMS to multiple recipients",
+    "dnRep": 1,
+    "groupTag": "BULK_CAMPAIGN"
+  },
+  "wap_push": {
+    "shortcode": "66399",
+    "custid": "CUST001",
+    "rmsisdn": "60123456789",
+    "mtid": "MSG005",
+    "productType": 7,
+    "dataEncoding": 0,
+    "dataUrl": "http://example.com/image.jpg",
+    "urlTitle": "View Image",
+    "dnRep": 1
+  }
+}
+

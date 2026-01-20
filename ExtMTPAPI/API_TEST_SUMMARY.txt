@@ -1,0 +1,90 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                  ExtMTPush API Test Suite                        ║
+║                      All 4 APIs Ready                            ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📋 QUICK TEST INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  START APPLICATION
+   cd /home/arun/Documents/rec/ExtMTPush-SpringBoot
+   java -jar target/extmtpush-springboot-1.0.0.jar &
+   sleep 20
+
+2️⃣  TEST ALL 4 APIS AUTOMATICALLY
+   ./start_and_test_apis.sh
+
+3️⃣  OR TEST MANUALLY (Copy these commands):
+
+   ┌─ API 1: Single SMS ─────────────────────────────────────────┐
+   │ curl "http://localhost:8083/ExtMTPush/extmtpush?\           │
+   │   shortcode=66399&custid=CUST001&rmsisdn=60192782366&\     │
+   │   mtid=MSG_1&productType=4&dataEncoding=0&\                │
+   │   dataStr=Test&dnRep=0"                                     │
+   └─────────────────────────────────────────────────────────────┘
+
+   ┌─ API 2: Bulk SMS (Multiple Numbers) ───────────────────────┐
+   │ curl "http://localhost:8083/ExtMTPush/extmtpush?\           │
+   │   shortcode=66399&custid=CUST001&\                         │
+   │   rmsisdn=60192782366,60122786404,60122879404&\            │
+   │   mtid=MSG_2&productType=4&dataEncoding=0&\                │
+   │   dataStr=Bulk&dnRep=0"                                     │
+   └─────────────────────────────────────────────────────────────┘
+
+   ┌─ API 3: Unicode SMS (Chinese) ─────────────────────────────┐
+   │ curl "http://localhost:8083/ExtMTPush/extmtpush?\           │
+   │   shortcode=66399&custid=CUST001&rmsisdn=60192782366&\     │
+   │   mtid=MSG_3&productType=10&dataEncoding=8&\               │
+   │   dataStr=4f60597d4e16754c&dnRep=0"                         │
+   └─────────────────────────────────────────────────────────────┘
+
+   ┌─ API 4: Check Credit ───────────────────────────────────────┐
+   │ curl "http://localhost:8083/ExtMTPush/\                     │
+   │   CheckSMSUserCredit?custid=CUST001"                        │
+   └─────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ SUCCESS RESPONSE
+   MT Receive Result : returnCode = 0,messageID = MSG_xxx,
+   MSISDN = 60192782366,returnMsg = Success
+
+❌ COMMON ERRORS
+   returnCode = 2 → Run: ./setup_test_data.sh
+   returnCode = 5 → Add credit to customer
+   Connection refused → Start application
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION FILES
+
+   ✓ ALL_4_APIS_READY.md ............... This summary
+   ✓ API_TESTING_GUIDE.md .............. Complete guide
+   ✓ QUICK_TEST_COMMANDS.md ............ Copy-paste commands
+   ✓ start_and_test_apis.sh ............ Automated test
+   ✓ ExtMTPush_Postman_Collection.json . Postman import
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 THE 4 APIS
+
+   API 1: Send SMS to single number
+   API 2: Send SMS to multiple numbers (comma-separated)
+   API 3: Send Unicode SMS (Chinese, Arabic, etc)
+   API 4: Check customer credit balance
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 QUICK VERIFICATION
+
+   Check database:
+   mysql -uroot -parun extmt -e \
+     "SELECT COUNT(*) FROM extmtpush_receive_bulk \
+      WHERE custid='CUST001';"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Status: ✅ All 4 APIs Ready
+Date: December 17, 2025
+Project: /home/arun/Documents/rec/ExtMTPush-SpringBoot/
+
