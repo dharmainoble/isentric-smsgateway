@@ -15,12 +15,15 @@
     <groupId>com.isentric</groupId>
     <artifactId>BulkGateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
     <packaging>war</packaging>
     <name>BulkGateway</name>
     <description>Bulk Gateway API Spring Boot Application</description>
 
     <properties>
         <java.version>17</java.version>
+        <jcs.version>2.0</jcs.version>
+        <log4j.version>1.2.17</log4j.version>
     </properties>
 
     <dependencies>
@@ -43,6 +46,12 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <!-- Spring Boot ActiveMQ Starter (handles Jakarta JMS) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-activemq</artifactId>
+        </dependency>
+
         <!-- Spring Boot Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,6 +63,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jcs-core</artifactId>
+            <version>${jcs.version}</version>
         </dependency>
 
         <!-- MySQL Driver (for production) -->
@@ -97,6 +112,49 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.3.0</version>
         </dependency>
+
+        <!-- UUID Library -->
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+        <!-- JCS Caching -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jcs-core</artifactId>
+            <version>${jcs.version}</version>
+        </dependency>
+
+        <!-- Apache Commons HTTP Client (legacy) -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jcs-core</artifactId>
+            <version>${jcs.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.objectxp</groupId>
+            <artifactId>jsmsclasses</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jsmsclasses.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <build>

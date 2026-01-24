@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.isentric.bulkgateway.repository.DigiSessionRepository;
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
@@ -49,11 +51,14 @@ public class BulkConfigDBConfig {
 			EntityManagerFactoryBuilder builder) {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("hibernate.hbm2ddl.auto", "none");
-		return builder
+		LocalContainerEntityManagerFactoryBean emf = builder
 				.dataSource(dataSource)
 				.packages("com.isentric.bulkgateway.bc.model").persistenceUnit("Bulk Config")
 				.properties(properties)
 				.build();
+		// Register the created EMF with DigiSessionRepository so it can use JPA native queries
+		DigiSessionRepository.setEntityManagerFactory(emf.getObject());
+		return emf;
 	}
 
 	@Bean(name = "bcTransactionManager")
