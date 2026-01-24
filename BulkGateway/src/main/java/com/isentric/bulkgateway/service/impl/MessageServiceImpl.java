@@ -1,8 +1,8 @@
 package com.isentric.bulkgateway.service.impl;
 import com.isentric.bulkgateway.dto.MessageRequest;
 import com.isentric.bulkgateway.dto.MessageResponse;
-import com.isentric.bulkgateway.model.Message;
-import com.isentric.bulkgateway.repository.MessageRepository;
+import com.isentric.bulkgateway.bg.model.Message;
+import com.isentric.bulkgateway.bg.repository.MessageRepository;
 import com.isentric.bulkgateway.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

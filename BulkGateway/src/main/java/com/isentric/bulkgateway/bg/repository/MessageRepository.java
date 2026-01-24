@@ -1,5 +1,5 @@
-package com.isentric.bulkgateway.repository;
-import com.isentric.bulkgateway.model.Message;
+package com.isentric.bulkgateway.bg.repository;
+import com.isentric.bulkgateway.bg.model.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

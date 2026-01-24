@@ -1,7 +1,7 @@
 package com.isentric.bulkgateway.config;
 
-import com.isentric.bulkgateway.model.Message;
-import com.isentric.bulkgateway.repository.MessageRepository;
+import com.isentric.bulkgateway.bg.model.Message;
+import com.isentric.bulkgateway.bg.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
