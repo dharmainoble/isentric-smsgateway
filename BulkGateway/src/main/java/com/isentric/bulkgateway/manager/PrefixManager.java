@@ -96,6 +96,7 @@ public class PrefixManager {
             logger.fatal(e);
         }
 
+        System.out.println("Loaded PrefixVObj from DB for key: " + key + ", route: " + vObj.getRoute());
         return vObj;
     }
 

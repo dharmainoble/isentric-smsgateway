@@ -74,6 +74,7 @@ public class SMSServerSMPP  {
 
                 smppMessageServiceBinder = Ejb3Util.getSmppMessageServiceBinder();
                 smppName = smsMessageSmpp.getSmppName();
+            System.out.println("smppName1 -"+smppName);
                 boolean flag = true;
                 PrefixManager cache = PrefixManager.getInstance();
                 SpecificRouteManager cache2 = SpecificRouteManager.getInstance();
@@ -86,6 +87,7 @@ public class SMSServerSMPP  {
                         smsMessageSmpp.setCredit(cache.getPrefixObj(smsMessageSmpp.getTelco()).getCredit());
                         smsMessageSmpp.setSmppName(cache.getPrefixObj(smsMessageSmpp.getTelco()).getRoute());
                         smppName = smsMessageSmpp.getSmppName();
+                        System.out.println("smppName2 -"+smppName);
                         flag = true;
 
                         try {
@@ -116,6 +118,7 @@ public class SMSServerSMPP  {
                 if (cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()) != null && !cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()).getRoute().equals("")) {
                     smsMessageSmpp.setSmppName(cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()).getRoute());
                     smppName = smsMessageSmpp.getSmppName();
+                    System.out.println("smppName3 -"+smppName);
                 }
 
                 if (cache.getPrefixObj(smsMessageSmpp.getTelco()) != null || cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()) != null && cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()).getTgaToggle() != 1) {
@@ -183,15 +186,20 @@ public class SMSServerSMPP  {
                         logger.debug(tempKeyword + ": TGA-Skip-Filter-Exception' ; Guid = " + smsMessageSmpp.getGuid() + ",tempTelco=" + tempTelco);
                     }
 
+                    System.out.println("tempTelco -"+tempTelco);
                     if (tempTelco != null && tempTelco.trim().length() != 0 && !smsMessageSmpp.getTelco().trim().equals(tempTelco.trim())) {
                         smsMessageSmpp.setTelco(tempTelco);
+                        System.out.println(tempTelco);
+                        System.out.println(cache.getPrefixObj(smsMessageSmpp.getTelco()));
                         smsMessageSmpp.setSmppName(cache.getPrefixObj(smsMessageSmpp.getTelco()).getRoute());
                         smppName = smsMessageSmpp.getSmppName();
+                        System.out.println("smppName4 -"+smppName);
                     }
 
                     if (cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()) != null && !cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()).getRoute().equals("") && cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()).getTgaToggle() == 0) {
                         smsMessageSmpp.setSmppName(cache2.getPrefixObj(checkCustid(smsMessageSmpp.getKeyword()), smsMessageSmpp.getTelco()).getRoute());
                         smppName = smsMessageSmpp.getSmppName();
+                        System.out.println("smppName5 -"+smppName);
                     }
                 }
 
@@ -226,13 +234,14 @@ public class SMSServerSMPP  {
                                 String sql1 = "select routeName, configType, configFile, apiKey from extmt.route_config where routeName='" + smppName + "' and startup_115 = 0";
                                 String sql2 = "select routeName, configType, configFile, apiKey from extmt.route_config where routeName='" + smppName + "'";
                                 try {
-                                    routeInfo = com.isentric.bulkgateway.utility.EntityManagerFactoryProvider.executeNativeQueryAsArray("Bulk Gateway", sql1);
+                                    // query against the extmt schema using the 'extmt' persistence unit configured in ExtmtDBConfig
+                                    routeInfo = com.isentric.bulkgateway.utility.EntityManagerFactoryProvider.executeNativeQueryAsArray("extmt", sql1);
                                 } catch (Exception q1) {
                                     logger.error("Error running route_config query (sql1): " + q1.getMessage(), q1);
                                 }
                                 if (routeInfo == null || routeInfo.isEmpty()) {
                                     try {
-                                        routeInfo = com.isentric.bulkgateway.utility.EntityManagerFactoryProvider.executeNativeQueryAsArray("Bulk Gateway", sql2);
+                                        routeInfo = com.isentric.bulkgateway.utility.EntityManagerFactoryProvider.executeNativeQueryAsArray("extmt", sql2);
                                     } catch (Exception q2) {
                                         logger.error("Error running route_config fallback query (sql2): " + q2.getMessage(), q2);
                                     }
@@ -240,6 +249,7 @@ public class SMSServerSMPP  {
                                 Thread.sleep(5000L);
 
                                 if (routeInfo != null) {
+                                    System.out.println("smppName2 -"+smppName);
                                     for (Object[] cols : routeInfo) {
                                         if (cols == null || cols.length < 4) continue;
                                         String routeName = cols[0] != null ? cols[0].toString() : null;
@@ -278,7 +288,7 @@ public class SMSServerSMPP  {
                                 logger.fatal(sqlE);
                         }
                     }
-
+                    System.out.println("smppName9 -"+smppName);
                     if (smppMessageServiceBinder.isAlive(smppName) && smppMessageServiceBinder.isConnected(smppName)) {
                         smppMessageServiceBinder.sendSmsMessageSmpp(smppName, smsMessageSmpp.getCredit(), smsMessageSmpp);
                     } else {

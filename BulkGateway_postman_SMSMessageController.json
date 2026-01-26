@@ -1,13 +1,13 @@
 {
   "info": {
     "name": "BulkGateway - SMSMessageController",
-    "_postman_id": "bulkgateway-smsmessagecontroller",
-    "description": "Postman collection for SMSMessageController (/api/v1/messages/send)",
+    "_postman_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+    "description": "Postman collection for /api/v1/messages/send endpoint (BulkGateway)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Send SMS (POST /api/v1/messages/send)",
+      "name": "Send SMS (test)",
       "request": {
         "method": "POST",
         "header": [
@@ -18,13 +18,20 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"guid\": \"test-guid-123\", \"groupId\": \"api_request\", \"ip\": \"127.0.0.1\", \"smsc\": \"smpp\", \"telco\": \"maxis\", \"smppName\": \"smpp1\", \"smppConfig\": \"default\", \"moid\": \"moid123\", \"sender\": \"API\", \"recipient\": \"60123456789\", \"senderType\": 0, \"keyword\": \"promo\", \"message\": \"Hello from API (POST)\", \"messageType\": 0, \"date\": null, \"price\": \"0.00\", \"callbackURL\": \"http://example.com/callback\", \"shortcode\": \"10086\", \"userGroup\": \"default\", \"queueSequence\": 0, \"cFlag\": 0}"
+          "raw": "{\n  \"smsc\": \"smpp\",\n  \"telco\": \"maxis\",\n  \"moid\": \"M0001\",\n  \"sender\": \"60123456789\",\n  \"recipient\": \"60123456789\",\n  \"keyword\": \"extmt_demo\",\n  \"groupId\": \"group1\",\n  \"message\": \"Hello from Postman test\",\n  \"messageType\": 0,\n  \"price\": \"0.00\",\n  \"userGroup\": \"default\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
-          "raw": "{{baseUrl}}/api/v1/messages/send",
+          "raw": "http://localhost:8095/api/v1/messages/send",
+          "protocol": "http",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
+          "port": "8095",
           "path": [
             "api",
             "v1",
@@ -35,12 +42,6 @@
       },
       "response": []
     }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8090",
-      "type": "string"
-    }
   ]
 }
+

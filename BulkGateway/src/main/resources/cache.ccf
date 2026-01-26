@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcs:config xmlns:jcs="http://commons.apache.org/jcs" defaultRegion="default" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <lateral_cache name="default">
+    <attribute name="maxObjects">1000</attribute>
+    <attribute name="memoryCacheName">org.apache.jcs.engine.memory.lru.LRUMemoryCache</attribute>
+  </lateral_cache>
+  <cacheMap>
+    <cache name="SpecificRouteCache">
+      <lateral_cache>default</lateral_cache>
+      <elementAttributes>
+        <attribute name="maxObjects">1000</attribute>
+      </elementAttributes>
+    </cache>
+    <cache name="prefixCache">
+      <lateral_cache>default</lateral_cache>
+      <elementAttributes>
+        <attribute name="maxObjects">1000</attribute>
+      </elementAttributes>
+    </cache>
+    <cache name="messagesCache">
+      <lateral_cache>default</lateral_cache>
+      <elementAttributes>
+        <attribute name="maxObjects">1000</attribute>
+      </elementAttributes>
+    </cache>
+    <cache name="maxisDNStatusCache">
+      <lateral_cache>default</lateral_cache>
+      <elementAttributes>
+        <attribute name="maxObjects">1000</attribute>
+      </elementAttributes>
+    </cache>
+  </cacheMap>
+</jcs:config>
+

@@ -152,6 +152,46 @@
             <version>1.4</version>
         </dependency>
 
+        <!-- Commons Discovery required by Axis -->
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.5</version>
+        </dependency>
+
+        <!-- SAAJ API and implementation for javax.xml.soap (required by Axis on newer JDKs) -->
+        <dependency>
+            <groupId>javax.xml.soap</groupId>
+            <artifactId>javax.xml.soap-api</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
+        <!-- WSDL4J for javax.wsdl classes required by Axis -->
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+
+        <!-- Commons Logging (Axis uses commons-logging) -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <!-- JAX-RPC API (legacy) - provides older SOAP/JAX-RPC interfaces Axis expects -->
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxrpc-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+
         <!-- JCS Caching -->
         <dependency>
             <groupId>org.apache.commons</groupId>

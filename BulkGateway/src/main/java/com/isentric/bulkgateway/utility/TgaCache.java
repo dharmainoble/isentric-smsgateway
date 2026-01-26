@@ -26,17 +26,20 @@ public class TgaCache {
 
         try {
             List<Object> result = this.dao.query(sql);
-            if (!result.isEmpty()) {
-                list = new ArrayList<>();
+            // ensure list is always initialized
+            list = new ArrayList<>();
+
+            if (result != null && !result.isEmpty()) {
 
                 for (Object element : result) {
                     if (element instanceof Object[]) {
                         Object[] obj = (Object[]) element;
                         tgaObject tga = new tgaObject();
-                        tga.setCustid((String) obj[0]);
-                        tga.setFilter_flag((String) obj[1]);
-                        tga.setServer((String) obj[2]);
-                        tga.setDipEngine((String) obj[3]);
+                        // Use String.valueOf to avoid ClassCastException when DB returns non-String types (e.g., Character)
+                        tga.setCustid(obj.length > 0 && obj[0] != null ? String.valueOf(obj[0]) : "");
+                        tga.setFilter_flag(obj.length > 1 && obj[1] != null ? String.valueOf(obj[1]) : "");
+                        tga.setServer(obj.length > 2 && obj[2] != null ? String.valueOf(obj[2]) : "");
+                        tga.setDipEngine(obj.length > 3 && obj[3] != null ? String.valueOf(obj[3]) : "");
                         list.add(tga);
                     }
                 }
