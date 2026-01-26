@@ -1,15 +1,14 @@
 package com.isentric.bulkgateway.repository;
 
+import com.isentric.bulkgateway.bg.model.SMSMessageSent;
+import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.dto.extMTObject;
-import com.isentric.bulkgateway.model.SMSMessageResponse;
-import com.isentric.bulkgateway.model.SMSMessageSmpp;
-import com.isentric.bulkgateway.model.SMSMessageSent;
 import com.isentric.bulkgateway.utility.DateUtil;
 import com.isentric.bulkgateway.utility.SmsUtil;
 import com.isentric.bulkgateway.utility.StringUtil;
-import msg.SmsMessage;
 import msg.ems.EMSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
@@ -22,18 +21,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 
-@Repository
+@Component
 public class MessageServiceDao {
 
-    @Autowired
+
     private SMSMessageSmppRepository smsMessageSmppRepository;
 
-    @Autowired
+
     private SMSMessageRepository smsMessageRepository;
 
-    @Autowired
+
     private SMSMessageSentRepository smsMessageSentRepository;
 
     // Insert incoming SMPP record (tbl_smpp_in)
@@ -173,13 +171,13 @@ public class MessageServiceDao {
         return 0;
     }
 
-    public int insertSmppResponse(SMSMessageResponse smsMessageResponse) throws SQLException {
+   /* public int insertSmppResponse(SMSMessageResponse smsMessageResponse) throws SQLException {
         if (smsMessageResponse != null) {
             smsMessageRepository.save(smsMessageResponse);
             return 1;
         }
         return 0;
-    }
+    }*/
 
     public int updateSmppSent2(com.objectxp.msg.SmsMessage smsMessage, String eventStatus, String transactionId) throws SQLException {
         String sql = "UPDATE bulk_gateway.tbl_smpp_sent SET smppType='" + SmsUtil.getSmppStatusType(smsMessage.getType()) + "', smppStatus='" + StringUtil.trimToEmpty(eventStatus) + "', timestamp='" + StringUtil.trimToEmpty(DateUtil.getDateYYYYMMDDHHMMSS(smsMessage.getTimestamp())) + "', bytes='" + StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.byteToString(smsMessage.getBytes()))) + "', transactionId = '" + StringUtil.trimToEmpty(transactionId) + "' " + "WHERE guid='" + smsMessage.getProperty("SMPP_GUID") + "';";

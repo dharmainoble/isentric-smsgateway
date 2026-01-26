@@ -1,10 +1,10 @@
 package com.isentric.bulkgateway.service;
 
+import com.isentric.bulkgateway.bg.model.SMSMessageResponse;
+import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.dto.OperationError;
 import com.isentric.bulkgateway.dto.SMSMessageDTO;
 import com.isentric.bulkgateway.manager.PrefixManager;
-import com.isentric.bulkgateway.model.SMSMessageResponse;
-import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.repository.SMSMessageRepository;
 import com.isentric.bulkgateway.repository.SMSMessageSmppRepository;
 import com.isentric.bulkgateway.utility.JmsUtil;

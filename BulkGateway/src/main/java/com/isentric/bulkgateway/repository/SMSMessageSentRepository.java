@@ -1,6 +1,6 @@
 package com.isentric.bulkgateway.repository;
 
-import com.isentric.bulkgateway.model.SMSMessageSent;
+import com.isentric.bulkgateway.bg.model.SMSMessageSent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

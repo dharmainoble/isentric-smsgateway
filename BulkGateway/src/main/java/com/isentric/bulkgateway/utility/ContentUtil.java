@@ -6,8 +6,8 @@
 package com.isentric.bulkgateway.utility;
 
 
+import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.manager.LoggerManager;
-import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

@@ -4,6 +4,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
+import org.springframework.context.ApplicationContext;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import java.util.List;
 import java.util.Map;
@@ -11,10 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Lightweight provider for EntityManagerFactory instances keyed by persistence unit name.
- * Provides a convenience method to execute native SQL queries and return results.
- *
- * Usage:
- *   EntityManagerFactoryProvider.executeNativeQuery("bulkgateway", "SELECT ...");
+ * It prefers Spring-managed EMF beans when running under Spring; otherwise falls back to
+ * Persistence.createEntityManagerFactory(puName).
  */
 public final class EntityManagerFactoryProvider {
 
@@ -24,6 +24,26 @@ public final class EntityManagerFactoryProvider {
     }
 
     public static EntityManagerFactory getEntityManagerFactory(String persistenceUnitName) {
+        // Try Spring context first
+        try {
+            ApplicationContext ctx = SpringContextHolder.getContext();
+            if (ctx != null) {
+                // common bean name convention created by BulkPersistenceConfig
+                String beanName = persistenceUnitName + "EntityManagerFactory";
+                if (ctx.containsBean(beanName)) {
+                    Object bean = ctx.getBean(beanName);
+                    if (bean instanceof LocalContainerEntityManagerFactoryBean) {
+                        EntityManagerFactory emf = ((LocalContainerEntityManagerFactoryBean) bean).getObject();
+                        if (emf != null) return emf;
+                    } else if (bean instanceof EntityManagerFactory) {
+                        return (EntityManagerFactory) bean;
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            // ignore and fallback
+        }
+
         return EMF_MAP.computeIfAbsent(persistenceUnitName, pn -> Persistence.createEntityManagerFactory(pn));
     }
 

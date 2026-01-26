@@ -1,18 +1,15 @@
 package com.isentric.bulkgateway.controller;
 
 
+import com.isentric.bulkgateway.bg.model.SMSMessageResponse;
 import com.isentric.bulkgateway.dto.OperationError;
 import com.isentric.bulkgateway.dto.SMSMessageDTO;
-import com.isentric.bulkgateway.model.SMSMessageResponse;
 import com.isentric.bulkgateway.service.SMSMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * SMS Message Controller

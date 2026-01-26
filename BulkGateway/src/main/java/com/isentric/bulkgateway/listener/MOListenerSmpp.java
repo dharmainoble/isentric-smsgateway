@@ -6,17 +6,14 @@
 package com.isentric.bulkgateway.listener;
 
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import com.isentric.bulkgateway.manager.LoggerManager;
 import com.isentric.bulkgateway.repository.MessageServiceDao;
-import com.isentric.bulkgateway.service.SmppMessageServiceBinder;
 import com.isentric.bulkgateway.utility.SmsUtil;
 import com.objectxp.msg.*;
 import org.apache.log4j.Logger;
+import com.isentric.bulkgateway.utility.SpringContextHolder;
 
 public class MOListenerSmpp implements MessageEventListener {
     private static final Logger logger = LoggerManager.createLoggerPattern(MOListenerSmpp.class);
@@ -31,14 +28,25 @@ public class MOListenerSmpp implements MessageEventListener {
         logger.debug("All events received: " + event.toString());
         Exception exception = null;
         try {
-            MessageServiceDaoInterface messageServiceDao = new MessageServiceDao();
+            MessageServiceDao messageServiceDao = null;
+            if (SpringContextHolder.getContext() != null && SpringContextHolder.getContext().containsBean("messageServiceDao")) {
+                try {
+                    messageServiceDao = SpringContextHolder.getContext().getBean(MessageServiceDao.class);
+                } catch (Exception ex) {
+                    logger.warn("Failed to obtain MessageServiceDao from Spring context, falling back to new instance", ex);
+                }
+            }
+            if (messageServiceDao == null) {
+                // fallback for non-Spring contexts
+                messageServiceDao = new MessageServiceDao();
+            }
             if (event.getType() == 2) {
-                SmsMessage sentMessage = (SmsMessage)event.getMessage();
-                logger.debug("[" + this.listenerName + "]" + sentMessage.toString());
-                messageServiceDao.updateSmppSent(sentMessage, "MESSAGE_SENT");
+                //SMSMessageSmpp sentMessage = (SMSMessageSmpp)event.getMessage();
+               // logger.debug("[" + this.listenerName + "]" + sentMessage.toString());
+                //messageServiceDao.updateSmppSent(sentMessage, "MESSAGE_SENT");
             } else if (event.getType() == 1) {
                 Message msg = event.getMessage();
-                messageServiceDao.insertMO(this.listenerName, (SmsMessage)msg);
+                //messageServiceDao.insertMO(this.listenerName, (SmsMessage)msg);
                 logger.debug("GSM Message Received : " + msg.getMessage());
                 logger.debug("GSM Message Received : " + msg.getClass().getName());
                 logger.debug("GSM Message Received : " + msg.getSender());
@@ -66,64 +74,18 @@ public class MOListenerSmpp implements MessageEventListener {
             } else if (event.getType() == 6) {
                 SmsMessage sentMessage = (SmsMessage)event.getMessage();
                 logger.debug("[" + this.listenerName + "] recv not_sent: " + sentMessage.toString());
-                messageServiceDao.updateSmppSent(sentMessage, "MESSAGE_NOT_SENT");
+                //messageServiceDao.updateSmppSent(sentMessage, "MESSAGE_NOT_SENT");
             } else if (event.getType() != 4 && event.getType() != 10) {
                 if (event.getType() == 11) {
                     logger.debug("[" + this.listenerName + "] incoming call: " + event.getSource());
                 } else {
                     logger.debug("[" + this.listenerName + "] unknown event received: " + event.toString());
                 }
-            } else {
-                logger.debug("[" + this.listenerName + "] event: " + event.toString());
-                SmppMessageServiceBinder smppMessageServiceBinder = new SmppMessageServiceBinder();
-                smppMessageServiceBinder.destroySmpp(this.listenerName);
-                Thread.sleep(2000L);
-                DBManagerDs dbManager = DBManagerDs.getManager("avatar");
-                Connection con = dbManager.getConnection();
-
-                try {
-                    String configQuery = "select * from extmt.route_config where routeName='" + this.listenerName + "'";
-                    Statement stmt = con.createStatement();
-                    ResultSet rs = stmt.executeQuery(configQuery);
-
-                    while(rs.next()) {
-                        String routeName = rs.getString("routeName");
-                        String configType = rs.getString("configType");
-                        String config = rs.getString("configFile");
-                        if (configType.equals("smpp")) {
-                            try {
-                                smppMessageServiceBinder.setupSmpp(this.listenerName, config);
-                                logger.debug("SMPP " + routeName + " initiation status: " + smppMessageServiceBinder.isInitialized(routeName));
-                                logger.debug("SMPP " + routeName + " connection status: " + smppMessageServiceBinder.isConnected(routeName));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else if (configType.equals("ucp")) {
-                            try {
-                                smppMessageServiceBinder.setupUcp(this.listenerName, config);
-                                logger.debug("SMPP " + routeName + " initiation status: " + smppMessageServiceBinder.isInitialized(routeName));
-                                logger.debug("SMPP " + routeName + " connection status: " + smppMessageServiceBinder.isConnected(routeName));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    con.close();
-                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
             exception = e;
-        } catch (MessageException e) {
-            e.printStackTrace();
-            exception = e;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            exception = e;
-        } finally {
+        }  finally {
             if (exception != null) {
                 SmsUtil.logException(exception);
             }

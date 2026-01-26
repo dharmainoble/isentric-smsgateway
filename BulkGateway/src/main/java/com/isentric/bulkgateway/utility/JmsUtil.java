@@ -5,9 +5,9 @@
 package com.isentric.bulkgateway.utility;
 
 
+import com.isentric.bulkgateway.bg.model.SMSMessageResponse;
 import com.isentric.bulkgateway.dto.JMSQueueObject;
 import com.isentric.bulkgateway.manager.JMSQueueManager;
-import com.isentric.bulkgateway.model.SMSMessageResponse;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageProducer;

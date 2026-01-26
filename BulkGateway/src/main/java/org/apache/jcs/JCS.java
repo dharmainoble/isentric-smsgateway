@@ -5,16 +5,20 @@ import org.apache.jcs.access.exception.CacheException;
 
 import java.util.HashMap;
 import java.util.Map;
+
 public class JCS {
-    private static final Map<String, CacheAccess<?, P>> caches = new HashMap<>();
-    public static <K, V> CacheAccess<V, P> getInstance(String cacheName) throws CacheException {
+    // store caches with wildcard generics; actual type parameters are provided at call site
+    private static final Map<String, CacheAccess<?, ?>> caches = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    public static <K, V> CacheAccess<K, V> getInstance(String cacheName) throws CacheException {
         synchronized (caches) {
-            CacheAccess<?, P> cache = caches.get(cacheName);
+            CacheAccess<?, ?> cache = caches.get(cacheName);
             if (cache == null) {
-                cache = new CacheAccess<V, P>(cacheName);
+                cache = new CacheAccess<K, V>(cacheName);
                 caches.put(cacheName, cache);
             }
-            return (CacheAccess<V, P>) cache;
+            return (CacheAccess<K, V>) cache;
         }
     }
 }

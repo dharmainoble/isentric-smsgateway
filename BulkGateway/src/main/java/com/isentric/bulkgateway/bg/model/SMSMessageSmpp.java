@@ -1,4 +1,4 @@
-package com.isentric.bulkgateway.model;
+package com.isentric.bulkgateway.bg.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -7,10 +7,10 @@ package com.isentric.bulkgateway.manager;
 
 
 import com.isentric.bulkgateway.dto.Prefix;
-import org.apache.jcs.JCS;
 import org.apache.jcs.access.CacheAccess;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.log4j.Logger;
+import com.isentric.bulkgateway.utility.CacheHelper;
 
 import java.util.List;
 
@@ -19,13 +19,13 @@ import com.isentric.bulkgateway.utility.EntityManagerFactoryProvider;
 public class PrefixManager {
     private static PrefixManager instance;
     private static int checkedOut = 0;
-    // CacheAccess expects key and value type parameters
-    private static CacheAccess<String, Prefix> prefixCache;
+    // CacheAccess<V,P> in this project defines V as the value type, so use Prefix as V
+    private static CacheAccess<Prefix, Object> prefixCache;
     private static final Logger logger = LoggerManager.createLoggerPattern(PrefixManager.class);
 
     private PrefixManager() throws CacheException {
-        // JCS.getInstance may return a raw CacheAccess; cast to our typed CacheAccess
-        prefixCache = (CacheAccess<String, Prefix>) JCS.getInstance("prefixCache");
+        // Use CacheHelper to centralize the unchecked cast from JCS
+        prefixCache = CacheHelper.getCache("prefixCache");
     }
 
     public static PrefixManager getInstance() throws CacheException {

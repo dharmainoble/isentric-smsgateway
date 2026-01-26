@@ -1,5 +1,6 @@
 package com.isentric.bulkgateway.service;
 
+import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.dto.*;
 import com.isentric.bulkgateway.exception.MessageException;
 import com.isentric.bulkgateway.exception.SMSException;
@@ -11,7 +12,6 @@ import com.isentric.bulkgateway.manager.LoggerManager;
 import com.isentric.bulkgateway.manager.MaxisDNStatusManager;
 import com.isentric.bulkgateway.manager.PrefixManager;
 import com.isentric.bulkgateway.manager.VoidMessagesPrefixManager;
-import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.repository.DigiSessionRepository;
 import com.isentric.bulkgateway.repository.BulkSkipAutoResendRepository;
 import com.isentric.bulkgateway.repository.MessageServiceDao;
@@ -54,7 +54,9 @@ import org.safehaus.uuid.UUIDGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SmppMessageServiceBinder {
 
     private static int value = 0;

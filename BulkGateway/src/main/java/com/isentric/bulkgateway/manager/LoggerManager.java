@@ -9,6 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
+import org.apache.log4j.ConsoleAppender;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,18 +35,25 @@ public class LoggerManager {
         String pattern = ">>  %d{ISO8601} # %l # %m%n";
         String dirPath = pathprefix + "/" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
         String outPath = dirPath + c.getName() + ".txt";
-        createLoggerFilePath(dirPath);
-
-        try {
-            PatternLayout layout = new PatternLayout(pattern);
-            RollingFileAppender appender = new RollingFileAppender(layout, outPath);
-            appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
-            appender.setMaxBackupIndex(maxBackupIndex);
-            logger.addAppender(appender);
-            logger.setLevel(Level.ALL);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        boolean dirOk = createLoggerFilePath(dirPath);
+        PatternLayout layout = new PatternLayout(pattern);
+        if (dirOk) {
+            try {
+                RollingFileAppender appender = new RollingFileAppender(layout, outPath);
+                appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
+                appender.setMaxBackupIndex(maxBackupIndex);
+                logger.addAppender(appender);
+                logger.setLevel(Level.ALL);
+                return logger;
+            } catch (IOException ioe) {
+                // fall through to console fallback
+            }
         }
+
+        // Fallback: console appender to avoid application startup failure when file cannot be created
+        ConsoleAppender console = new ConsoleAppender(layout);
+        logger.addAppender(console);
+        logger.setLevel(Level.ALL);
 
         return logger;
     }
@@ -55,18 +63,24 @@ public class LoggerManager {
         String pattern = ">>  %d{ISO8601} # %l # %m%n";
         String dirPath = "/app/logs/bulk-gateway//" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
         String outPath = dirPath + loggerFileName + ".txt";
-        createLoggerFilePath(dirPath);
-
-        try {
-            PatternLayout layout = new PatternLayout(pattern);
-            RollingFileAppender appender = new RollingFileAppender(layout, outPath);
-            appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
-            appender.setMaxBackupIndex(10);
-            logger.addAppender(appender);
-            logger.setLevel(Level.ALL);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        boolean dirOk = createLoggerFilePath(dirPath);
+        PatternLayout layout = new PatternLayout(pattern);
+        if (dirOk) {
+            try {
+                RollingFileAppender appender = new RollingFileAppender(layout, outPath);
+                appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
+                appender.setMaxBackupIndex(10);
+                logger.addAppender(appender);
+                logger.setLevel(Level.ALL);
+                return logger;
+            } catch (IOException ioe) {
+                // fall through
+            }
         }
+
+        ConsoleAppender console = new ConsoleAppender(layout);
+        logger.addAppender(console);
+        logger.setLevel(Level.ALL);
 
         return logger;
     }
@@ -83,18 +97,24 @@ public class LoggerManager {
         String pattern = "%m%n";
         String dirPath = "/app/logs/bulk-gateway//" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
         String outPath = dirPath + loggerFileName + ".sql";
-        createLoggerFilePath(dirPath);
-
-        try {
-            PatternLayout layout = new PatternLayout(pattern);
-            RollingFileAppender appender = new RollingFileAppender(layout, outPath);
-            appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
-            appender.setMaxBackupIndex(10);
-            logger.addAppender(appender);
-            logger.setLevel(Level.ALL);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        boolean dirOk = createLoggerFilePath(dirPath);
+        PatternLayout layout = new PatternLayout(pattern);
+        if (dirOk) {
+            try {
+                RollingFileAppender appender = new RollingFileAppender(layout, outPath);
+                appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
+                appender.setMaxBackupIndex(10);
+                logger.addAppender(appender);
+                logger.setLevel(Level.ALL);
+                return logger;
+            } catch (IOException ioe) {
+                // fall through
+            }
         }
+
+        ConsoleAppender console = new ConsoleAppender(layout);
+        logger.addAppender(console);
+        logger.setLevel(Level.ALL);
 
         return logger;
     }
@@ -106,7 +126,15 @@ public class LoggerManager {
     }
 
     private static synchronized boolean createLoggerFilePath(String dirPath) {
-        boolean dirsCreateSuccessFlag = (new File(dirPath)).mkdirs();
-        return dirsCreateSuccessFlag;
+        try {
+            File d = new File(dirPath);
+            if (!d.exists()) {
+                return d.mkdirs();
+            }
+            return true;
+        } catch (SecurityException se) {
+            // Cannot create directories — caller should fall back
+            return false;
+        }
     }
 }
