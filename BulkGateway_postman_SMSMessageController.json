@@ -1,0 +1,69 @@
+{
+  "info": {
+    "name": "BulkGateway - SMSMessageController",
+    "_postman_id": "bulkgateway-smsmessagecontroller",
+    "description": "Postman collection for SMSMessageController (/api/v1/messages/send)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Send SMS (POST /api/v1/messages/send)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{
+  \"guid\": \"test-guid-123\",
+  \"groupId\": \"api_request\",
+  \"ip\": \"127.0.0.1\",
+  \"smsc\": \"smpp\",
+  \"telco\": \"maxis\",
+  \"smppName\": \"smpp1\",
+  \"smppConfig\": \"default\",
+  \"moid\": \"moid123\",
+  \"sender\": \"API\",
+  \"recipient\": \"60123456789\",
+  \"senderType\": 0,
+  \"keyword\": \"promo\",
+  \"message\": \"Hello from API (POST)\",
+  \"messageType\": 0,
+  \"date\": null,
+  \"price\": \"0.00\",
+  \"callbackURL\": \"http://example.com/callback\",
+  \"shortcode\": \"10086\",
+  \"userGroup\": \"default\",
+  \"queueSequence\": 0,
+  \"cFlag\": 0
+}\n"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/messages/send",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "messages",
+            "send"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8090",
+      "type": "string"
+    }
+  ]
+}
+

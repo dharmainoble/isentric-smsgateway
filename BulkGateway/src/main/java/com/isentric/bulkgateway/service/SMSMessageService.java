@@ -10,6 +10,11 @@ import com.isentric.bulkgateway.repository.SMSMessageSmppRepository;
 import com.isentric.bulkgateway.utility.JmsUtil;
 import com.isentric.bulkgateway.utility.StringUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -19,15 +24,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
+@Service
 public class SMSMessageService {
 
-    SMSMessageRepository smsMessageRepository;
+    @Autowired(required = false)
+    private SMSMessageRepository smsMessageRepository;
 
-    SMSMessageSmppRepository sMSMessageSmppRepository;
+    @Autowired(required = false)
+    private SMSMessageSmppRepository sMSMessageSmppRepository;
 
+    // Fallback EntityManager for 'bg' persistence unit (Bulk Gateway)
+    @PersistenceContext(unitName = "Bulk Gateway")
+    private EntityManager bgEntityManager;
+
+    @Transactional
     public SMSMessageResponse sendMessage(SMSMessageDTO dto) {
         SMSMessageResponse smsMessageResponse = new SMSMessageResponse();
+        // ensure required non-nullable fields are set before persisting
+        smsMessageResponse.setDate(LocalDateTime.now());
         SMSMessageSmpp smpp = new SMSMessageSmpp();
         JmsUtil jmsUtil = new JmsUtil();
         dto.setGuid(createGUID());
@@ -48,7 +64,8 @@ public class SMSMessageService {
                 }
                 if (this.isSmscSmpp(dto)) {
                     SMSMessageSmpp smsMessageSmpp = new SMSMessageSmpp();
-                    BeanUtils.copyProperties(smsMessageSmpp, dto);
+                    // copy properties from DTO -> entity (correct source->target order)
+                    BeanUtils.copyProperties(dto, smsMessageSmpp);
                     boolean flag = false;
                     if (!smsMessageSmpp.getTelco().equals("other")) {
                         if (cache.getPrefixObj(smsMessageSmpp.getTelco()).getRoute() == null) {
@@ -65,7 +82,14 @@ public class SMSMessageService {
                     }
                     smsMessageSmpp.setSmppConfig("/jsms_smpp.conf");
                     if (flag) {
-                        sMSMessageSmppRepository.save(smsMessageSmpp);
+                        if (sMSMessageSmppRepository != null) {
+                            // set required non-nullable fields
+                            smsMessageSmpp.setDate(LocalDateTime.now());
+                            sMSMessageSmppRepository.save(smsMessageSmpp);
+                        } else if (bgEntityManager != null) {
+                            smsMessageSmpp.setDate(LocalDateTime.now());
+                            bgEntityManager.persist(smsMessageSmpp);
+                        }
                         //jmsUtil.postQueue("queue/SMPPSMSMessageQueue" + dto.getQueueSequence(), smsMessageResponse);
                         smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
                         try {
@@ -95,13 +119,21 @@ public class SMSMessageService {
                     operationError.setMessage("SMSC type is not supported.");
                 }
                 // persist response
-                smsMessageRepository.save(smsMessageResponse);
+                if (smsMessageRepository != null) {
+                    smsMessageRepository.save(smsMessageResponse);
+                } else if (bgEntityManager != null) {
+                    bgEntityManager.persist(smsMessageResponse);
+                }
                 return smsMessageResponse;
             }
             smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
             smsMessageResponse.setStatus("STATUS_FAILURE");
             smsMessageResponse.setMessage("Authentication failure.".getBytes(StandardCharsets.UTF_8));
-            smsMessageRepository.save(smsMessageResponse);
+            if (smsMessageRepository != null) {
+                smsMessageRepository.save(smsMessageResponse);
+            } else if (bgEntityManager != null) {
+                bgEntityManager.persist(smsMessageResponse);
+            }
             var7 = smsMessageResponse;
         } catch (Exception jsmsExp) {
             jsmsExp.printStackTrace();

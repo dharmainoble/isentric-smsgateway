@@ -29,23 +29,60 @@ public final class EntityManagerFactoryProvider {
             ApplicationContext ctx = SpringContextHolder.getContext();
             if (ctx != null) {
                 // common bean name convention created by BulkPersistenceConfig
-                String beanName = persistenceUnitName + "EntityManagerFactory";
-                if (ctx.containsBean(beanName)) {
-                    Object bean = ctx.getBean(beanName);
-                    if (bean instanceof LocalContainerEntityManagerFactoryBean) {
-                        EntityManagerFactory emf = ((LocalContainerEntityManagerFactoryBean) bean).getObject();
-                        if (emf != null) return emf;
-                    } else if (bean instanceof EntityManagerFactory) {
-                        return (EntityManagerFactory) bean;
+                // Try several bean name variants and known mappings
+                String[] candidateBeanNames = new String[] {
+                        persistenceUnitName + "EntityManagerFactory",
+                        persistenceUnitName.replaceAll("[\\s_]+","") + "EntityManagerFactory",
+                        persistenceUnitName.replaceAll("[^A-Za-z0-9]","") + "EntityManagerFactory",
+                        // common project beans
+                        "bcEntityManagerFactory",
+                        "bgEntityManagerFactory",
+                        "bulkConfigEntityManagerFactory",
+                        "bulkGatewayEntityManagerFactory"
+                };
+
+                for (String beanName : candidateBeanNames) {
+                    if (beanName == null) continue;
+                    if (ctx.containsBean(beanName)) {
+                        Object bean = ctx.getBean(beanName);
+                        if (bean instanceof LocalContainerEntityManagerFactoryBean) {
+                            EntityManagerFactory emf = ((LocalContainerEntityManagerFactoryBean) bean).getObject();
+                            if (emf != null) return emf;
+                        } else if (bean instanceof EntityManagerFactory) {
+                            return (EntityManagerFactory) bean;
+                        }
                     }
                 }
-            }
-        } catch (Throwable t) {
-            // ignore and fallback
-        }
+                // As a last resort try known mapping by persistenceUnitName value
+                if ("bulk_config".equalsIgnoreCase(persistenceUnitName) || "bulkconfig".equalsIgnoreCase(persistenceUnitName)) {
+                    if (ctx.containsBean("bcEntityManagerFactory")) {
+                        Object bean = ctx.getBean("bcEntityManagerFactory");
+                        if (bean instanceof LocalContainerEntityManagerFactoryBean) {
+                            EntityManagerFactory emf = ((LocalContainerEntityManagerFactoryBean) bean).getObject();
+                            if (emf != null) return emf;
+                        } else if (bean instanceof EntityManagerFactory) {
+                            return (EntityManagerFactory) bean;
+                        }
+                    }
+                }
+                if ("bulkgateway".equalsIgnoreCase(persistenceUnitName) || "bulk gateway".equalsIgnoreCase(persistenceUnitName) || "bulkgateway".equalsIgnoreCase(persistenceUnitName)) {
+                    if (ctx.containsBean("bgEntityManagerFactory")) {
+                        Object bean = ctx.getBean("bgEntityManagerFactory");
+                        if (bean instanceof LocalContainerEntityManagerFactoryBean) {
+                            EntityManagerFactory emf = ((LocalContainerEntityManagerFactoryBean) bean).getObject();
+                            if (emf != null) return emf;
+                        } else if (bean instanceof EntityManagerFactory) {
+                            return (EntityManagerFactory) bean;
+                        }
+                    }
+                }
+             }
+         } catch (Throwable t) {
+             // ignore and fallback
+         }
 
-        return EMF_MAP.computeIfAbsent(persistenceUnitName, pn -> Persistence.createEntityManagerFactory(pn));
-    }
+         return EMF_MAP.computeIfAbsent(persistenceUnitName, pn -> Persistence.createEntityManagerFactory(pn));
+     }
 
     public static EntityManager getEntityManager(String persistenceUnitName) {
         EntityManagerFactory emf = getEntityManagerFactory(persistenceUnitName);

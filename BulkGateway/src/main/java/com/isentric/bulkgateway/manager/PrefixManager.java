@@ -57,7 +57,9 @@ public class PrefixManager {
             vObj = this.loadPrefixVObj(key);
         }
 
-        if (vObj.getRoute().equals("")) {
+        // defensive: handle null route gracefully
+        String route = (vObj == null ? null : vObj.getRoute());
+        if (route == null || route.equals("")) {
             vObj = this.loadPrefixVObj(key);
         }
 
