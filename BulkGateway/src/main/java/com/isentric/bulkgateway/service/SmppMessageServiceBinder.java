@@ -15,7 +15,7 @@ import com.isentric.bulkgateway.manager.VoidMessagesPrefixManager;
 import com.isentric.bulkgateway.repository.DigiSessionRepository;
 import com.isentric.bulkgateway.repository.BulkSkipAutoResendRepository;
 import com.isentric.bulkgateway.repository.MessageServiceDao;
-import com.isentric.bulkgateway.util.UID;
+import com.isentric.bulkgateway.util.UidUtil;
 import com.isentric.bulkgateway.utility.*;
 import com.isentric.bulkgateway.webservice.*;
 import com.objectxp.msg.*;
@@ -1342,16 +1342,9 @@ public class SmppMessageServiceBinder {
         short nMessages = 1;
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
-        new DESProcessor();
+            new DESProcessor();
         String cFlag = "" + smsMessage.getcFlag();
-        new UID();
-        String refid = null;
-
-        try {
-            refid = UID.genUID().toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String refid = UidUtil.generateUid();
 
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
@@ -1494,13 +1487,12 @@ public class SmppMessageServiceBinder {
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
         String cFlag = "" + smsMessage.getcFlag();
-        new UID();
         String refid = null;
 
         try {
-            refid = UID.genUID().toString();
+            refid = UidUtil.generateUid();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating UID", e);
         }
 
         EMSMessage sms = new EMSMessage();
@@ -1628,13 +1620,12 @@ public class SmppMessageServiceBinder {
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
         String cFlag = "" + smsMessage.getcFlag();
-        new UID();
         String refid = null;
 
         try {
-            refid = UID.genUID().toString();
+            refid = UidUtil.generateUid();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating UID", e);
         }
 
         EMSMessage sms = new EMSMessage();
@@ -3062,13 +3053,12 @@ public class SmppMessageServiceBinder {
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
         String cFlag = "" + smsMessage.getcFlag();
-        new UID();
         String refid = null;
 
         try {
-            refid = UID.genUID().toString();
+            refid = UidUtil.generateUid();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating UID", e);
         }
 
         EMSMessage sms = new EMSMessage();
@@ -3216,13 +3206,12 @@ public class SmppMessageServiceBinder {
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
         String cFlag = "" + smsMessage.getcFlag();
-        new UID();
         String refid = null;
 
         try {
-            refid = UID.genUID().toString();
+            refid = UidUtil.generateUid();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating UID", e);
         }
 
         EMSMessage sms = new EMSMessage();
@@ -3822,7 +3811,7 @@ public class SmppMessageServiceBinder {
 
     }
 
-    public synchronized void sendSmsMessageSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, com.objectxp.msg.MessageException {
+    public  void sendSmsMessageSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, com.objectxp.msg.MessageException {
         this.void_custid = smsMessage.getKeyword();
         if (binderHashtable.get(smppName) instanceof GsmSmsService) {
             this.sendGSM(smppName, credit, smsMessage);

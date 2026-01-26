@@ -17,8 +17,8 @@ public class Ejb3Util {
 
     public static SmppMessageServiceBinder getSmppMessageServiceBinder() throws NamingException {
         SmppMessageServiceBinder smppMessageServiceBinderInst = null;
-        if (contextHashtable.containsKey("SmppMessageServiceBinderBean/local")) {
-            smppMessageServiceBinderInst = (SmppMessageServiceBinder)contextHashtable.get("SmppMessageServiceBinderBean/local");
+        if (contextHashtable.containsKey("SmppMessageServiceBinder/local")) {
+            smppMessageServiceBinderInst = (SmppMessageServiceBinder)contextHashtable.get("SmppMessageServiceBinder/local");
             if (smppMessageServiceBinderInst != null) {
                 return smppMessageServiceBinderInst;
             }

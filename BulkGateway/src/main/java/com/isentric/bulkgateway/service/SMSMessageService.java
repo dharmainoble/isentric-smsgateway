@@ -5,6 +5,7 @@ import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.dto.OperationError;
 import com.isentric.bulkgateway.dto.SMSMessageDTO;
 import com.isentric.bulkgateway.manager.PrefixManager;
+import com.isentric.bulkgateway.mdb.SMSServerSMPP;
 import com.isentric.bulkgateway.repository.SMSMessageRepository;
 import com.isentric.bulkgateway.repository.SMSMessageSmppRepository;
 import com.isentric.bulkgateway.utility.JmsUtil;
@@ -57,8 +58,13 @@ public class SMSMessageService {
             PrefixManager cache = PrefixManager.getInstance();
             if (!this.isAuthenticationFailed(invokerIpAddress)) {
                 if (this.isTextMessageValidationFailed(dto, smsMessageResponse)) {
-                    smsMessageResponse.setGuid(smpp.getGuid());
-                    smsMessageRepository.save(smsMessageResponse);
+                    // use the GUID from the incoming DTO (if present) and persist the failure response
+                    smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
+                    if (smsMessageRepository != null) {
+                        smsMessageRepository.save(smsMessageResponse);
+                    } else if (bgEntityManager != null) {
+                        bgEntityManager.persist(smsMessageResponse);
+                    }
                     var7 = smsMessageResponse;
                     return var7;
                 }
@@ -83,7 +89,6 @@ public class SMSMessageService {
                     smsMessageSmpp.setSmppConfig("/jsms_smpp.conf");
                     if (flag) {
                         if (sMSMessageSmppRepository != null) {
-                            // set required non-nullable fields
                             smsMessageSmpp.setDate(LocalDateTime.now());
                             sMSMessageSmppRepository.save(smsMessageSmpp);
                         } else if (bgEntityManager != null) {
@@ -92,6 +97,8 @@ public class SMSMessageService {
                         }
                         //jmsUtil.postQueue("queue/SMPPSMSMessageQueue" + dto.getQueueSequence(), smsMessageResponse);
                         smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
+                        SMSServerSMPP queue =new SMSServerSMPP();
+                        queue.onMessage(smsMessageSmpp);
                         try {
                             byte[] serialized = mapper.writeValueAsBytes(smsMessageResponse);
                             smsMessageResponse.setValue(serialized);
@@ -156,6 +163,8 @@ public class SMSMessageService {
     private void setFailureMessageResponse(SMSMessageResponse resp, java.util.List<String> errors) {
         String combined = String.join("; ", errors);
         resp.setMessage(combined.getBytes(StandardCharsets.UTF_8));
+        // mark response as failure so callers and controller can act on it
+        resp.setStatus("STATUS_FAILURE");
         // also set serialized value for downstream processing
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -196,8 +205,9 @@ public class SMSMessageService {
             validationFailedFlag = true;
         }
 
-        if (StringUtil.isBlank(String.valueOf(smsMessage.getMessageType()))) {
-            errorList.add("Message type parameter is blank.");
+        // messageType is an int; consider 0 as valid default — only flag if negative
+        if (smsMessage.getMessageType() < 0) {
+            errorList.add("Message type parameter is invalid.");
             validationFailedFlag = true;
         }
 
@@ -207,6 +217,8 @@ public class SMSMessageService {
         }
 
         if (validationFailedFlag) {
+            // ensure response carries the incoming GUID (if any)
+            smsMessageResponse.setGuid(StringUtil.trimToEmpty(smsMessage.getGuid()));
             this.setFailureMessageResponse(smsMessageResponse, errorList);
         }
 

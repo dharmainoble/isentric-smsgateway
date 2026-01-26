@@ -18,29 +18,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{
-  \"guid\": \"test-guid-123\",
-  \"groupId\": \"api_request\",
-  \"ip\": \"127.0.0.1\",
-  \"smsc\": \"smpp\",
-  \"telco\": \"maxis\",
-  \"smppName\": \"smpp1\",
-  \"smppConfig\": \"default\",
-  \"moid\": \"moid123\",
-  \"sender\": \"API\",
-  \"recipient\": \"60123456789\",
-  \"senderType\": 0,
-  \"keyword\": \"promo\",
-  \"message\": \"Hello from API (POST)\",
-  \"messageType\": 0,
-  \"date\": null,
-  \"price\": \"0.00\",
-  \"callbackURL\": \"http://example.com/callback\",
-  \"shortcode\": \"10086\",
-  \"userGroup\": \"default\",
-  \"queueSequence\": 0,
-  \"cFlag\": 0
-}\n"
+          "raw": "{\"guid\": \"test-guid-123\", \"groupId\": \"api_request\", \"ip\": \"127.0.0.1\", \"smsc\": \"smpp\", \"telco\": \"maxis\", \"smppName\": \"smpp1\", \"smppConfig\": \"default\", \"moid\": \"moid123\", \"sender\": \"API\", \"recipient\": \"60123456789\", \"senderType\": 0, \"keyword\": \"promo\", \"message\": \"Hello from API (POST)\", \"messageType\": 0, \"date\": null, \"price\": \"0.00\", \"callbackURL\": \"http://example.com/callback\", \"shortcode\": \"10086\", \"userGroup\": \"default\", \"queueSequence\": 0, \"cFlag\": 0}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/messages/send",
@@ -66,4 +44,3 @@
     }
   ]
 }
-

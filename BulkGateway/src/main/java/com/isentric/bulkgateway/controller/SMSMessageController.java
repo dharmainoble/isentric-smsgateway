@@ -11,6 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.nio.charset.StandardCharsets;
+
 /**
  * SMS Message Controller
  * REST API for sending SMS messages
@@ -29,14 +33,33 @@ public class SMSMessageController {
      * Send a single SMS message
      */
     @PostMapping("/send")
-    public ResponseEntity<SMSMessageResponse> sendMessage(@RequestBody SMSMessageDTO dto) {
+    public ResponseEntity<Object> sendMessage(@RequestBody SMSMessageDTO dto) {
         try {
             SMSMessageResponse response = sMSMessageService.sendMessage(dto);
-                if (response.getStatus().equals("STATUS_SUCCESS")) {
-                    return ResponseEntity.ok(response);
+            String status = response == null ? null : response.getStatus();
+            if ("STATUS_SUCCESS".equals(status)) {
+                return ResponseEntity.ok(response);
+            } else {
+                // Build a small human-readable error payload instead of returning raw byte[] fields
+                Map<String,Object> body = new HashMap<>();
+                body.put("statusCode", status == null || status.isEmpty() ? "STATUS_FAILURE" : status);
+                // try to decode textual message bytes if present
+                String statusMessage = null;
+                if (response != null) {
+                    byte[] msgBytes = response.getMessage();
+                    if (msgBytes != null && msgBytes.length > 0) {
+                        statusMessage = new String(msgBytes, StandardCharsets.UTF_8);
+                    } else if (response.getValue() != null && response.getValue().length > 0) {
+                        // value may contain serialized JSON; attempt to decode to UTF-8 for quick introspection
+                        statusMessage = new String(response.getValue(), StandardCharsets.UTF_8);
+                    }
+                    body.put("guid", response.getGuid());
                 } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                    statusMessage = "Unknown failure";
                 }
+                body.put("statusMessage", statusMessage == null ? "Failure" : statusMessage);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+            }
         } catch (Exception e) {
             log.error("Error sending message", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -44,92 +67,7 @@ public class SMSMessageController {
         }
     }
 
-  /*  *//**
-     * Send message via GET (legacy support)
-     *//*
-    @GetMapping("/send")
-    public ResponseEntity<Map<String, Object>> sendMessageGet(
-            @RequestParam String recipient,
-            @RequestParam String message,
-            @RequestParam(defaultValue = "maxis") String telco,
-            @RequestParam(defaultValue = "smpp") String smsc) {
-
-        try {
-            SMSMessageResponse smsMsg = new SMSMessageResponse();
-            smsMsg.setRecipient(recipient);
-            smsMsg.setMessage(message);
-            smsMsg.setTelco(telco);
-            smsMsg.setSmsc(smsc);
-            smsMsg.setMoid("0");
-            smsMsg.setGroupId("api_request");
-            smsMsg.setSender("API");
-            smsMsg.setMessageType(0);
-
-            if (bulkGatewayService != null) {
-                SMSMessageResponse response = bulkGatewayService.sendTextMessage(smsMsg);
-                return ResponseEntity.ok(mapResponse(response));
-            } else {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                        .body(createErrorMap("Service not available"));
-            }
-        } catch (Exception e) {
-            log.error("Error sending message via GET", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorMap("Error: " + e.getMessage()));
-        }
-    }
-
-    *//**
-     * Check message status
-     *//*
-    @GetMapping("/{messageId}/status")
-    public ResponseEntity<Map<String, Object>> checkStatus(@PathVariable String messageId) {
-        try {
-            // Implementation depends on your database structure
-            Map<String, Object> response = new HashMap<>();
-            response.put("messageId", messageId);
-            response.put("status", "processing");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error checking status", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorMap("Error: " + e.getMessage()));
-        }
-    }
-
-    private SMSMessageResponse createErrorResponse(String message) {
-        SMSMessageResponse response = new SMSMessageResponse();
-        response.setStatus(-1);
-
-        // Create an error array with the error message
-        OperationError error = new OperationError();
-        error.setMessage(message);
-        response.setErrorArray(new OperationError[]{error});
-
-        return response;
-    }
-
-    private Map<String, Object> createErrorMap(String message) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("statusCode", -1);
-        map.put("statusMessage", message);
-        return map;
-    }
-
-    private Map<String, Object> mapResponse(SMSMessageResponse response) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("statusCode", response.getStatus());
-
-        // Build status message from error array if errors exist
-        String statusMessage = "Success";
-        if (response.getStatus() != 0 && response.getErrorArray() != null && response.getErrorArray().length > 0) {
-            statusMessage = response.getErrorArray()[0].getMessage();
-        }
-
-        map.put("statusMessage", statusMessage);
-        map.put("messageId", response.getGuid());
-        return map;
-    }*/
+    // Legacy/optional endpoints removed for clarity. See older branches if needed.
 
     private SMSMessageResponse createErrorResponse(String message) {
         SMSMessageResponse response = new SMSMessageResponse();
@@ -141,4 +79,3 @@ public class SMSMessageController {
         return response;
     }
 }
-
