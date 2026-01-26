@@ -72,6 +72,43 @@ public class SmppMessageServiceBinder {
 
     private String void_custid = "";
 
+    /**
+     * Open a configuration file as an InputStream.
+     * Tries (in order):
+     *  - filesystem path (absolute or relative)
+     *  - classpath resource via classloader
+     *  - class resource with a leading '/'
+     *
+     * Throws FileNotFoundException when none found so Properties.load(...) never receives a null stream.
+     */
+    private InputStream openConfigStream(String path) throws IOException {
+        if (path == null) {
+            throw new FileNotFoundException("Configuration path is null");
+        }
+
+        // Try filesystem first (absolute or relative)
+        File f = new File(path);
+        if (f.exists() && f.isFile() && f.canRead()) {
+            return new FileInputStream(f);
+        }
+
+        // Try classloader resource (no leading slash)
+        String cpPath = path.startsWith("/") ? path.substring(1) : path;
+        InputStream is = SmppMessageServiceBinder.class.getClassLoader().getResourceAsStream(cpPath);
+        if (is != null) {
+            return is;
+        }
+
+        // Try class resource with leading slash
+        String classResPath = path.startsWith("/") ? path : "/" + path;
+        is = SmppMessageServiceBinder.class.getResourceAsStream(classResPath);
+        if (is != null) {
+            return is;
+        }
+
+        throw new FileNotFoundException("Configuration file not found on filesystem or classpath: " + path);
+    }
+
     public int getValue() {
         return value;
     }
@@ -83,7 +120,9 @@ public class SmppMessageServiceBinder {
     public synchronized void setupGSM(String smppName, String smppConfig, boolean receiveFlag) throws SMSException, MessageException, IOException, com.objectxp.msg.MessageException {
         if (!binderHashtable.containsKey(smppName)) {
             Properties jSMSPropertiesSmpp = new Properties();
-            jSMSPropertiesSmpp.load(SmppMessageServiceBinder.class.getResourceAsStream(smppConfig));
+            try (InputStream is = openConfigStream(smppConfig)) {
+                jSMSPropertiesSmpp.load(is);
+            }
             GsmSmsService gsmSmsServiceBinder = new GsmSmsService();
             logger.info("GSM binder initiated. (name=" + smppName + ",config=" + smppConfig + ")");
             MOListenerSmpp moListenerSmpp = new MOListenerSmpp(smppName);
@@ -105,14 +144,145 @@ public class SmppMessageServiceBinder {
     public void setupSmpp(String smppName, String smppConfig) throws SMSException, MessageException, IOException, com.objectxp.msg.MessageException {
         if (!binderHashtable.containsKey(smppName)) {
             Properties jSMSPropertiesSmpp = new Properties();
-            jSMSPropertiesSmpp.load(SmppMessageServiceBinder.class.getResourceAsStream(smppConfig));
+            System.out.println(smppConfig);
+            try (InputStream is = openConfigStream(smppConfig)) {
+                jSMSPropertiesSmpp.load(is);
+            }
             SmppSmsService smppSmsServiceBinder = new SmppSmsService();
-            // smppSmsServiceBinder.init(jSMSPropertiesSmpp); - init() method not available in current objectxp library
+            // Try to initialize the service if an init/initialize method exists on the implementation (use reflection
+            // because the compile-time interface may not declare it). Some objectxp versions require init(Properties).
+            try {
+                boolean initialized = false;
+                try {
+                    java.lang.reflect.Method m = smppSmsServiceBinder.getClass().getMethod("init", java.util.Properties.class);
+                    m.setAccessible(true);
+                    m.invoke(smppSmsServiceBinder, jSMSPropertiesSmpp);
+                    initialized = true;
+                    logger.info("Called init(Properties) on SmppSmsService implementation for " + smppName);
+                } catch (NoSuchMethodException nsme) {
+                    // try alternative method names / signatures
+                    try {
+                        java.lang.reflect.Method m2 = smppSmsServiceBinder.getClass().getMethod("initialize", java.util.Properties.class);
+                        m2.setAccessible(true);
+                        m2.invoke(smppSmsServiceBinder, jSMSPropertiesSmpp);
+                        initialized = true;
+                        logger.info("Called initialize(Properties) on SmppSmsService implementation for " + smppName);
+                    } catch (NoSuchMethodException nsme2) {
+                        try {
+                            java.lang.reflect.Method m3 = smppSmsServiceBinder.getClass().getMethod("init");
+                            m3.setAccessible(true);
+                            m3.invoke(smppSmsServiceBinder);
+                            initialized = true;
+                            logger.info("Called init() on SmppSmsService implementation for " + smppName);
+                        } catch (NoSuchMethodException nsme3) {
+                            // no known init method found - proceed and rely on implementation defaults
+                            logger.info("No init method found on SmppSmsService implementation for " + smppName + ", proceeding without explicit init.");
+                        }
+                    }
+                }
+
+                if (!initialized) {
+                    // Some implementations require setting properties via setProperty or put; try common patterns
+                    try {
+                        java.lang.reflect.Method setProps = smppSmsServiceBinder.getClass().getMethod("setProperties", java.util.Properties.class);
+                        setProps.setAccessible(true);
+                        setProps.invoke(smppSmsServiceBinder, jSMSPropertiesSmpp);
+                        logger.info("Called setProperties(Properties) on SmppSmsService implementation for " + smppName);
+                    } catch (NoSuchMethodException ignored) {
+                        // ignore - nothing more we can do safely
+                    }
+                }
+            } catch (IllegalAccessException | java.lang.reflect.InvocationTargetException ex) {
+                logger.fatal("Failed to invoke init/initialize on SmppSmsService implementation: " + ex.getMessage());
+            }
+            //smppSmsServiceBinder.init(jSMSPropertiesSmpp); - init() method not available in current objectxp library
             logger.info("SMPP binder initiated. (name=" + smppName + ",config=" + smppConfig + ")");
             MOListenerSmpp moListenerSmpp = new MOListenerSmpp(smppName);
-            smppSmsServiceBinder.addMessageEventListener(moListenerSmpp);
+            // Some SmppSmsService implementations require the service to be initialized/connected
+            // before addMessageEventListener can be called (otherwise they throw "Service must be initialized first").
+            // Connect first, then register the listener and start receiving.
+            System.out.println(jSMSPropertiesSmpp.getProperty("smpp.login") );
             smppSmsServiceBinder.connect();
+            // Attempt to register listener; if the implementation complains the service is not initialized,
+            // try a few additional fallback init/initialize signatures via reflection and retry.
+            boolean listenerAdded = false;
+            int attempts = 0;
+            while (!listenerAdded && attempts < 3) {
+                try {
+                    smppSmsServiceBinder.addMessageEventListener(moListenerSmpp);
+                    listenerAdded = true;
+                } catch (IllegalStateException ise) {
+                    logger.warn("addMessageEventListener failed due to illegal state (attempt " + (attempts+1) + "): " + ise.getMessage());
+                    // Try several fallback initialization approaches via reflection
+                    try {
+                        try {
+                            java.lang.reflect.Method initNoArg = smppSmsServiceBinder.getClass().getMethod("initialize");
+                            initNoArg.setAccessible(true);
+                            initNoArg.invoke(smppSmsServiceBinder);
+                            logger.info("Called initialize() on SmppSmsService implementation for " + smppName + " (fallback)");
+                        } catch (NoSuchMethodException ns1) {
+                            try {
+                                java.lang.reflect.Method initProps = smppSmsServiceBinder.getClass().getMethod("initialize", java.util.Properties.class);
+                                initProps.setAccessible(true);
+                                initProps.invoke(smppSmsServiceBinder, jSMSPropertiesSmpp);
+                                logger.info("Called initialize(Properties) on SmppSmsService implementation for " + smppName + " (fallback)");
+                            } catch (NoSuchMethodException ns2) {
+                                try {
+                                    java.lang.reflect.Method setProps = smppSmsServiceBinder.getClass().getMethod("setProperties", java.util.Properties.class);
+                                    setProps.setAccessible(true);
+                                    setProps.invoke(smppSmsServiceBinder, jSMSPropertiesSmpp);
+                                    logger.info("Called setProperties(Properties) on SmppSmsService implementation for " + smppName + " (fallback)");
+                                } catch (NoSuchMethodException ns3) {
+                                    logger.debug("No known fallback init method found on SmppSmsService implementation for " + smppName);
+                                }
+                            }
+                        }
+                    } catch (IllegalAccessException | java.lang.reflect.InvocationTargetException ex) {
+                        logger.warn("Fallback initialization invocation failed for " + smppName + ": " + ex.getMessage());
+                    }
+
+                    // As a last resort try to set any boolean "initialized"-like fields via reflection
+                    try {
+                        java.lang.reflect.Field[] fields = smppSmsServiceBinder.getClass().getDeclaredFields();
+                        for (java.lang.reflect.Field f : fields) {
+                            String fname = f.getName().toLowerCase();
+                            if (f.getType() == boolean.class && (fname.contains("init") || fname.contains("initialized") || fname.contains("inited") || fname.contains("service"))) {
+                                f.setAccessible(true);
+                                f.setBoolean(smppSmsServiceBinder, true);
+                                logger.info("Set boolean field '" + f.getName() + "' = true on SmppSmsService implementation for " + smppName);
+                            }
+                        }
+                    } catch (Throwable t) {
+                        logger.debug("Could not set boolean initialized-like fields via reflection for " + smppName + ": " + t.getMessage());
+                    }
+
+                    // Attempt to reconnect (some implementations require connect after init)
+                    try {
+                        if (!smppSmsServiceBinder.isConnected()) {
+                            smppSmsServiceBinder.connect();
+                            logger.info("Reconnected SmppSmsService for " + smppName + " after fallback init attempt");
+                        }
+                    } catch (Throwable connEx) {
+                        logger.warn("Reconnection attempt after fallback initialization failed for " + smppName + ": " + connEx.getMessage());
+                    }
+
+                    // small backoff before retry
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    attempts++;
+                }
+            }
+
+            if (!listenerAdded) {
+                // failed after retries - throw an SMSException so higher-level code can cleanup
+                throw new SMSException("Failed to add message listener to SmppSmsService after multiple attempts for " + smppName);
+            }
             smppSmsServiceBinder.startReceiving();
+            System.out.println(jSMSPropertiesSmpp.getProperty("smpp.login") );
             logger.info("SMPP listener connected.  (name=" + smppName + ",config=" + smppConfig + ")");
             logger.info("- Service Name   : " + smppSmsServiceBinder.getServiceName());
             logger.info("- Window Size    : " + smppSmsServiceBinder.getWindowSize());
@@ -129,7 +299,9 @@ public class SmppMessageServiceBinder {
     public void setupUcp(String ucpName, String ucpConfig) throws SMSException, MessageException, IOException, com.objectxp.msg.MessageException {
         if (!binderHashtable.containsKey(ucpName)) {
             Properties jSMSPropertiesSmpp = new Properties();
-            jSMSPropertiesSmpp.load(SmppMessageServiceBinder.class.getResourceAsStream(ucpConfig));
+            try (InputStream is = openConfigStream(ucpConfig)) {
+                jSMSPropertiesSmpp.load(is);
+            }
             UcpSmsService ucpSmsServiceBinder = new UcpSmsService();
             // ucpSmsServiceBinder.init(jSMSPropertiesSmpp); - init() method not available in current objectxp library
             logger.info("UCP binder initiated. (name=" + ucpName + ",config=" + ucpConfig + ")");
@@ -153,7 +325,9 @@ public class SmppMessageServiceBinder {
         } else {
             try {
                 Properties p = new Properties();
-                p.load(SmppMessageServiceBinder.class.getResourceAsStream(httpConfig));
+                try (InputStream is = openConfigStream(httpConfig)) {
+                    p.load(is);
+                }
                 String URL = p.getProperty(Http);
                 String ch = p.getProperty(Http + ".msgType.ch");
                 String en = p.getProperty(Http + ".msgType.en");
@@ -189,7 +363,9 @@ public class SmppMessageServiceBinder {
         } else {
             try {
                 Properties p = new Properties();
-                p.load(SmppMessageServiceBinder.class.getResourceAsStream(wsdlConfig));
+                try (InputStream is = openConfigStream(wsdlConfig)) {
+                    p.load(is);
+                }
                 String URL = p.getProperty(wsdl);
                 String ch = p.getProperty(wsdl + ".msgType.ch");
                 String en = p.getProperty(wsdl + ".msgType.en");
@@ -228,7 +404,9 @@ public class SmppMessageServiceBinder {
         } else {
             try {
                 Properties p = new Properties();
-                p.load(SmppMessageServiceBinder.class.getResourceAsStream(chargeConfig));
+                try (InputStream is = openConfigStream(chargeConfig)) {
+                    p.load(is);
+                }
                 String URL = p.getProperty(chargeName);
                 String ch = p.getProperty(chargeName + ".msgType.ch");
                 String en = p.getProperty(chargeName + ".msgType.en");

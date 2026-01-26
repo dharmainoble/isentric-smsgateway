@@ -24,10 +24,64 @@ public class Infobip161Util {
     private InfobipDipInterfaceService service = null;
     private InfobipDipInterface port = null;
 
+    // default timeouts (ms)
+    private static final int CONNECT_TIMEOUT_MS = 3000; // connect timeout
+    private static final int INVOKE_TIMEOUT_MS = 5000;  // overall invoke timeout
+
     public Infobip161Util(String serverIP) throws ServiceException, MalformedURLException {
         URL portAddress = new URL("http://192.168.26.161:8002/InfobipDipping/services/infobipws");
         this.service = new InfobipDipInterfaceServiceLocator();
+        // set the endpoint address on the locator (helps some Axis setups)
+        try {
+            ((InfobipDipInterfaceServiceLocator)this.service).setInfobipwsEndpointAddress(portAddress.toString());
+        } catch (Throwable ignored) {}
+
         this.port = this.service.getInfobipws(portAddress);
+
+        // If the returned port is an Axis Stub, set reasonable timeouts to avoid long blocking
+        try {
+            if (this.port instanceof org.apache.axis.client.Stub) {
+                org.apache.axis.client.Stub stub = (org.apache.axis.client.Stub) this.port;
+
+                // set overall call timeout (milliseconds)
+                try {
+                    stub.setTimeout(Integer.valueOf(INVOKE_TIMEOUT_MS));
+                } catch (Throwable t) {
+                    // ignore if not supported
+                }
+
+                // set properties that some Axis HTTP transport implementations respect
+                try {
+                    // Older Axis versions may not expose setProperty on Stub. Use reflection to set
+                    // entries into the protected 'cachedProperties' Hashtable which the generated
+                    // stub copies into each Call in createCall(). This keeps compatibility.
+                    try {
+                        java.lang.reflect.Field f = org.apache.axis.client.Stub.class.getDeclaredField("cachedProperties");
+                        f.setAccessible(true);
+                        java.util.Hashtable props = (java.util.Hashtable) f.get(stub);
+                        if (props == null) {
+                            props = new java.util.Hashtable();
+                        }
+                        props.put("http.socket.timeout", Integer.valueOf(INVOKE_TIMEOUT_MS));
+                        props.put("http.connection.timeout", Integer.valueOf(CONNECT_TIMEOUT_MS));
+                        f.set(stub, props);
+                    } catch (NoSuchFieldException nsf) {
+                        // Fallback: if cachedProperties not present, try calling setProperty if available
+                        try {
+                            java.lang.reflect.Method m = org.apache.axis.client.Stub.class.getMethod("setProperty", String.class, Object.class);
+                            m.invoke(stub, "http.socket.timeout", Integer.valueOf(INVOKE_TIMEOUT_MS));
+                            m.invoke(stub, "http.connection.timeout", Integer.valueOf(CONNECT_TIMEOUT_MS));
+                        } catch (Throwable ignore) {
+                            // best-effort only
+                        }
+                    }
+                } catch (Throwable t) {
+                    // ignore
+                }
+            }
+        } catch (Throwable t) {
+            logger.debug("Could not set Axis stub timeouts: " + t.getMessage());
+        }
     }
 
     public static Infobip161Util getInstance(String serverIP) throws MalformedURLException {
@@ -65,8 +119,11 @@ public class Infobip161Util {
                 }
             }
         } catch (RemoteException rExp) {
-            rExp.printStackTrace();
-            logger.fatal(rExp);
+            logger.warn("Infobip query RemoteException: " + rExp.getMessage());
+            logger.debug(rExp);
+        } catch (Exception e) {
+            logger.warn("Infobip query exception: " + e.getMessage());
+            logger.debug(e);
         }
 
         return retTelco;
@@ -81,7 +138,7 @@ public class Infobip161Util {
             if (infobidResp != null && "200".equals(infobidResp.getRespCode()) && infobidResp.getTelco() != null) {
                 retTelco = infobidResp.getTelco();
             } else {
-                logger.info("[ MNP Query Fail ]");
+                logger.info("[ MNP Query SkipFilter Fail ]");
                 if (infobidResp != null) {
                     logger.info("--------------------");
                     logger.info(infobidResp.getMsisdn());
@@ -93,8 +150,11 @@ public class Infobip161Util {
                 }
             }
         } catch (RemoteException rExp) {
-            rExp.printStackTrace();
-            logger.fatal(rExp);
+            logger.warn("Infobip query RemoteException (SkipFilter): " + rExp.getMessage());
+            logger.debug(rExp);
+        } catch (Exception e) {
+            logger.warn("Infobip query exception (SkipFilter): " + e.getMessage());
+            logger.debug(e);
         }
 
         return retTelco;
