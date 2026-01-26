@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.isentric.bulkgateway.repository.DigiSessionRepository;
+import com.isentric.bulkgateway.repository.BulkSkipAutoResendRepository;
 
 @Configuration
 @EnableTransactionManagement
@@ -58,6 +59,8 @@ public class BulkConfigDBConfig {
 				.build();
 		// Register the created EMF with DigiSessionRepository so it can use JPA native queries
 		DigiSessionRepository.setEntityManagerFactory(emf.getObject());
+		// Also register EMF with BulkSkipAutoResendRepository for our new table lookup
+		BulkSkipAutoResendRepository.setEntityManagerFactory(emf.getObject());
 		return emf;
 	}
 

@@ -218,7 +218,7 @@ public class ExternalMTPushInterfaceSoapBindingStub extends Stub implements Exte
             _call.setOperationName(new QName("http://webservice.smsserver.isentric.com", "HLRLookup"));
             this.setRequestHeaders(_call);
             this.setAttachments(_call);
-            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, remoteAdd, outputType, new Integer(invokeLive)});
+            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, remoteAdd, outputType, Integer.valueOf(invokeLive)});
             if (_resp instanceof RemoteException) {
                 throw (RemoteException)_resp;
             } else {
@@ -245,7 +245,7 @@ public class ExternalMTPushInterfaceSoapBindingStub extends Stub implements Exte
             _call.setOperationName(new QName("http://webservice.smsserver.isentric.com", "receiveExtMTPush"));
             this.setRequestHeaders(_call);
             this.setAttachments(_call);
-            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, new Integer(product_type), product_code, keyword, new Integer(data_encoding), data_str, data_url, new Integer(dnrep), group_tag, remoteAdd, urltitle, ewigFlag});
+            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, Integer.valueOf(product_type), product_code, keyword, Integer.valueOf(data_encoding), data_str, data_url, Integer.valueOf(dnrep), group_tag, remoteAdd, urltitle, ewigFlag});
             if (_resp instanceof RemoteException) {
                 throw (RemoteException)_resp;
             } else {
@@ -272,7 +272,7 @@ public class ExternalMTPushInterfaceSoapBindingStub extends Stub implements Exte
             _call.setOperationName(new QName("http://webservice.smsserver.isentric.com", "receiveExtMTPush"));
             this.setRequestHeaders(_call);
             this.setAttachments(_call);
-            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, new Integer(product_type), product_code, keyword, new Integer(data_encoding), data_str, data_url, new Integer(dnrep), group_tag, remoteAdd});
+            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, Integer.valueOf(product_type), product_code, keyword, Integer.valueOf(data_encoding), data_str, data_url, Integer.valueOf(dnrep), group_tag, remoteAdd});
             if (_resp instanceof RemoteException) {
                 throw (RemoteException)_resp;
             } else {
@@ -299,7 +299,7 @@ public class ExternalMTPushInterfaceSoapBindingStub extends Stub implements Exte
             _call.setOperationName(new QName("http://webservice.smsserver.isentric.com", "receiveExtMTPush"));
             this.setRequestHeaders(_call);
             this.setAttachments(_call);
-            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, new Integer(product_type), product_code, keyword, new Integer(data_encoding), data_str, data_url, new Integer(dnrep), group_tag, remoteAdd, urltitle, ewigFlag, cFlag});
+            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, Integer.valueOf(product_type), product_code, keyword, Integer.valueOf(data_encoding), data_str, data_url, Integer.valueOf(dnrep), group_tag, remoteAdd, urltitle, ewigFlag, cFlag});
             if (_resp instanceof RemoteException) {
                 throw (RemoteException)_resp;
             } else {
@@ -326,7 +326,7 @@ public class ExternalMTPushInterfaceSoapBindingStub extends Stub implements Exte
             _call.setOperationName(new QName("http://webservice.smsserver.isentric.com", "receiveExtMTPush"));
             this.setRequestHeaders(_call);
             this.setAttachments(_call);
-            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, new Integer(product_type), product_code, keyword, new Integer(data_encoding), data_str, data_url, new Integer(dnrep), group_tag, remoteAdd, cFlag});
+            Object _resp = _call.invoke(new Object[]{shortcode, custid, rmsisdn, smsisdn, messageid, messageprice, Integer.valueOf(product_type), product_code, keyword, Integer.valueOf(data_encoding), data_str, data_url, Integer.valueOf(dnrep), group_tag, remoteAdd, cFlag});
             if (_resp instanceof RemoteException) {
                 throw (RemoteException)_resp;
             } else {

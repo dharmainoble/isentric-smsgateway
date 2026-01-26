@@ -1142,7 +1142,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, sender_name, keyword, interactive_session_ind, interactive_term_session, new Integer(status), transaction_id, ref_id, short_code_suffix_ind, short_code_suffix, new Integer(notification_ind), response_url, sms_contents, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, sender_name, keyword, interactive_session_ind, interactive_term_session, Integer.valueOf(status), transaction_id, ref_id, short_code_suffix_ind, short_code_suffix, Integer.valueOf(notification_ind), response_url, sms_contents, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1177,7 +1177,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, ref_id, new Integer(notification_ind), response_url, sms_contents, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, ref_id, Integer.valueOf(notification_ind), response_url, sms_contents, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1212,7 +1212,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, sender_name, keyword, new Integer(status), transaction_id, ref_id, new Integer(notification_ind), response_url, subject, mms_contents, attachment, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, sender_name, keyword, Integer.valueOf(status), transaction_id, ref_id, Integer.valueOf(notification_ind), response_url, subject, mms_contents, attachment, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1247,7 +1247,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, subject, ref_id, new Integer(notification_ind), response_url, mms_contents, attachment, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, subject, ref_id, Integer.valueOf(notification_ind), response_url, mms_contents, attachment, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1282,7 +1282,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, destination_mobtel, sub_id, keyword, new Integer(status), transaction_id, ref_id, new Integer(notification_ind), response_url, wappush_content, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, destination_mobtel, sub_id, keyword, Integer.valueOf(status), transaction_id, ref_id, Integer.valueOf(notification_ind), response_url, wappush_content, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1317,7 +1317,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, ref_id, new Integer(notification_ind), response_url, wappush_content, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, ref_id, Integer.valueOf(notification_ind), response_url, wappush_content, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1352,7 +1352,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, destination_mobtel, sub_id, sender_name, keyword, new Integer(status), ref_id, new Integer(notification_ind), response_url, sms_contents});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, destination_mobtel, sub_id, sender_name, keyword, Integer.valueOf(status), ref_id, Integer.valueOf(notification_ind), response_url, sms_contents});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1387,7 +1387,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, destination_mobtel, sub_id, sender_name, keyword, new Integer(status), ref_id, new Integer(notification_ind), response_url, sub_rem_txnid, sms_contents});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, destination_mobtel, sub_id, sender_name, keyword, Integer.valueOf(status), ref_id, Integer.valueOf(notification_ind), response_url, sub_rem_txnid, sms_contents});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1457,7 +1457,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, keyword, ref_id, new Integer(notification_ind), response_url, sms_contents, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, keyword, ref_id, Integer.valueOf(notification_ind), response_url, sms_contents, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1492,7 +1492,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, keyword, ref_id, new Integer(notification_ind), response_url, subject, mms_contents, attachment, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, sender_name, keyword, ref_id, Integer.valueOf(notification_ind), response_url, subject, mms_contents, attachment, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1527,7 +1527,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, keyword, ref_id, new Integer(notification_ind), response_url, wappush_content, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, destination_mobtel, keyword, ref_id, Integer.valueOf(notification_ind), response_url, wappush_content, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1597,7 +1597,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, sender_name, keyword, ref_id, sub_bc_id, new Integer(sub_bc_valid_hour), sub_bc_again, sub_bc_start_time, sms_contents, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, sender_name, keyword, ref_id, sub_bc_id, Integer.valueOf(sub_bc_valid_hour), sub_bc_again, sub_bc_start_time, sms_contents, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1632,7 +1632,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, sender_name, keyword, ref_id, sub_bc_id, new Integer(sub_bc_valid_hour), sub_bc_again, sub_bc_start_time, subject, mms_contents, attachment, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, sender_name, keyword, ref_id, sub_bc_id, Integer.valueOf(sub_bc_valid_hour), sub_bc_again, sub_bc_start_time, subject, mms_contents, attachment, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -1667,7 +1667,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, keyword, ref_id, sub_bc_id, new Integer(sub_bc_valid_hour), sub_bc_again, sub_bc_start_time, wappush_content, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, keyword, ref_id, sub_bc_id, Integer.valueOf(sub_bc_valid_hour), sub_bc_again, sub_bc_start_time, wappush_content, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {

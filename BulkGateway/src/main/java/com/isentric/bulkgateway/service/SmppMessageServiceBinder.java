@@ -1,9 +1,6 @@
 package com.isentric.bulkgateway.service;
 
 import com.isentric.bulkgateway.dto.*;
-import com.isentric.bulkgateway.dto.AdditionalInfo;
-import com.isentric.bulkgateway.dto.SMSContent;
-import com.isentric.bulkgateway.dto.VariableBundle;
 import com.isentric.bulkgateway.exception.MessageException;
 import com.isentric.bulkgateway.exception.SMSException;
 import com.isentric.bulkgateway.extmt.webservice.ExternalMTPushInterface;
@@ -16,6 +13,7 @@ import com.isentric.bulkgateway.manager.PrefixManager;
 import com.isentric.bulkgateway.manager.VoidMessagesPrefixManager;
 import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.repository.DigiSessionRepository;
+import com.isentric.bulkgateway.repository.BulkSkipAutoResendRepository;
 import com.isentric.bulkgateway.repository.MessageServiceDao;
 import com.isentric.bulkgateway.util.UID;
 import com.isentric.bulkgateway.utility.*;
@@ -41,10 +39,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -3967,7 +3962,7 @@ public class SmppMessageServiceBinder {
 
             try {
                 smppSmsServiceBinder.disconnect();
-            } catch (MessageException msgExp) {
+            } catch (com.objectxp.msg.MessageException msgExp) {
                 msgExp.printStackTrace();
                 logger.fatal(msgExp);
             }
@@ -4208,6 +4203,8 @@ public class SmppMessageServiceBinder {
                                     cache.resetPrefixVObj(smsMessage.getTelco(), response.toString());
                                 } catch (CacheException e) {
                                     e.printStackTrace();
+                                } catch (org.apache.jcs.access.exception.CacheException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                         } else if (response == "01010" && response == "01012" && response == "10" && response == "100-success") {
@@ -6562,10 +6559,15 @@ public class SmppMessageServiceBinder {
     }
 
     public boolean checkSkipAutoResend(String keyword) throws SQLException {
-        boolean status = false;
-        String sql = "select custid from bulk_config.bulk_skip_autoresend where custid='" + keyword + "' and status='0'";
-        status = dao.check(sql, "bulkgatewayDS");
-        return status;
+        // Use the JPA-backed repository helper which has been wired with the EntityManagerFactory
+        try {
+            BulkSkipAutoResendRepository repo = new BulkSkipAutoResendRepository();
+            return repo.existsByCustId(keyword);
+        } catch (Exception e) {
+            logger.error("Error while checking skip autoresend for keyword=" + keyword, e);
+            // fall back to false on error
+            return false;
+        }
     }
 
 }

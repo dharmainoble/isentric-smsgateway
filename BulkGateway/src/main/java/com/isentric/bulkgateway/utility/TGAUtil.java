@@ -5,12 +5,12 @@
 
 package com.isentric.bulkgateway.utility;
 
-import com.isentric.bg.impl.dao.Dao;
-import com.isentric.bg.manager.LoggerManager;
-import com.isentric.bg.tga.webservice.QSQueryService;
-import com.isentric.bg.tga.webservice.QSQueryServiceLocator;
-import com.isentric.bg.tga.webservice.QSQuery_PortType;
-import com.isentric.bg.tga.webservice.QSResponse;
+
+import com.isentric.bulkgateway.manager.LoggerManager;
+import com.isentric.bulkgateway.tga.webservice.QSQueryService;
+import com.isentric.bulkgateway.tga.webservice.QSQueryServiceLocator;
+import com.isentric.bulkgateway.tga.webservice.QSQuery_PortType;
+import com.isentric.bulkgateway.tga.webservice.QSResponse;
 import org.apache.log4j.Logger;
 
 import javax.xml.rpc.ServiceException;

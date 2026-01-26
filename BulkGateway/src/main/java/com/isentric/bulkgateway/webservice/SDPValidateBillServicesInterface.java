@@ -15,5 +15,5 @@ public interface SDPValidateBillServicesInterface extends Remote {
 
     SDPResult validateAndBill(String var1, String var2, String var3, String var4, String var5, String var6, String var7, String var8, String var9, String var10, int var11, String var12, VariableBundle[] var13, AdditionalInfo[] var14) throws RemoteException;
 
-    SDPResult validate(String loginName, String serviceId, String cpId, String priceCode, String chargeParty, String sender, String sender1, String subId, String keyword, String deliveryChannel, int status, String refId, com.isentric.bulkgateway.dto.VariableBundle[] variableBundles, com.isentric.bulkgateway.dto.AdditionalInfo[] additionalInfos);
+    SDPResult validate1(String loginName, String serviceId, String cpId, String priceCode, String chargeParty, String sender, String sender1, String subId, String keyword, String deliveryChannel, int status, String refId, VariableBundle[] variableBundles, AdditionalInfo[] additionalInfos);
 }

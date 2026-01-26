@@ -317,7 +317,7 @@ public class SDPValidateBillServicesHttpBindingStub extends Stub implements SDPV
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, keyword, delivery_channel, new Integer(status), ref_id, variable_bundles, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, keyword, delivery_channel, Integer.valueOf(status), ref_id, variable_bundles, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -352,7 +352,7 @@ public class SDPValidateBillServicesHttpBindingStub extends Stub implements SDPV
             this.setAttachments(_call);
 
             try {
-                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, keyword, delivery_channel, new Integer(status), ref_id, variable_bundles, array_of_info});
+                Object _resp = _call.invoke(new Object[]{login_name, service_id, cp_id, price_code, charge_party, source_mobtel, destination_mobtel, sub_id, keyword, delivery_channel, Integer.valueOf(status), ref_id, variable_bundles, array_of_info});
                 if (_resp instanceof RemoteException) {
                     throw (RemoteException)_resp;
                 } else {
@@ -367,6 +367,15 @@ public class SDPValidateBillServicesHttpBindingStub extends Stub implements SDPV
             } catch (AxisFault axisFaultException) {
                 throw axisFaultException;
             }
+        }
+    }
+
+    public SDPResult validate1(String loginName, String serviceId, String cpId, String priceCode, String chargeParty, String sender, String sender1, String subId, String keyword, String deliveryChannel, int status, String refId, VariableBundle[] variableBundles, AdditionalInfo[] additionalInfos) {
+        try {
+            return this.validate(loginName, serviceId, cpId, priceCode, chargeParty, sender, sender1, subId, keyword, deliveryChannel, status, refId, variableBundles, additionalInfos);
+        } catch (RemoteException e) {
+            // Interface does not declare RemoteException, wrap in unchecked
+            throw new RuntimeException("Remote call failed", e);
         }
     }
 

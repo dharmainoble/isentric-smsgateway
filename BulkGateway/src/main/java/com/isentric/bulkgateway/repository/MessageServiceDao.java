@@ -1,5 +1,6 @@
 package com.isentric.bulkgateway.repository;
 
+import com.isentric.bulkgateway.dto.extMTObject;
 import com.isentric.bulkgateway.model.SMSMessageResponse;
 import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.model.SMSMessageSent;
@@ -11,7 +12,10 @@ import msg.ems.EMSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,6 +196,49 @@ public class MessageServiceDao {
 
     public int insertSmppDn2(String smppName, String smppId, String sender, String recipient, String smppStatus, String errorCode, String errorList) throws SQLException {
         String sql = "INSERT INTO bulk_gateway.tbl_smpp_dn(row_id,smppName,smppId,smppType,sender,recipient,timestamp,smppStatus,errorCode,dcs,date,bytes) VALUES (null,'" + smppName + "','" + smppId + "','MT_STATUS','" + sender + "','6" + recipient + "',now(),'" + smppStatus + "','" + errorCode + "','240',now(),'" + errorList + "')";
+        return this.update(sql);
+    }
+
+    public int updateTelcoRoute() throws SQLException {
+        String sql = "UPDATE bulk_config.credit_control set route = 'HTTP_INFOBIP' WHERE country='maxis'";
+        return this.update(sql);
+    }
+
+    public ArrayList<extMTObject> queryCustInfo(String cpidentity) throws SQLException {
+        Connection conn = null;
+        ArrayList<extMTObject> bulkinfo = new ArrayList();
+
+        try {
+            conn = DBManagerDs.getManager().getConnection();
+            String SQL = "SELECT c.cp_ip,c.shortcode,c.cpidentity,b.masking_id FROM bulk_config.cpip c LEFT JOIN bulk_config.bulk_mask_id_control b ON c.cpidentity = b.custid WHERE c.cpidentity='" + cpidentity + "' AND b.enabled_flag=0 LIMIT 1;";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(SQL);
+            System.out.println(SQL);
+            extMTObject ext = new extMTObject();
+            System.out.println("rs>>>" + rs.next());
+
+            while(rs.next()) {
+                ext.setCpip(rs.getString("c.cp_ip") != null ? rs.getString("c.cp_ip") : "");
+                ext.setShortcode(rs.getString("c.shortcode") != null ? rs.getString("c.shortcode") : "");
+                ext.setCustId(rs.getString("c.cpidentity") != null ? rs.getString("c.cpidentity") : "");
+                ext.setSMsisdn(rs.getString("b.masking_id") != null ? rs.getString("b.masking_id") : "");
+                bulkinfo.add(ext);
+            }
+
+            rs.close();
+        } catch (Exception e) {
+            System.out.println("Error in queryCustInfo >>>" + e.getMessage());
+        } finally {
+            ;
+        }
+
+        System.out.println("bulkinfo>>>" + bulkinfo.size());
+        DBManagerDs.getManager().freeConnection(conn);
+        return bulkinfo;
+    }
+
+    public int insertModemSent(String Guid, String GroupId, String Telco, String SmppName, String SmppId, String Moid, String Sender, String Recipient, int SenderType, String Message, String Shortcode, String UserGroup, String Keyword, int sequence, String credit, String eventStatus) throws SQLException {
+        String sql = "INSERT INTO bulk_gateway.tbl_modem_sent (row_id,guid,groupId,telco,smppName,smppId,moid,sender,recipient,senderType,date,message,shortcode,userGroup,keyword,message_sequence,credit,smppStatus) VALUES (null,'" + StringUtil.trimToEmpty(Guid) + "','" + StringUtil.trimToEmpty(GroupId) + "','" + StringUtil.trimToEmpty(Telco) + "','" + StringUtil.trimToEmpty(SmppName) + "','" + StringUtil.trimToEmpty(SmppId) + "','" + StringUtil.trimToEmpty(Moid) + "','" + StringUtil.trimToEmpty(Sender) + "','" + StringUtil.trimToEmpty(Recipient) + "','" + StringUtil.trimToEmpty(String.valueOf(SenderType)) + "',now(),'" + StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.trimToEmpty(Message))) + "','" + StringUtil.trimToEmpty(Shortcode) + "','" + StringUtil.trimToEmpty(UserGroup) + "','" + StringUtil.trimToEmpty(Keyword) + "', " + sequence + ",'" + credit + "','" + StringUtil.trimToEmpty(eventStatus) + "')";
         return this.update(sql);
     }
 

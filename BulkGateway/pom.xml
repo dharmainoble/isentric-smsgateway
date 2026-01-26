@@ -113,6 +113,13 @@
             <version>2.3.0</version>
         </dependency>
 
+        <!-- IBM ICU for Unicode support -->
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>73.1</version>
+        </dependency>
+
         <!-- UUID Library -->
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
