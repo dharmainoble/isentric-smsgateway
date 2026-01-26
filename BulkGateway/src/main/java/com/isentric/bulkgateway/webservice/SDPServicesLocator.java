@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package com.isentric.bulkgateway.Dao;
+package com.isentric.bulkgateway.webservice;
 
 import org.apache.axis.AxisFault;
 import org.apache.axis.EngineConfiguration;

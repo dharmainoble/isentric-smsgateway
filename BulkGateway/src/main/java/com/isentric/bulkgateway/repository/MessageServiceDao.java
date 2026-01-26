@@ -6,6 +6,8 @@ import com.isentric.bulkgateway.model.SMSMessageSent;
 import com.isentric.bulkgateway.utility.DateUtil;
 import com.isentric.bulkgateway.utility.SmsUtil;
 import com.isentric.bulkgateway.utility.StringUtil;
+import msg.SmsMessage;
+import msg.ems.EMSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -111,7 +113,7 @@ public class MessageServiceDao {
         return 1;
     }
 
-    public int updateSmppSent(SMSMessageSmpp smsMessage, String eventStatus) throws SQLException {
+    public int updateSmppSent(EMSMessage smsMessage, String eventStatus) throws SQLException {
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
@@ -130,7 +132,7 @@ public class MessageServiceDao {
         return 0;
     }
 
-    public int updateSmppId(SMSMessageSmpp smsMessage, String smppId) throws SQLException {
+    public int updateSmppId(EMSMessage smsMessage, String smppId) throws SQLException {
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
@@ -146,7 +148,7 @@ public class MessageServiceDao {
         return 0;
     }
 
-    public int updateSmppError(SMSMessageSmpp smsMessage, String error) throws SQLException {
+    public int updateSmppError(EMSMessage smsMessage, String error) throws SQLException {
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
@@ -170,7 +172,30 @@ public class MessageServiceDao {
         return 0;
     }
 
-    public ArrayList<SMSMessageSmpp> findSmppSentDnByGroupId(String groupId) throws SQLException {
+    public int updateSmppSent2(com.objectxp.msg.SmsMessage smsMessage, String eventStatus, String transactionId) throws SQLException {
+        String sql = "UPDATE bulk_gateway.tbl_smpp_sent SET smppType='" + SmsUtil.getSmppStatusType(smsMessage.getType()) + "', smppStatus='" + StringUtil.trimToEmpty(eventStatus) + "', timestamp='" + StringUtil.trimToEmpty(DateUtil.getDateYYYYMMDDHHMMSS(smsMessage.getTimestamp())) + "', bytes='" + StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.byteToString(smsMessage.getBytes()))) + "', transactionId = '" + StringUtil.trimToEmpty(transactionId) + "' " + "WHERE guid='" + smsMessage.getProperty("SMPP_GUID") + "';";
+        int updateResult = 0;
+
+        try {
+            try {
+                Thread.sleep(1000L);
+                updateResult = this.update(sql);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return updateResult;
+        } finally {
+            ;
+        }
+    }
+
+    public int insertSmppDn2(String smppName, String smppId, String sender, String recipient, String smppStatus, String errorCode, String errorList) throws SQLException {
+        String sql = "INSERT INTO bulk_gateway.tbl_smpp_dn(row_id,smppName,smppId,smppType,sender,recipient,timestamp,smppStatus,errorCode,dcs,date,bytes) VALUES (null,'" + smppName + "','" + smppId + "','MT_STATUS','" + sender + "','6" + recipient + "',now(),'" + smppStatus + "','" + errorCode + "','240',now(),'" + errorList + "')";
+        return this.update(sql);
+    }
+
+  /*  public ArrayList<SMSMessageSmpp> findSmppSentDnByGroupId(String groupId) throws SQLException {
         List<SMSMessageSent> rows = smsMessageSentRepository.findByGroupId(groupId);
         ArrayList<SMSMessageSmpp> sentDnList = new ArrayList<>();
         if (rows != null && !rows.isEmpty()) {
@@ -190,6 +215,6 @@ public class MessageServiceDao {
             }
         }
         return sentDnList;
-    }
+    }*/
 
 }

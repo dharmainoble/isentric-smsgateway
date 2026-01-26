@@ -98,4 +98,10 @@ public class SMSMessageSmpp {
     @Transient
     public String messageBytes;
 
+    @Transient
+    public String property;
+
+    @Transient
+    public int type;
+
 }

@@ -1,22 +1,31 @@
 package com.isentric.bulkgateway.service;
 
 import com.isentric.bulkgateway.dto.*;
+import com.isentric.bulkgateway.dto.AdditionalInfo;
+import com.isentric.bulkgateway.dto.SMSContent;
+import com.isentric.bulkgateway.dto.VariableBundle;
 import com.isentric.bulkgateway.exception.MessageException;
 import com.isentric.bulkgateway.exception.SMSException;
+import com.isentric.bulkgateway.extmt.webservice.ExternalMTPushInterface;
+import com.isentric.bulkgateway.extmt.webservice.ExternalMTPushInterfaceService;
+import com.isentric.bulkgateway.extmt.webservice.ExternalMTPushInterfaceServiceLocator;
 import com.isentric.bulkgateway.listener.MOListenerSmpp;
 import com.isentric.bulkgateway.manager.LoggerManager;
 import com.isentric.bulkgateway.manager.MaxisDNStatusManager;
+import com.isentric.bulkgateway.manager.PrefixManager;
 import com.isentric.bulkgateway.manager.VoidMessagesPrefixManager;
 import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.repository.DigiSessionRepository;
 import com.isentric.bulkgateway.repository.MessageServiceDao;
+import com.isentric.bulkgateway.util.UID;
 import com.isentric.bulkgateway.utility.*;
+import com.isentric.bulkgateway.webservice.*;
 import com.objectxp.msg.*;
-import com.objectxp.msg.ems.EMSMessage;
 import com.objectxp.msg.ota.ServiceIndication;
 import com.objectxp.msg.smart.OperatorLogo;
 import com.objectxp.msg.smart.PictureMessage;
 import com.objectxp.msg.smart.Ringtone;
+import msg.ems.EMSMessage;
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.log4j.Logger;
 
@@ -47,7 +56,9 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hibernate.service.spi.ServiceException;
 import org.safehaus.uuid.UUIDGenerator;
-import org.safehaus.uuid.UUID;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class SmppMessageServiceBinder {
 
@@ -57,6 +68,7 @@ public class SmppMessageServiceBinder {
     private static Hashtable<String, Object> maskingHashtable = new Hashtable();
     public static final String PROVIDER_ID = "P-R0Sr4BNJxH3";
     public static final String PROVIDER_PASSWORD = "isentric123";
+
     MessageServiceDao messageServiceDao;
 
     //private static final Dao dao = new Dao();
@@ -345,14 +357,14 @@ public class SmppMessageServiceBinder {
                     ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
 
                     for (int j = 0; j < sms.getParts().length; ++j) {
-                        this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getParts()[j].getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessage()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
+                        this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessage()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
                     }
                 }
             } else {
                 ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
 
                 for (int i = 0; i < sms.getParts().length; ++i) {
-                    this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getParts()[i].getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessage()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
+                    this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName,  sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessage()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
                 }
             }
         } else if (smsMessage.getMessageType() == 6) {
@@ -374,7 +386,7 @@ public class SmppMessageServiceBinder {
             ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
 
             for (int i = 0; i < sms.getParts().length; ++i) {
-                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getParts()[i].getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
+                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName,  sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
             }
         } else if (smsMessage.getMessageType() == 5) {
             if (smsMessage.getMessage().startsWith("3000000946756E46757A696F6E02")) {
@@ -484,7 +496,7 @@ public class SmppMessageServiceBinder {
             ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
 
             for (int i = 0; i < sms.getParts().length; ++i) {
-                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getParts()[i].getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
+                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName,  sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
             }
         } else if (smsMessage.getMessageType() == 6) {
             EMSMessage sms = new EMSMessage();
@@ -504,7 +516,7 @@ public class SmppMessageServiceBinder {
             ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
 
             for (int i = 0; i < sms.getParts().length; ++i) {
-                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getParts()[i].getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
+                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName,  sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
             }
         } else if (smsMessage.getMessageType() == 5) {
             if (smsMessage.getMessage().startsWith("3000000946756E46757A696F6E02")) {
@@ -3422,7 +3434,7 @@ public class SmppMessageServiceBinder {
         return dtmScheduleTime;
     }
 
-    public void sendWsdl(String wsdlName, String credit, SMSMessageSmpp smsMessage) throws MessageException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, SQLException {
+    public void sendWsdl(String wsdlName, String credit, SMSMessageSmpp smsMessage) throws  InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, SQLException {
         String sender = "";
         String recipient = validateDigiRecipient(smsMessage.getRecipient());
         short nMessages = 1;
@@ -3509,6 +3521,8 @@ public class SmppMessageServiceBinder {
                         }
                     } catch (ServiceException e) {
                         e.printStackTrace();
+                    } catch (javax.xml.rpc.ServiceException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             } else {
@@ -3568,6 +3582,10 @@ public class SmppMessageServiceBinder {
                     }
                 } catch (ServiceException e) {
                     e.printStackTrace();
+                } catch (javax.xml.rpc.ServiceException e) {
+                    throw new RuntimeException(e);
+                } catch (com.objectxp.msg.MessageException e) {
+                    throw new RuntimeException(e);
                 }
             }
         } else if (smsMessage.getMessageType() == 6) {
@@ -3648,7 +3666,7 @@ public class SmppMessageServiceBinder {
                         if (!result.getTransaction_id().equals("")) {
                             transactionId = result.getTransaction_id();
                         }
-                    } catch (ServiceException e) {
+                    } catch (ServiceException | javax.xml.rpc.ServiceException e) {
                         e.printStackTrace();
                     }
                 }
@@ -3682,7 +3700,7 @@ public class SmppMessageServiceBinder {
                     if (!result.getTransaction_id().equals("")) {
                         transactionId = result.getTransaction_id();
                     }
-                } catch (ServiceException e) {
+                } catch (ServiceException | javax.xml.rpc.ServiceException e) {
                     e.printStackTrace();
                 }
             }
@@ -3722,6 +3740,8 @@ public class SmppMessageServiceBinder {
                 }
             } catch (ServiceException e) {
                 e.printStackTrace();
+            } catch (javax.xml.rpc.ServiceException e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -3772,11 +3792,11 @@ public class SmppMessageServiceBinder {
             URL portAddress = new URL(url);
             SDPValidateBill service = new SDPValidateBillLocator();
             SDPValidateBillServicesInterface port = service.getSDPValidateBillServicesHttpPort(portAddress);
-            SDPResult result = port.validate(login_name, service_id, cp_id, price_code, charge_party, sender, sender, sub_id, keyword, delivery_channel, status, ref_id, (VariableBundle[]) null, (AdditionalInfo[]) null);
+            SDPResult result = port.validate(login_name, service_id, cp_id, price_code, charge_party, sender, sender, sub_id, keyword, delivery_channel, status, ref_id,  null,  null);
             if (result != null) {
                 int validate = result.getError_code();
                 if (validate == 1) {
-                    SDPResult billresult = port.bill(login_name, service_id, cp_id, sender, delivery_channel, result.getTransaction_id(), ref_id, (AdditionalInfo[]) null);
+                    SDPResult billresult = port.bill(login_name, service_id, cp_id, sender, delivery_channel, result.getTransaction_id(), ref_id, null);
                     String dnStatus = "";
                     String errorList = "";
                     if (billresult.getError_code() == 1) {
@@ -3805,7 +3825,7 @@ public class SmppMessageServiceBinder {
 
     }
 
-    public synchronized void sendSmsMessageSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+    public synchronized void sendSmsMessageSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, com.objectxp.msg.MessageException {
         this.void_custid = smsMessage.getKeyword();
         if (binderHashtable.get(smppName) instanceof GsmSmsService) {
             this.sendGSM(smppName, credit, smsMessage);
@@ -3869,7 +3889,7 @@ public class SmppMessageServiceBinder {
 
     }
 
-    public void sendGSM(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException {
+    public void sendGSM(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, com.objectxp.msg.MessageException {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         if (smsMessage.getMessageType() == 0) {
@@ -4213,6 +4233,8 @@ public class SmppMessageServiceBinder {
                                     e.printStackTrace();
                                 } catch (MessageException e) {
                                     e.printStackTrace();
+                                } catch (com.objectxp.msg.MessageException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                         } else {
@@ -4238,6 +4260,8 @@ public class SmppMessageServiceBinder {
                                     e.printStackTrace();
                                 } catch (MessageException e) {
                                     e.printStackTrace();
+                                } catch (com.objectxp.msg.MessageException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                         }
@@ -4267,6 +4291,8 @@ public class SmppMessageServiceBinder {
                             e.printStackTrace();
                         } catch (MessageException e) {
                             e.printStackTrace();
+                        } catch (com.objectxp.msg.MessageException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 } else {
@@ -4293,7 +4319,7 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (BadPaddingException e) {
                         e.printStackTrace();
-                    } catch (MessageException e) {
+                    } catch (MessageException | com.objectxp.msg.MessageException e) {
                         e.printStackTrace();
                     }
                 }
@@ -4735,7 +4761,7 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (BadPaddingException e) {
                         e.printStackTrace();
-                    } catch (MessageException e) {
+                    } catch (MessageException | com.objectxp.msg.MessageException e) {
                         e.printStackTrace();
                     }
                 }
@@ -4837,6 +4863,8 @@ public class SmppMessageServiceBinder {
                                 e.printStackTrace();
                             } catch (MessageException e) {
                                 e.printStackTrace();
+                            } catch (com.objectxp.msg.MessageException e) {
+                                throw new RuntimeException(e);
                             }
                         }
                     }
@@ -4863,6 +4891,8 @@ public class SmppMessageServiceBinder {
                             e.printStackTrace();
                         } catch (MessageException e) {
                             e.printStackTrace();
+                        } catch (com.objectxp.msg.MessageException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -4889,6 +4919,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -5139,6 +5171,8 @@ public class SmppMessageServiceBinder {
                             e.printStackTrace();
                         } catch (MessageException e) {
                             e.printStackTrace();
+                        } catch (com.objectxp.msg.MessageException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -5238,6 +5272,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             } else {
@@ -5263,6 +5299,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -5357,6 +5395,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             } else {
@@ -5382,6 +5422,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -5469,6 +5511,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             } else {
@@ -5501,6 +5545,8 @@ public class SmppMessageServiceBinder {
                             e.printStackTrace();
                         } catch (MessageException e) {
                             e.printStackTrace();
+                        } catch (com.objectxp.msg.MessageException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 } else {
@@ -5926,6 +5972,8 @@ public class SmppMessageServiceBinder {
                             e.printStackTrace();
                         } catch (MessageException e) {
                             e.printStackTrace();
+                        } catch (com.objectxp.msg.MessageException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 } else {
@@ -5955,6 +6003,8 @@ public class SmppMessageServiceBinder {
                         e.printStackTrace();
                     } catch (MessageException e) {
                         e.printStackTrace();
+                    } catch (com.objectxp.msg.MessageException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             } else {

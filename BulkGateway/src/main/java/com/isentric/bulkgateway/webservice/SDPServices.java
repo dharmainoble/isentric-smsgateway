@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package com.isentric.bulkgateway.Dao;
+package com.isentric.bulkgateway.webservice;
 
 import javax.xml.rpc.Service;
 import javax.xml.rpc.ServiceException;
