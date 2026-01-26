@@ -5,8 +5,9 @@
 
 package com.isentric.bulkgateway.utility;
 
-import com.isentric.bg.manager.LoggerManager;
-import com.isentric.bg.vo.SMSMessage;
+
+import com.isentric.bulkgateway.manager.LoggerManager;
+import com.isentric.bulkgateway.model.SMSMessageSmpp;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.Calendar;
 public class ContentUtil {
     private static final Logger logger = LoggerManager.createLoggerPattern(ContentUtil.class);
 
-    public static ArrayList reformatContent(SMSMessage smsMessage) {
+    public static ArrayList reformatContent(SMSMessageSmpp smsMessage) {
         ArrayList message = new ArrayList();
         int nMessages = 0;
         int contentPartNumber = 0;

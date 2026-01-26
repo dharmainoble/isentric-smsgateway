@@ -5,7 +5,8 @@
 
 package com.isentric.bulkgateway.utility;
 
-import com.isentric.bg.manager.LoggerManager;
+
+import com.isentric.bulkgateway.manager.LoggerManager;
 import org.apache.log4j.Logger;
 
 public class SmsUtil {

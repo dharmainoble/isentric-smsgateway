@@ -1,6 +1,5 @@
 package msg;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class SmsMessage {
         this.messageText = messageText;
     }
 
-    public Date getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 

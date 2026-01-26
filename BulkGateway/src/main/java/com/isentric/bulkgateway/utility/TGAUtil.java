@@ -137,7 +137,7 @@ public class TGAUtil {
 
     public static String manualQueryTelco(String msisdn) {
         String telco = "YTL";
-        Dao dao = new Dao();
+        TagDao dao = new TagDao();
         Date today = new Date();
         Calendar cal = new GregorianCalendar();
         cal.setTime(today);
@@ -167,7 +167,7 @@ public class TGAUtil {
 
     public static String manualQueryTelcoWeek(String msisdn) {
         String telco = "YTL";
-        Dao dao = new Dao();
+        TagDao dao = new TagDao();
         Date today = new Date();
         Calendar cal = new GregorianCalendar();
         cal.setTime(today);

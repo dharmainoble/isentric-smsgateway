@@ -5,7 +5,6 @@
 
 package com.isentric.bulkgateway.dto;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.io.Serializable;
 

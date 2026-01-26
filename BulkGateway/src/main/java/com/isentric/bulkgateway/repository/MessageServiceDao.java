@@ -12,6 +12,11 @@ import msg.ems.EMSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Query;
+import com.isentric.bulkgateway.utility.EntityManagerFactoryProvider;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -209,7 +214,6 @@ public class MessageServiceDao {
         ArrayList<extMTObject> bulkinfo = new ArrayList();
 
         try {
-            conn = DBManagerDs.getManager().getConnection();
             String SQL = "SELECT c.cp_ip,c.shortcode,c.cpidentity,b.masking_id FROM bulk_config.cpip c LEFT JOIN bulk_config.bulk_mask_id_control b ON c.cpidentity = b.custid WHERE c.cpidentity='" + cpidentity + "' AND b.enabled_flag=0 LIMIT 1;";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(SQL);
@@ -233,7 +237,6 @@ public class MessageServiceDao {
         }
 
         System.out.println("bulkinfo>>>" + bulkinfo.size());
-        DBManagerDs.getManager().freeConnection(conn);
         return bulkinfo;
     }
 
@@ -242,26 +245,48 @@ public class MessageServiceDao {
         return this.update(sql);
     }
 
-  /*  public ArrayList<SMSMessageSmpp> findSmppSentDnByGroupId(String groupId) throws SQLException {
-        List<SMSMessageSent> rows = smsMessageSentRepository.findByGroupId(groupId);
-        ArrayList<SMSMessageSmpp> sentDnList = new ArrayList<>();
-        if (rows != null && !rows.isEmpty()) {
-            for (SMSMessageSent r : rows) {
-                SMSMessageSmpp sms = new SMSMessageSmpp();
-                sms.setGuid(r.getGuid());
-                sms.setGroupId(r.getGroupId());
-                sms.setTelco(r.getTelco());
-                sms.setSmppId(r.getSmppId());
-                sms.setSmppName(r.getSmppName());
-                sms.setMessage(r.getMessage());
-                sms.setTimestamp(r.getTimestamp());
-                sms.setSender(r.getSender());
-                sms.setRecipient(r.getRecipient());
-                sms.setSmppStatus(r.getSmppStatus());
-                sentDnList.add(sms);
+    // helper to execute raw update SQL when needed (keeps compatibility with legacy code)
+    private int update(String sql) throws SQLException {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = EntityManagerFactoryProvider.getEntityManager("bulkgateway");
+            tx = em.getTransaction();
+            tx.begin();
+            Query q = em.createNativeQuery(sql);
+            int result = q.executeUpdate();
+            tx.commit();
+            return result;
+        } catch (RuntimeException ex) {
+            if (tx != null && tx.isActive()) {
+                try { tx.rollback(); } catch (Exception e) {}
             }
+            throw new SQLException("Error executing update", ex);
+        } finally {
+            if (em != null && em.isOpen()) em.close();
         }
-        return sentDnList;
-    }*/
+    }
+
+    /*  public ArrayList<SMSMessageSmpp> findSmppSentDnByGroupId(String groupId) throws SQLException {
+          List<SMSMessageSent> rows = smsMessageSentRepository.findByGroupId(groupId);
+          ArrayList<SMSMessageSmpp> sentDnList = new ArrayList<>();
+          if (rows != null && !rows.isEmpty()) {
+              for (SMSMessageSent r : rows) {
+                  SMSMessageSmpp sms = new SMSMessageSmpp();
+                  sms.setGuid(r.getGuid());
+                  sms.setGroupId(r.getGroupId());
+                  sms.setTelco(r.getTelco());
+                  sms.setSmppId(r.getSmppId());
+                  sms.setSmppName(r.getSmppName());
+                  sms.setMessage(r.getMessage());
+                  sms.setTimestamp(r.getTimestamp());
+                  sms.setSender(r.getSender());
+                  sms.setRecipient(r.getRecipient());
+                  sms.setSmppStatus(r.getSmppStatus());
+                  sentDnList.add(sms);
+              }
+          }
+          return sentDnList;
+      }*/
 
 }

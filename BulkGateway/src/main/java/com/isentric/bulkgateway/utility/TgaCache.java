@@ -16,7 +16,7 @@ import java.util.List;
 
 public class TgaCache {
     private static final Logger logger = LoggerManager.createLoggerPattern(TgaCache.class);
-    Dao dao = new Dao();
+    TagDao dao = new TagDao();
     private static TgaCache sharedObj = null;
     private static ArrayList<tgaObject> list = null;
 

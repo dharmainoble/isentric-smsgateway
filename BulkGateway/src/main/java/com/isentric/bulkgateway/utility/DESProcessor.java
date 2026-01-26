@@ -5,8 +5,6 @@
 
 package com.isentric.bulkgateway.utility;
 
-import net.iharder.xmlizable.Base64;
-
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
 import java.net.URLDecoder;
@@ -14,43 +12,38 @@ import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 
 public class DESProcessor {
     public static DESProcessor desProcessor;
 
     public String encrypt(String data, String k) throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-        byte[] key = new byte[k.getBytes().length];
-
-        for(int i = 0; i < k.length(); ++i) {
-            key[i] = (byte)k.charAt(i);
-        }
-
-        DESKeySpec spec = new DESKeySpec(key);
+        // Ensure a DES key of length 8 bytes (truncate or pad as necessary)
+        byte[] keyBytes = Arrays.copyOf(k.getBytes(StandardCharsets.UTF_8), 8);
+        DESKeySpec spec = new DESKeySpec(keyBytes);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
         SecretKey secret = factory.generateSecret(spec);
-        Cipher desCipher = Cipher.getInstance("DES");
+        Cipher desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         desCipher.init(1, secret);
-        byte[] cleartext = data.getBytes();
+        byte[] cleartext = data.getBytes(StandardCharsets.UTF_8);
         byte[] ciphertext = desCipher.doFinal(cleartext);
-        String stringData = Base64.encodeBytes(ciphertext);
+        String stringData = Base64.getEncoder().encodeToString(ciphertext);
         return stringData;
     }
 
     public String decrypt(String data, String k) throws Exception {
-        byte[] key = new byte[k.getBytes().length];
-
-        for(int i = 0; i < k.length(); ++i) {
-            key[i] = (byte)k.charAt(i);
-        }
-
-        DESKeySpec spec = new DESKeySpec(key);
+        // Ensure a DES key of length 8 bytes (truncate or pad as necessary)
+        byte[] keyBytes = Arrays.copyOf(k.getBytes(StandardCharsets.UTF_8), 8);
+        DESKeySpec spec = new DESKeySpec(keyBytes);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
         SecretKey secret = factory.generateSecret(spec);
-        Cipher desCipher = Cipher.getInstance("DES");
-        desCipher.init(2, secret);
-        byte[] byteData = Base64.decode(data);
+        Cipher desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        desCipher.init(Cipher.DECRYPT_MODE, secret);
+        byte[] byteData = Base64.getDecoder().decode(data);
         byte[] clearText = desCipher.doFinal(byteData);
-        return new String(clearText);
+        return new String(clearText, StandardCharsets.UTF_8);
     }
 
     public static void main(String[] args) throws Exception {

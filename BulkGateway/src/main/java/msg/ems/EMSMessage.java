@@ -132,11 +132,19 @@ public class EMSMessage extends SmsMessage {
         return 0;
     }
 
-    public void setMessageId(String messageId) {
-        this.id = messageId;
+
+    // The supertype expects message id as a long; provide the matching signatures
+    public void setMessageId(long messageId) {
+        this.id = String.valueOf(messageId);
     }
 
-    public String getMessageId() {
-        return this.id;
+    public long getMessageId() {
+        if (this.id == null) return 0L;
+        try {
+            return Long.parseLong(this.id);
+        } catch (NumberFormatException ex) {
+            // when the stored id is not numeric, return 0
+            return 0L;
+        }
     }
 }

@@ -591,7 +591,7 @@ public class SmppMessageServiceBinder {
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double cFlagMaxLength = (double) 134.0F;
         double cChineseFlagMaxLength = (double) 268.0F;
         int cFlagMaxLengthInt = Integer.parseInt(String.valueOf(cFlagMaxLength).substring(0, String.valueOf(cFlagMaxLength).length() - 2));
@@ -866,7 +866,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double cFlagMaxLength = (double) 134.0F;
         double cChineseFlagMaxLength = (double) 268.0F;
         int cFlagMaxLengthInt = Integer.parseInt(String.valueOf(cFlagMaxLength).substring(0, String.valueOf(cFlagMaxLength).length() - 2));
@@ -1060,7 +1060,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 256.0F;
         EMSMessage sms = new EMSMessage();
@@ -1203,7 +1203,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 256.0F;
         EMSMessage sms = new EMSMessage();
@@ -1341,7 +1341,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         new UID();
         String refid = null;
 
@@ -1491,7 +1491,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 160.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         new UID();
         String refid = null;
 
@@ -1625,7 +1625,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 160.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         new UID();
         String refid = null;
 
@@ -1754,7 +1754,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 256.0F;
         EMSMessage sms = new EMSMessage();
@@ -1887,7 +1887,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 256.0F;
         EMSMessage sms = new EMSMessage();
@@ -2279,7 +2279,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         UUIDGenerator uuid = UUIDGenerator.getInstance();
         String company = "isentric";
         String user = "isentric";
@@ -2425,7 +2425,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         UUIDGenerator uuid = UUIDGenerator.getInstance();
         String company = "isentric";
         String user = "isentric";
@@ -2554,7 +2554,7 @@ public class SmppMessageServiceBinder {
         short nMessages = 1;
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
         sms.setSender(sender);
@@ -2682,7 +2682,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
         sms.setSender(sender);
@@ -2762,7 +2762,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         UUIDGenerator uuid = UUIDGenerator.getInstance();
         String signature = "";
         EMSMessage sms = new EMSMessage();
@@ -2977,7 +2977,7 @@ public class SmppMessageServiceBinder {
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
         sms.setSender(sender);
@@ -3059,7 +3059,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         new UID();
         String refid = null;
 
@@ -3213,7 +3213,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         new UID();
         String refid = null;
 
@@ -3359,7 +3359,7 @@ public class SmppMessageServiceBinder {
         double cFlagMaxLength = (double) 153.0F;
         double cFlagChineseMaxLength = (double) 252.0F;
         new DESProcessor();
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
         sms.setSender(sender);
@@ -3449,7 +3449,7 @@ public class SmppMessageServiceBinder {
         int code = 0;
         String transactionId = "";
         String datacoding = "3";
-        String cFlag = "" + smsMessage.getCFlag();
+        String cFlag = "" + smsMessage.getcFlag();
         double maxLength = (double) 160.0F;
         double maxChineseLength = (double) 280.0F;
         if (cFlag.equalsIgnoreCase("1")) {

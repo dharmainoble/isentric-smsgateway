@@ -12,18 +12,20 @@ import org.apache.jcs.access.CacheAccess;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.List;
+
+import com.isentric.bulkgateway.utility.EntityManagerFactoryProvider;
 
 public class PrefixManager {
     private static PrefixManager instance;
     private static int checkedOut = 0;
-    private static CacheAccess<Object> prefixCache;
+    // CacheAccess expects key and value type parameters
+    private static CacheAccess<String, Prefix> prefixCache;
     private static final Logger logger = LoggerManager.createLoggerPattern(PrefixManager.class);
 
     private PrefixManager() throws CacheException {
-        prefixCache = JCS.getInstance("prefixCache");
+        // JCS.getInstance may return a raw CacheAccess; cast to our typed CacheAccess
+        prefixCache = (CacheAccess<String, Prefix>) JCS.getInstance("prefixCache");
     }
 
     public static PrefixManager getInstance() throws CacheException {
@@ -68,25 +70,26 @@ public class PrefixManager {
 
         try {
             boolean found = false;
-            String sql = "select route from bulk_config.credit_control where country = '" + key + "'";
-            DBManager.setupDriver();
-            DBManagerDs dbManager = DBManagerDs.getManager("avatar");
-            Connection con = dbManager.getConnection();
-            Statement stmt = con.createStatement();
+            String sql = "select route from bulk_config.credit_control where country = ?";
+            List<Object[]> rows = EntityManagerFactoryProvider.executeNativeQueryAsArray("bulk_config", sql, key);
 
-            ResultSet rs;
-            for(rs = stmt.executeQuery(sql); rs.next(); found = true) {
-                vObj.setRoute(rs.getString("route"));
+            if (rows != null && !rows.isEmpty()) {
+                for (Object row : rows) {
+                    found = true;
+                    if (row instanceof Object[]) {
+                        Object[] cols = (Object[]) row;
+                        vObj.setRoute(cols[0] != null ? String.valueOf(cols[0]) : "");
+                    } else {
+                        // single column fallback
+                        vObj.setRoute(row != null ? String.valueOf(row) : "");
+                    }
+                }
             }
 
             if (found) {
                 prefixCache.remove("PrefixVObj" + key);
                 prefixCache.put("PrefixVObj" + key, vObj);
             }
-
-            rs.close();
-            stmt.close();
-            dbManager.freeConnection(con);
         } catch (Exception e) {
             logger.fatal(e);
         }

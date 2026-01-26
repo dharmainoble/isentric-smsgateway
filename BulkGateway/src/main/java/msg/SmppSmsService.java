@@ -44,10 +44,10 @@ public class SmppSmsService implements SmsService {
     }
 
     @Override
-    public void startReceiving() throws MessageException {}
+    public void startReceiving() {}
 
     @Override
-    public void stopReceiving() throws MessageException {}
+    public void stopReceiving() {}
 
     @Override
     public String getServiceName() {

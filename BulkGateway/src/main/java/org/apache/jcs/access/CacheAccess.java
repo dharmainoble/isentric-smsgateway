@@ -1,7 +1,7 @@
 package org.apache.jcs.access;
 import java.util.HashMap;
 import java.util.Map;
-public class CacheAccess<V> {
+public class CacheAccess<V, P> {
     private final String cacheName;
     private final Map<String, V> cache = new HashMap<>();
     public CacheAccess(String cacheName) {

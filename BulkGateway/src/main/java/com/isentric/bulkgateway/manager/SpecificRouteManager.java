@@ -14,7 +14,8 @@ import org.apache.log4j.Logger;
 public class SpecificRouteManager {
     private static SpecificRouteManager instance;
     private static int checkedOut = 0;
-    private static CacheAccess<Object> prefixCache;
+    // CacheAccess expects two type arguments: key and value
+    private static CacheAccess<String, SpecificRouteObject> prefixCache;
     private static final Logger logger = LoggerManager.createLoggerPattern(SpecificRouteManager.class);
 
     private SpecificRouteManager() throws CacheException {

@@ -5,11 +5,12 @@
 
 package com.isentric.bulkgateway.utility;
 
-import com.isentric.bg.infobip.webservice.InfobipDipInterface;
-import com.isentric.bg.infobip.webservice.InfobipDipInterfaceService;
-import com.isentric.bg.infobip.webservice.InfobipDipInterfaceServiceLocator;
-import com.isentric.bg.manager.LoggerManager;
-import com.isentric.bg.tga.webservice.QSResponse;
+
+import com.isentric.bulkgateway.infobip.webservice.InfobipDipInterface;
+import com.isentric.bulkgateway.infobip.webservice.InfobipDipInterfaceService;
+import com.isentric.bulkgateway.infobip.webservice.InfobipDipInterfaceServiceLocator;
+import com.isentric.bulkgateway.manager.LoggerManager;
+import com.isentric.bulkgateway.tga.webservice.QSResponse;
 import org.apache.log4j.Logger;
 
 import javax.xml.rpc.ServiceException;

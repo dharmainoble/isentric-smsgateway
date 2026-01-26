@@ -12,14 +12,15 @@ import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.List;
+
+import com.isentric.bulkgateway.utility.EntityManagerFactoryProvider;
 
 public class MessagesManager {
     private static MessagesManager instance;
     private static int checkedOut = 0;
-    private static CacheAccess<Object> messagesCache;
+    // CacheAccess expects two type arguments: key and value
+    private static CacheAccess<String, Object> messagesCache;
     private static final Logger logger = LoggerManager.createLoggerPattern(MessagesManager.class);
 
     private MessagesManager() throws CacheException {
@@ -61,21 +62,29 @@ public class MessagesManager {
         try {
             boolean found = false;
             String sql;
+            List<?> rows;
             if (!key.equalsIgnoreCase("")) {
-                sql = "select custid,messages from bulk_config.specific_messages where status = '0' and custid ='" + key + "'";
+                sql = "select custid,messages from bulk_config.specific_messages where status = '0' and custid = ?";
+                rows = EntityManagerFactoryProvider.executeNativeQuery("bulk_config", sql, key);
             } else {
                 sql = "select custid,messages from bulk_config.specific_messages where status = '0' ";
+                rows = EntityManagerFactoryProvider.executeNativeQuery("bulk_config", sql);
             }
 
-            DBManager.setupDriver();
-            DBManagerDs dbManager = DBManagerDs.getManager("avatar");
-            Connection con = dbManager.getConnection();
-            Statement stmt = con.createStatement();
-
-            ResultSet rs;
-            for(rs = stmt.executeQuery(sql); rs.next(); found = true) {
-                vObj.setMessages(rs.getString("custid"));
-                vObj.setMessages(rs.getString("messages"));
+            // Use JPA EntityManager provider to execute the native SQL and obtain results
+            if (rows != null && !rows.isEmpty()) {
+                for (Object row : rows) {
+                    found = true;
+                    if (row instanceof Object[]) {
+                        Object[] cols = (Object[]) row;
+                        // expect cols[0] = custid, cols[1] = messages
+                        vObj.setCustid(cols[0] != null ? String.valueOf(cols[0]) : "");
+                        vObj.setMessages(cols[1] != null ? String.valueOf(cols[1]) : "");
+                    } else {
+                        // single column - treat as messages
+                        vObj.setMessages(row != null ? String.valueOf(row) : "");
+                    }
+                }
             }
 
             if (found) {
@@ -83,9 +92,6 @@ public class MessagesManager {
                 messagesCache.put("MessagesVObj" + key, vObj);
             }
 
-            rs.close();
-            stmt.close();
-            dbManager.freeConnection(con);
         } catch (Exception e) {
             logger.fatal(e);
         }
@@ -120,16 +126,5 @@ public class MessagesManager {
 
     }
 
-    public void resetMessagesVObj() {
-        try {
-            messagesCache.remove();
-            instance = null;
-            this.loadMessagesVObj("");
-            logger.info("Sucess to reset Messages ");
-        } catch (Exception e) {
-            logger.info("Fail to reset Messages ");
-            logger.fatal(e);
-        }
 
-    }
 }

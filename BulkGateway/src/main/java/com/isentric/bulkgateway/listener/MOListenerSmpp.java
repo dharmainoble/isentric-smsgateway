@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.isentric.bulkgateway.manager.LoggerManager;
+import com.isentric.bulkgateway.repository.MessageServiceDao;
 import com.isentric.bulkgateway.service.SmppMessageServiceBinder;
 import com.isentric.bulkgateway.utility.SmsUtil;
 import com.objectxp.msg.*;
