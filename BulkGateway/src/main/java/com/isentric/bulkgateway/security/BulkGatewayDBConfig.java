@@ -24,7 +24,7 @@ import com.isentric.bulkgateway.repository.BulkSkipAutoResendRepository;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-		basePackages = {"com.isentric.bulkgateway.bg.repository"},
+		basePackages = {"com.isentric.bulkgateway.bg.repository", "com.isentric.bulkgateway.repository"},
 		entityManagerFactoryRef = "bgEntityManagerFactory",
 		transactionManagerRef = "bgTransactionManager"
 )
@@ -55,7 +55,7 @@ public class BulkGatewayDBConfig {
         properties.put("hibernate.hbm2ddl.auto", "none");
         return builder
                 .dataSource(dataSource)
-                .packages("com.isentric.bulkgateway.bg.model").persistenceUnit("Bulk Gateway")
+                .packages("com.isentric.bulkgateway.bg.model").persistenceUnit("bulkgateway")
                 .properties(properties)
                 .build();
     }

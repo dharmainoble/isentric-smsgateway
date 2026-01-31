@@ -72,7 +72,7 @@ public class PrefixManager {
 
         try {
             boolean found = false;
-            String sql = "select route from bulk_config.credit_control where country = ?";
+            String sql = "select route,credit from bulk_config.credit_control where country = ?";
             List<Object[]> rows = EntityManagerFactoryProvider.executeNativeQueryAsArray("bulk_config", sql, key);
 
             if (rows != null && !rows.isEmpty()) {
@@ -81,9 +81,11 @@ public class PrefixManager {
                     if (row instanceof Object[]) {
                         Object[] cols = (Object[]) row;
                         vObj.setRoute(cols[0] != null ? String.valueOf(cols[0]) : "");
+                        vObj.setCredit(cols[1] != null ? String.valueOf(cols[1]) : "");
                     } else {
                         // single column fallback
                         vObj.setRoute(row != null ? String.valueOf(row) : "");
+
                     }
                 }
             }

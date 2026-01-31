@@ -23,7 +23,8 @@ public class JavaSSLCertificate {
 
     public static void retImportCert(String host, int port) throws Exception {
         char[] passphrase = "changeit".toCharArray();
-        File file = new File("C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.out.println("Opening connection to " + host + ":" + port + "...");
+        File file = new File("/home/arun/Documents/rec/MyMaxisKeyStore.jks");
         logger.debug("Loading KeyStore " + file + "...");
         InputStream in = new FileInputStream(file);
         KeyStore ks = KeyStore.getInstance("jks");
@@ -76,13 +77,13 @@ public class JavaSSLCertificate {
             X509Certificate cert = chain[0];
             String alias = host + "-" + DateUtil.getDateYYYYMMDD(new Date());
             ks.setCertificateEntry(alias, cert);
-            OutputStream out = new FileOutputStream("C:\\bulk-cert\\MyMaxisKeyStore.jks");
+            OutputStream out = new FileOutputStream("/home/arun/Documents/rec/MyMaxisKeyStore.jks");
             ks.store(out, "changeit".toCharArray());
             out.close();
             System.out.println();
             System.out.println();
             logger.info("Added certificate to keystore [C:\\bulk-cert\\MyMaxisKeyStore.jks using alias '" + alias + "'");
-            System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+            System.setProperty("javax.net.ssl.trustStore", "/home/arun/Documents/rec/MyMaxisKeyStore.jks");
         }
     }
 

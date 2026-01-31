@@ -31,6 +31,8 @@ public final class EntityManagerFactoryProvider {
                 // common bean name convention created by BulkPersistenceConfig
                 // Try several bean name variants and known mappings
                 String[] candidateBeanNames = new String[] {
+                        // include the canonical bean name created by BulkPersistenceConfig
+                        "entityManagerFactory",
                         persistenceUnitName + "EntityManagerFactory",
                         persistenceUnitName.replaceAll("[\\s_]+","") + "EntityManagerFactory",
                         persistenceUnitName.replaceAll("[^A-Za-z0-9]","") + "EntityManagerFactory",

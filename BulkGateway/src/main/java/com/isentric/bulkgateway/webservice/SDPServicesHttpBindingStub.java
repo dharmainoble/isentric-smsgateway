@@ -1164,6 +1164,7 @@ public class SDPServicesHttpBindingStub extends Stub implements SDPServicesInter
         if (super.cachedEndpoint == null) {
             throw new NoEndPointException();
         } else {
+            System.out.println("smsBulk called");
             Call _call = this.createCall();
             _call.setOperation(_operations[7]);
             _call.setUseSOAPAction(true);

@@ -37,7 +37,7 @@ public class SMSMessageService {
     private SMSMessageSmppRepository sMSMessageSmppRepository;
 
     // Fallback EntityManager for 'bg' persistence unit (Bulk Gateway)
-    @PersistenceContext(unitName = "Bulk Gateway")
+    @PersistenceContext(unitName = "bulkgateway")
     private EntityManager bgEntityManager;
 
     @Transactional

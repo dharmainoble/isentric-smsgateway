@@ -18,50 +18,56 @@ import java.util.Date;
 import java.util.Hashtable;
 
 public class LoggerManager {
-    private static final String DEFAULT_LOG_PATH_PREFIX = "/app/logs/bulk-gateway/";
+    private static final String DEFAULT_LOG_PATH_PREFIX = System.getProperty("user.home") + "/logs/bulk-gateway";
     private static final int DEFAULT_MAX_BACKUP_INDEX = 10;
     private static final Hashtable<String, Logger> loggerHashtable = new Hashtable();
 
     public static Logger createLoggerPattern(Class c) {
-        return createLoggerPattern(c, "/app/logs/bulk-gateway/", 10);
+        // Use a safe default location under the current user's home directory.
+        return createLoggerPattern(c, DEFAULT_LOG_PATH_PREFIX, DEFAULT_MAX_BACKUP_INDEX);
     }
 
     public static Logger createLoggerPattern(Class c, int maxBackupIndex) {
-        return createLoggerPattern(c, "/app/logs/bulk-gateway/", maxBackupIndex);
+        return createLoggerPattern(c, DEFAULT_LOG_PATH_PREFIX, maxBackupIndex);
     }
 
     public static Logger createLoggerPattern(Class c, String pathprefix, int maxBackupIndex) {
-        Logger logger = Logger.getLogger(c);
-        String pattern = ">>  %d{ISO8601} # %l # %m%n";
-        String dirPath = pathprefix + "/" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
-        String outPath = dirPath + c.getName() + ".txt";
-        boolean dirOk = createLoggerFilePath(dirPath);
-        PatternLayout layout = new PatternLayout(pattern);
-        if (dirOk) {
-            try {
-                RollingFileAppender appender = new RollingFileAppender(layout, outPath);
-                appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
-                appender.setMaxBackupIndex(maxBackupIndex);
-                logger.addAppender(appender);
-                logger.setLevel(Level.ALL);
-                return logger;
-            } catch (IOException ioe) {
-                // fall through to console fallback
-            }
-        }
+         Logger logger = Logger.getLogger(c);
+         String pattern = ">>  %d{ISO8601} # %l # %m%n";
+        // Ensure pathprefix does not end with a slash (we'll add separators consistently)
+        String basePrefix = (pathprefix == null || pathprefix.isEmpty()) ? DEFAULT_LOG_PATH_PREFIX : pathprefix;
+        String dirPath = basePrefix + File.separator + getDateToFormattedString(new Date(), "yyyyMMdd") + File.separator;
+        // Use the class simple name as the log filename to make files discoverable
+        String outPath = dirPath + c.getSimpleName() + ".log";
+         System.out.println(outPath);
+         boolean dirOk = createLoggerFilePath(dirPath);
+         PatternLayout layout = new PatternLayout(pattern);
+         if (dirOk) {
+             try {
+                 RollingFileAppender appender = new RollingFileAppender(layout, outPath);
+                 appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
+                 appender.setMaxBackupIndex(maxBackupIndex);
+                 logger.addAppender(appender);
+                 logger.setLevel(Level.ALL);
+                 return logger;
+             } catch (IOException ioe) {
+                // If file appender creation fails, print a helpful message and fall back to console
+                System.err.println("LoggerManager: failed to create file appender for path=" + outPath + ", falling back to console: " + ioe.getMessage());
+             }
+         }
 
-        // Fallback: console appender to avoid application startup failure when file cannot be created
-        ConsoleAppender console = new ConsoleAppender(layout);
-        logger.addAppender(console);
-        logger.setLevel(Level.ALL);
+         // Fallback: console appender to avoid application startup failure when file cannot be created
+         ConsoleAppender console = new ConsoleAppender(layout);
+         logger.addAppender(console);
+         logger.setLevel(Level.ALL);
 
-        return logger;
-    }
+         return logger;
+     }
 
     public static Logger createLoggerPattern(String loggerName, String loggerFileName) {
         Logger logger = Logger.getLogger(loggerName);
         String pattern = ">>  %d{ISO8601} # %l # %m%n";
-        String dirPath = "/app/logs/bulk-gateway//" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
+        String dirPath = "/home/arun/Desktop/log/" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
         String outPath = dirPath + loggerFileName + ".txt";
         boolean dirOk = createLoggerFilePath(dirPath);
         PatternLayout layout = new PatternLayout(pattern);
@@ -95,7 +101,7 @@ public class LoggerManager {
         }
 
         String pattern = "%m%n";
-        String dirPath = "/app/logs/bulk-gateway//" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
+        String dirPath = "/home/arun/Desktop/log/" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
         String outPath = dirPath + loggerFileName + ".sql";
         boolean dirOk = createLoggerFilePath(dirPath);
         PatternLayout layout = new PatternLayout(pattern);
@@ -133,7 +139,7 @@ public class LoggerManager {
             }
             return true;
         } catch (SecurityException se) {
-            // Cannot create directories — caller should fall back
+            se.printStackTrace();
             return false;
         }
     }

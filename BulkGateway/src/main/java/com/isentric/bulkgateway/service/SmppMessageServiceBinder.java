@@ -1,5 +1,6 @@
 package com.isentric.bulkgateway.service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
 import com.isentric.bulkgateway.dto.*;
 import com.isentric.bulkgateway.exception.MessageException;
@@ -54,6 +55,7 @@ import org.safehaus.uuid.UUIDGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -767,6 +769,8 @@ public class SmppMessageServiceBinder {
     }
 
     public void sendHttp(String httpName, String credit, SMSMessageSmpp smsMessage) throws MessageException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, SQLException {
+       System.out.println("---------------------sendHttp----------------------");
+        System.out.println(httpName);
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
@@ -786,6 +790,7 @@ public class SmppMessageServiceBinder {
         sms.setProperty("SMPP_NAME", httpName);
         sms.setParent(sms);
         HttpObj httpSms = (HttpObj) binderHashtable.get(httpName);
+        System.out.println("httpSms - "+httpSms);
         String response = "";
         String url = "";
         String dnid = "";
@@ -793,8 +798,9 @@ public class SmppMessageServiceBinder {
         new HttpClient();
         new GetMethod();
         new PostMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "/home/arun/Documents/rec/MyMaxisKeyStore.jks");
         System.setProperty("https.protocols", "TLSv1.2");
+        System.out.println(cFlag);
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Concatenated Message");
         } else {
@@ -861,7 +867,8 @@ public class SmppMessageServiceBinder {
                     } catch (CacheException e) {
                         e.printStackTrace();
                     }
-
+                    System.out.println("---------------Here No3----------------");
+                    System.out.println("1. URL : " + url);
                     logger.debug("1. URL : " + url);
                     GetMethod var74 = new GetMethod(url);
                     smsMessage.setMessage(this.checkPriceTag(sms.getMessage()));
@@ -905,6 +912,14 @@ public class SmppMessageServiceBinder {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+                System.out.println(httpGet);
+                System.out.println(response);
+                System.out.println(sms);
+                System.out.println(smsMessage);
+                System.out.println(httpName);
+                System.out.println(dnid);
+                System.out.println(sender);
+                System.out.println(credit);
 
                 this.performHTTPRequest(httpGet, response, sms, smsMessage, httpName, dnid, sender, credit, 0);
             }
@@ -3623,10 +3638,13 @@ public class SmppMessageServiceBinder {
         double maxChineseLength = (double) 280.0F;
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Digi Concatenated Message Feature Not Available");
+            System.out.println("sendWsdl: cFlag=1 - Digi Concatenated Message Feature Not Available");
         } else {
             logger.info("Normal Message");
+            System.out.println("sendWsdl: cFlag!=1 - Normal Message");
+            System.out.println("");
         }
-
+        System.out.println("smsMessage.getMessageType()" + smsMessage.getMessageType());
         URL objUrl = null;
         if (smsMessage.getMessageType() == 0) {
             smsMessage.setMessage(this.checkPriceTag(smsMessage.getMessage()));
@@ -3637,6 +3655,8 @@ public class SmppMessageServiceBinder {
                 nMessages = (short) ((int) Math.ceil((double) messageLength / maxLength));
                 logger.debug("nMessages>>" + nMessages);
                 url = wsdlSms.getURL();
+                System.out.println("sendWsdl: (multipart) URL=" + url);
+                System.out.println("");
                 String password = wsdlSms.getPassword();
                 String login_name = des.encrypt(wsdlSms.getLoginName(), password);
                 String service_id = des.encrypt(wsdlSms.getServiceId(), password);
@@ -3672,6 +3692,8 @@ public class SmppMessageServiceBinder {
 
                     try {
                         URL portAddress = new URL(url);
+                        System.out.println("sendWsdl: invoking WSDL endpoint URL=" + url + " ref_id=" + ref_id);
+                        System.out.println("");
                         SDPServices service = new SDPServicesLocator();
                         SDPServicesInterface port = service.getSDPServicesHttpPort(portAddress);
                         SDPResult result = port.smsBulk(login_name, service_id, cp_id, recipient, sender, ref_id, notification_ind, response_url, sms_contents, array_of_info);
@@ -3691,6 +3713,8 @@ public class SmppMessageServiceBinder {
                 }
             } else {
                 url = wsdlSms.getURL();
+                System.out.println("sendWsdl111: (single) URL=" + url);
+                System.out.println("");
                 String password = wsdlSms.getPassword();
                 String login_name = des.encrypt(wsdlSms.getLoginName(), password);
                 String service_id = des.encrypt(wsdlSms.getServiceId(), password);
@@ -3708,14 +3732,19 @@ public class SmppMessageServiceBinder {
                 checkPriceTagMsg = this.checkPriceTag(checkPriceTagMsg);
                 sms_contents[0].setContent(checkPriceTagMsg);
                 AdditionalInfo[] array_of_info = null;
-                this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), wsdlName, ref_id, smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), 0, credit);
+                MessageServiceDao messageServiceDao=new MessageServiceDao();
+                messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), wsdlName, ref_id, smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), 0, credit);
 
                 try {
                     URL portAddress = new URL(url);
+                    System.out.println("portAddress" +portAddress);
+                    System.out.println("sendWsdl: invoking WSDL endpoint URL=" + url + " ref_id=" + ref_id);
+                    System.out.println("");
                     SDPServices service = new SDPServicesLocator();
                     SDPServicesInterface port = service.getSDPServicesHttpPort(portAddress);
                     SDPResult result = port.smsBulk(login_name, service_id, cp_id, recipient, sender, ref_id, notification_ind, response_url, sms_contents, array_of_info);
                     code = result.getError_code();
+                    System.out.println("result.getTransaction_id()"+result.getTransaction_id());
                     if (!result.getTransaction_id().equals("")) {
                         transactionId = result.getTransaction_id();
                     } else if (result.getTransaction_id().equalsIgnoreCase("")) {
@@ -3724,7 +3753,6 @@ public class SmppMessageServiceBinder {
                             this.messageServiceDao.updateSmppSent(sms, "UNDELIVERED");
                         } else {
                             String smppName = "HTTP_INFOBIP";
-
                             try {
                                 this.sendSmsMessageSmpp(smppName, credit, smsMessage);
                             } catch (InvalidKeyException e) {
@@ -3992,14 +4020,17 @@ public class SmppMessageServiceBinder {
     public  void sendSmsMessageSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, com.objectxp.msg.MessageException {
         this.void_custid = smsMessage.getKeyword();
         if (binderHashtable.get(smppName) instanceof GsmSmsService) {
+           System.out.println("sendSmsMessageSmpp-1");
             this.sendGSM(smppName, credit, smsMessage);
         } else if (binderHashtable.get(smppName) instanceof SmsService) {
+            System.out.println("sendSmsMessageSmpp-2");
             if (smppName.equalsIgnoreCase("SMPP_RED_PREMIO")) {
                 this.sendRedPremioSmpp(smppName, credit, smsMessage);
             } else {
                 this.sendSmpp(smppName, credit, smsMessage);
             }
         } else if (binderHashtable.get(smppName) instanceof HttpObj) {
+            System.out.println("sendSmsMessageSmpp-3");
             if (!smppName.equalsIgnoreCase("HTTP_INFOBIP") && !smppName.equalsIgnoreCase("HTTP_INFOBIP_MULTROUTE") && !smppName.equalsIgnoreCase("HTTP_INFOBIP_INTERNATIONAL")) {
                 if (smppName.equalsIgnoreCase("HTTP_ISENTRIC_MODEM")) {
                     this.sendHttpIsentricModem(smppName, credit, smsMessage);
@@ -4046,8 +4077,10 @@ public class SmppMessageServiceBinder {
                 this.sendHttpInfobip(smppName, credit, smsMessage);
             }
         } else if (binderHashtable.get(smppName) instanceof WsdlObj) {
+            System.out.println("sendSmsMessageSmpp-4");
             this.sendWsdl(smppName, credit, smsMessage);
         } else if (binderHashtable.get(smppName) instanceof ChargeObj) {
+            System.out.println("sendSmsMessageSmpp-5");
             this.sendChargeService(smppName, credit, smsMessage);
         }
 
@@ -4108,6 +4141,38 @@ public class SmppMessageServiceBinder {
     }
 
     public boolean isAlive(String smppName) {
+        // Print detailed contents of binderHashtable for debugging
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("isAlive - binderHashtable entries:\n");
+            for (Object keyObj : binderHashtable.keySet()) {
+                try {
+                    Object val = binderHashtable.get(keyObj);
+                    sb.append("key=").append(String.valueOf(keyObj)).append(", type=");
+                    if (val == null) {
+                        sb.append("null");
+                    } else {
+                        sb.append(val.getClass().getSimpleName());
+                        if (val instanceof SmsService) {
+                            SmsService s = (SmsService) val;
+                            try {
+                                sb.append(", isAlive=").append(s.isAlive());
+                                sb.append(", isConnected=").append(s.isConnected());
+                                sb.append(", isInitialized=").append(s.isInitialized());
+                            } catch (Throwable t) {
+                                sb.append(", stateError=").append(t.getMessage());
+                            }
+                        }
+                    }
+                    sb.append("\n");
+                } catch (Throwable te) {
+                    sb.append("error reading entry: ").append(te.getMessage()).append("\n");
+                }
+            }
+            System.out.println(sb.toString());
+        } catch (Throwable ex) {
+            System.out.println("isAlive: error printing binderHashtable: " + ex.getMessage());
+        }
         if (binderHashtable.get(smppName) instanceof SmsService) {
             SmsService smppSmsServiceBinder = (SmsService) binderHashtable.get(smppName);
             return smppSmsServiceBinder == null ? false : ((SmsService) binderHashtable.get(smppName)).isAlive();
@@ -4333,11 +4398,14 @@ public class SmppMessageServiceBinder {
 
         try {
             MaxisDNStatusManager maxisCache = MaxisDNStatusManager.getInstance();
+            System.out.println("oriCust>>" + oriCust);
+            System.out.println("httpGet>>" + httpGet);
             retCode = httpclient.executeMethod(httpGet);
+            System.out.println("retCode>>" + retCode);
             if (retCode != 200) {
                 System.err.println("Method failed: " + httpGet.getStatusLine());
             }
-
+            System.out.println(retCode);
             InputStream rstream = null;
             rstream = httpGet.getResponseBodyAsStream();
             buff = new BufferedReader(new InputStreamReader(rstream));

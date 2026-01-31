@@ -57,6 +57,7 @@ public class TGAUtil {
             qsResp = this.port.queryTGA(inMSISDN);
             if (qsResp != null && "0000".equals(qsResp.getRespCode()) && qsResp.getTelco() != null) {
                 retTelco = qsResp.getTelco();
+                System.out.println("retTelco-"+retTelco);
             } else {
                 logger.info("[ MNP Query Fail ]");
                 if (qsResp != null) {

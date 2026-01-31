@@ -9,7 +9,6 @@ import com.isentric.bulkgateway.utility.StringUtil;
 import msg.ems.EMSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -26,20 +25,89 @@ import java.util.ArrayList;
 public class MessageServiceDao {
 
 
+    @Autowired
     private SMSMessageSmppRepository smsMessageSmppRepository;
 
 
+    @Autowired
     private SMSMessageRepository smsMessageRepository;
 
 
+    @Autowired
     private SMSMessageSentRepository smsMessageSentRepository;
+
+    // helper: save SMSMessageSent using repository if available, otherwise use EntityManager
+    private void saveSMSMessageSent(SMSMessageSent sent) throws SQLException {
+        if (sent == null) return;
+        if (smsMessageSentRepository != null) {
+            smsMessageSentRepository.save(sent);
+            return;
+        }
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = EntityManagerFactoryProvider.getEntityManager("bulkgateway");
+            tx = em.getTransaction();
+            tx.begin();
+            // Try JPA merge first (works when EM manages the entity)
+            try {
+                em.merge(sent);
+                tx.commit();
+                return;
+            } catch (Exception iae) {
+                // Catch broad Exception so Hibernate UnknownEntityTypeException (a runtime) is handled
+                iae.printStackTrace();
+                // This indicates the EM doesn't manage the entity type (UnknownEntityTypeException)
+                if (tx != null && tx.isActive()) {
+                    try { tx.rollback(); } catch (Exception e) {}
+                }
+                // fallthrough to native insert
+            }
+            // As a fallback, perform native INSERT into tbl_smpp_sent to keep legacy behavior
+            String sql = "INSERT INTO bulk_gateway.tbl_smpp_sent (row_id,guid,groupId,telco,smppName,smppId,moid,sender,recipient,senderType,date,message,shortcode,userGroup,keyword,message_sequence,credit,price,smppType,smppStatus,timestamp,bytes,transactionId,error) VALUES (null,'" + StringUtil.trimToEmpty(sent.getGuid()) + "','" + StringUtil.trimToEmpty(sent.getGroupId()) + "','" + StringUtil.trimToEmpty(sent.getTelco()) + "','" + StringUtil.trimToEmpty(sent.getSmppName()) + "','" + StringUtil.trimToEmpty(sent.getSmppId()) + "','" + StringUtil.trimToEmpty(sent.getMoid()) + "','" + StringUtil.trimToEmpty(sent.getSender()) + "','" + StringUtil.trimToEmpty(sent.getRecipient()) + "','" + (sent.getSenderType() != null ? StringUtil.trimToEmpty(String.valueOf(sent.getSenderType())) : "0") + "',now(),'" + StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.trimToEmpty(sent.getMessage()))) + "','" + StringUtil.trimToEmpty(sent.getShortcode()) + "','" + StringUtil.trimToEmpty(sent.getUserGroup()) + "','" + StringUtil.trimToEmpty(sent.getKeyword()) + "'," + (sent.getMessageSequence() != null ? sent.getMessageSequence() : 0) + ", '" + StringUtil.trimToEmpty(sent.getCredit()) + "','" + StringUtil.trimToEmpty(sent.getPrice()) + "','" + StringUtil.trimToEmpty(sent.getSmppType()) + "','" + StringUtil.trimToEmpty(sent.getSmppStatus()) + "','" + StringUtil.trimToEmpty(sent.getTimestamp()) + "','" + StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.trimToEmpty(sent.getBytes()))) + "','" + StringUtil.trimToEmpty(sent.getTransactionId()) + "','" + StringUtil.trimToEmpty(sent.getError()) + "')";
+            this.update(sql);
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            if (tx != null && tx.isActive()) {
+                try { tx.rollback(); } catch (Exception e) {}
+            }
+            throw new SQLException("Error persisting SMSMessageSent", ex);
+        } finally {
+            if (em != null && em.isOpen()) em.close();
+        }
+    }
+
+    // helper: save SMSMessageSmpp using repository if available, otherwise use EntityManager
+    private void saveSMSMessageSmpp(SMSMessageSmpp in) throws SQLException {
+        if (in == null) return;
+        if (smsMessageSmppRepository != null) {
+            smsMessageSmppRepository.save(in);
+            return;
+        }
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = EntityManagerFactoryProvider.getEntityManager("bulkgateway");
+            tx = em.getTransaction();
+            tx.begin();
+            em.merge(in);
+            tx.commit();
+        } catch (RuntimeException ex) {
+            if (tx != null && tx.isActive()) {
+                try { tx.rollback(); } catch (Exception e) {}
+            }
+            throw new SQLException("Error persisting SMSMessageSmpp", ex);
+        } finally {
+            if (em != null && em.isOpen()) em.close();
+        }
+    }
 
     // Insert incoming SMPP record (tbl_smpp_in)
     public int insertSmppIn(SMSMessageSmpp smsMessageSmpp, String invokerIpAddress) throws SQLException {
         // set ip from invoker
         if (smsMessageSmpp != null) {
             smsMessageSmpp.setIp(invokerIpAddress);
-            smsMessageSmppRepository.save(smsMessageSmpp);
+            saveSMSMessageSmpp(smsMessageSmpp);
             return 1;
         }
         return 0;
@@ -61,7 +129,7 @@ public class MessageServiceDao {
             sent.setUserGroup(smsMessageSmpp.getUserGroup());
             sent.setKeyword(smsMessageSmpp.getKeyword());
             sent.setCredit(smsMessageSmpp.getCredit());
-            smsMessageSentRepository.save(sent);
+            saveSMSMessageSent(sent);
             return 1;
         }
         return 0;
@@ -69,6 +137,7 @@ public class MessageServiceDao {
 
     // convenience methods used throughout the codebase
     public int insertSmppSent2(String Guid, String GroupId, String Telco, String SmppName, String SmppId, String Moid, String Sender, String Recipient, int SenderType, String Message, String Shortcode, String UserGroup, String Keyword, int sequence, String credit) throws SQLException {
+        System.out.println("inster insertSmppSent2");
         SMSMessageSent sent = new SMSMessageSent();
         sent.setGuid(Guid);
         sent.setGroupId(GroupId);
@@ -85,7 +154,7 @@ public class MessageServiceDao {
         sent.setKeyword(Keyword);
         sent.setMessageSequence(sequence);
         sent.setCredit(credit);
-        smsMessageSentRepository.save(sent);
+        saveSMSMessageSent(sent);
         return 1;
     }
 
@@ -107,7 +176,7 @@ public class MessageServiceDao {
         sent.setMessageSequence(sequence);
         sent.setCredit(credit);
         sent.setPrice(mtPrice);
-        smsMessageSentRepository.save(sent);
+        saveSMSMessageSent(sent);
         return 1;
     }
 
@@ -116,7 +185,7 @@ public class MessageServiceDao {
         SMSMessageSent sent = new SMSMessageSent();
         sent.setSmppName(smppName);
         sent.setSmppStatus(statusReportMessage != null ? statusReportMessage.toString() : null);
-        smsMessageSentRepository.save(sent);
+        saveSMSMessageSent(sent);
         return 1;
     }
 
@@ -127,13 +196,28 @@ public class MessageServiceDao {
             e.printStackTrace();
         }
 
-        SMSMessageSent existing = smsMessageSentRepository.findByGuid(smsMessage.getProperty("SMPP_GUID"));
+        SMSMessageSent existing = null;
+        if (smsMessageSentRepository != null) {
+            existing = smsMessageSentRepository.findByGuid(smsMessage.getProperty("SMPP_GUID"));
+        } else {
+            // fallback: query using EntityManager
+            EntityManager em = null;
+            try {
+                em = EntityManagerFactoryProvider.getEntityManager("bulkgateway");
+                existing = em.find(SMSMessageSent.class, smsMessage.getProperty("SMPP_GUID"));
+            } catch (Exception ex) {
+                // ignore - existing stays null
+            } finally {
+                if (em != null && em.isOpen()) em.close();
+            }
+        }
+
         if (existing != null) {
             existing.setSmppType(SmsUtil.getSmppStatusType(smsMessage.getType()));
             existing.setSmppStatus(StringUtil.trimToEmpty(eventStatus));
             existing.setTimestamp(StringUtil.trimToEmpty(DateUtil.getDateYYYYMMDDHHMMSS(smsMessage.getTimestamp())));
             existing.setBytes(StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.byteToString(smsMessage.getBytes()))));
-            smsMessageSentRepository.save(existing);
+            saveSMSMessageSent(existing);
             return 1;
         }
         return 0;
@@ -146,10 +230,22 @@ public class MessageServiceDao {
             e.printStackTrace();
         }
 
-        SMSMessageSent existing = smsMessageSentRepository.findByGuid(smsMessage.getProperty("SMPP_GUID"));
+        SMSMessageSent existing = null;
+        if (smsMessageSentRepository != null) {
+            existing = smsMessageSentRepository.findByGuid(smsMessage.getProperty("SMPP_GUID"));
+        } else {
+            EntityManager em = null;
+            try {
+                em = EntityManagerFactoryProvider.getEntityManager("bulkgateway");
+                existing = em.find(SMSMessageSent.class, smsMessage.getProperty("SMPP_GUID"));
+            } catch (Exception ex) {
+            } finally {
+                if (em != null && em.isOpen()) em.close();
+            }
+        }
         if (existing != null) {
             existing.setSmppId(smppId);
-            smsMessageSentRepository.save(existing);
+            saveSMSMessageSent(existing);
             return 1;
         }
         return 0;
@@ -162,10 +258,22 @@ public class MessageServiceDao {
             e.printStackTrace();
         }
 
-        SMSMessageSent existing = smsMessageSentRepository.findByGuid(smsMessage.getProperty("SMPP_GUID"));
+        SMSMessageSent existing = null;
+        if (smsMessageSentRepository != null) {
+            existing = smsMessageSentRepository.findByGuid(smsMessage.getProperty("SMPP_GUID"));
+        } else {
+            EntityManager em = null;
+            try {
+                em = EntityManagerFactoryProvider.getEntityManager("bulkgateway");
+                existing = em.find(SMSMessageSent.class, smsMessage.getProperty("SMPP_GUID"));
+            } catch (Exception ex) {
+            } finally {
+                if (em != null && em.isOpen()) em.close();
+            }
+        }
         if (existing != null) {
             existing.setError(error);
-            smsMessageSentRepository.save(existing);
+            saveSMSMessageSent(existing);
             return 1;
         }
         return 0;
@@ -288,3 +396,4 @@ public class MessageServiceDao {
       }*/
 
 }
+

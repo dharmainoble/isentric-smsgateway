@@ -84,12 +84,13 @@ public class SMSServerSMPP  {
                     } else if (cache.getPrefixObj(smsMessageSmpp.getTelco()).getRoute().equals("")) {
                         flag = false;
                     } else {
+                        System.out.println("smsMessageSmpp.getTelco() -"+smsMessageSmpp.getTelco());
                         smsMessageSmpp.setCredit(cache.getPrefixObj(smsMessageSmpp.getTelco()).getCredit());
                         smsMessageSmpp.setSmppName(cache.getPrefixObj(smsMessageSmpp.getTelco()).getRoute());
                         smppName = smsMessageSmpp.getSmppName();
                         System.out.println("smppName2 -"+smppName);
                         flag = true;
-
+                        System.out.println("credit -"+smsMessageSmpp.getCredit());
                         try {
                             if (smsMessageSmpp.getCredit() == null) {
                                 String strCredit = "select route, credit from bulk_config.credit_control where country='" + smsMessageSmpp.getTelco() + "'";
@@ -147,6 +148,9 @@ public class SMSServerSMPP  {
                                 break;
                             }
                         }
+                        System.out.println(dipEngine);
+                        System.out.println(serverIP);
+                        System.out.println("inList - "+ inList);
 
                         if (inList) {
                             if (dipEngine != null && dipEngine.equals("Infobip")) {
@@ -289,6 +293,8 @@ public class SMSServerSMPP  {
                         }
                     }
                     System.out.println("smppName9 -"+smppName);
+                    System.out.println(smppMessageServiceBinder.isAlive(smppName));
+                    System.out.println(smppMessageServiceBinder.isConnected(smppName));
                     if (smppMessageServiceBinder.isAlive(smppName) && smppMessageServiceBinder.isConnected(smppName)) {
                         smppMessageServiceBinder.sendSmsMessageSmpp(smppName, smsMessageSmpp.getCredit(), smsMessageSmpp);
                     } else {
