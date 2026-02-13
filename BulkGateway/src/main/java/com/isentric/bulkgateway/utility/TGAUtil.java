@@ -52,7 +52,7 @@ public class TGAUtil {
     public String queryTelcoFromTGA(String inMSISDN) {
         QSResponse qsResp = null;
         String retTelco = null;
-
+        System.out.println("queryTelcoFromTGA");
         try {
             qsResp = this.port.queryTGA(inMSISDN);
             if (qsResp != null && "0000".equals(qsResp.getRespCode()) && qsResp.getTelco() != null) {

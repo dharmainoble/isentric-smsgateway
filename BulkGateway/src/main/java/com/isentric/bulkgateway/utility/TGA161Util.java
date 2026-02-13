@@ -24,13 +24,13 @@ public class TGA161Util {
     private QSQueryService service = null;
     private QSQuery_PortType port = null;
 
-    public TGA161Util(String serverIP) throws ServiceException, MalformedURLException {
+   /* public TGA161Util(String serverIP) throws ServiceException, MalformedURLException {
         URL portAddress = new URL("http://192.168.26.161:8002/TGA/services/QSQuery");
         this.service = new QSQueryServiceLocator();
         this.port = this.service.getQSQuery(portAddress);
-    }
+    }*/
 
-    public static TGA161Util getInstance(String serverIP) throws MalformedURLException {
+   /* public static TGA161Util getInstance(String serverIP) throws MalformedURLException {
         try {
             synchronized(TGA161Util.class) {
                 if (tgaInstance == null) {
@@ -42,7 +42,7 @@ public class TGA161Util {
         }
 
         return tgaInstance;
-    }
+    }*/
 
     public String queryTelcoFromTGA(String inMSISDN) {
         QSResponse qsResp = null;
@@ -50,6 +50,8 @@ public class TGA161Util {
 
         try {
             qsResp = this.port.queryTGA(inMSISDN);
+            System.out.println("queryTelcoFromTGA - "+qsResp.getTelco());
+            System.out.println("qsResp.getRespCode() - "+qsResp.getRespCode());
             if (qsResp != null && "0000".equals(qsResp.getRespCode()) && qsResp.getTelco() != null) {
                 retTelco = qsResp.getTelco();
             } else {
@@ -101,6 +103,6 @@ public class TGA161Util {
     }
 
     public static void main(String[] args) throws MalformedURLException {
-        System.out.print(getInstance("118").queryTelcoFromTGA("60173277115"));
+        //System.out.print(getInstance("118").queryTelcoFromTGA("60173277115"));
     }
 }

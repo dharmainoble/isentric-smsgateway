@@ -42,6 +42,7 @@ public class SMSMessageService {
 
     @Transactional
     public SMSMessageResponse sendMessage(SMSMessageDTO dto) {
+        System.out.println("sendMessage called with DTO: " + dto);
         SMSMessageResponse smsMessageResponse = new SMSMessageResponse();
         // ensure required non-nullable fields are set before persisting
         smsMessageResponse.setDate(LocalDateTime.now());
@@ -117,6 +118,7 @@ public class SMSMessageService {
                         smsMessageResponse.setStatus("STATUS_FAILURE");
                         OperationError operationError = new OperationError();
                         operationError.setMessage("Telco parameter value is invalid.");
+                        System.out.println("Telco parameter value is invalid.");
                     }
                 } else {
                     smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
@@ -124,6 +126,7 @@ public class SMSMessageService {
                     smsMessageResponse.setMessage("SMSC type is not supported.".getBytes(StandardCharsets.UTF_8));
                     OperationError operationError = new OperationError();
                     operationError.setMessage("SMSC type is not supported.");
+                    System.out.println("SMSC type is not supported");
                 }
                 // persist response
                 if (smsMessageRepository != null) {
@@ -136,6 +139,7 @@ public class SMSMessageService {
             smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
             smsMessageResponse.setStatus("STATUS_FAILURE");
             smsMessageResponse.setMessage("Authentication failure.".getBytes(StandardCharsets.UTF_8));
+            System.out.println("Authentication failure");
             if (smsMessageRepository != null) {
                 smsMessageRepository.save(smsMessageResponse);
             } else if (bgEntityManager != null) {

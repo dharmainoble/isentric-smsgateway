@@ -108,12 +108,13 @@ public class ExternalApiService {
      */
     private Map<String, Object> createBulkGatewayPayload(ExtMtPushReceive mtRecord,String currentMsisdn) {
         Map<String, Object> payload = new HashMap<>();
-        System.out.println("ssssssssssssss");
-        System.out.println(checkMalaysiaOperatorHLR(currentMsisdn));
+        System.out.println("Tele");
+        String tele=getSMPPTelco(currentMsisdn);
+        System.out.println(tele);
         payload.put("groupId", "api_request");
         payload.put("ip", "127.0.0.1");
         payload.put("smsc", "smpp");
-        payload.put("telco", getSMPPTelco(currentMsisdn));
+        payload.put("telco", tele);
         payload.put("smppName", "WSDL_DEFAULT");
         payload.put("smppConfig", "default");
         payload.put("moid", mtRecord.getMtid());
@@ -237,6 +238,7 @@ public class ExternalApiService {
 
 
     public String getSMPPTelco(String msisdn) {
+        System.out.println(msisdn);
         if (!msisdn.startsWith("6012") && !msisdn.startsWith("012") && !msisdn.startsWith("+6012")) {
             if (!msisdn.startsWith("6017") && !msisdn.startsWith("017") && !msisdn.startsWith("+6017")) {
                 if (!msisdn.startsWith("60142") && !msisdn.startsWith("0142") && !msisdn.startsWith("+60142")) {
@@ -262,6 +264,9 @@ public class ExternalApiService {
                                                                                                 if (!msisdn.startsWith("011170") && !msisdn.startsWith("011171") && !msisdn.startsWith("011172") && !msisdn.startsWith("011173") && !msisdn.startsWith("011174")) {
                                                                                                     if (!msisdn.startsWith("011180") && !msisdn.startsWith("011181") && !msisdn.startsWith("011182") && !msisdn.startsWith("011183") && !msisdn.startsWith("011184")) {
                                                                                                         if (!msisdn.startsWith("011190") && !msisdn.startsWith("011191") && !msisdn.startsWith("011192") && !msisdn.startsWith("011193") && !msisdn.startsWith("011194") && !msisdn.startsWith("01119") && !msisdn.startsWith("0159")) {
+
+                                                                                                            System.out.println("inner");
+
                                                                                                             //ArrayList creditList = CreditSession.getSharedCredit().getCreditList();
                                                                                                             //creditObject creditObj = null;
 

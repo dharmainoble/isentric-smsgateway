@@ -26,7 +26,7 @@ public class TGAService {
 
     public QSResponse queryTGA(String in0) throws RemoteException {
         QSResponse qsresponse = null;
-
+System.out.println("queryTGA Function Called with msisdn: " + in0);
         try {
             if (in0 != null && in0.length() > 0) {
                 try {

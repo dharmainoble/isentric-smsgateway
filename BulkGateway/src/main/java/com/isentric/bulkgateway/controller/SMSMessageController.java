@@ -37,6 +37,8 @@ public class SMSMessageController {
         try {
             SMSMessageResponse response = sMSMessageService.sendMessage(dto);
             String status = response == null ? null : response.getStatus();
+            System.out.println("status "+status);
+            System.out.println("status "+response.getMessage());
             if ("STATUS_SUCCESS".equals(status)) {
                 return ResponseEntity.ok(response);
             } else {

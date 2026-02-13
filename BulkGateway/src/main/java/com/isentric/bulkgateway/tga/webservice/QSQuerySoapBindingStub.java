@@ -163,12 +163,15 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
     }
 
 
-    TGAService service;
+
     public QSResponse queryTGA(String in0) throws RemoteException {
+        System.out.println("queryTGA Function Called with msisdn: " + in0);
+        TGAService service=new TGAService();
        return service.queryTGA(in0);
     }
 
     public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
+        TGAService service=new TGAService();
         return service.queryTGASkipFilter(in0);
     }
 
