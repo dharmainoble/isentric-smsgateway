@@ -25,6 +25,11 @@ public class ValidationService {
     public boolean validatePackage(String shortcode, String custid, String ipaddr) {
         try {
             log.info("Validating package for shortcode: {}, custid: {}, ipaddr: {}", shortcode, custid, ipaddr);
+            System.out.println(shortcode);
+            System.out.println(custid);
+            System.out.println(ipaddr);
+            System.out.println(cpIpRepository.findByShortcodeAndCpidentityAndCpIp(shortcode, custid, ipaddr));
+
             return cpIpRepository.findByShortcodeAndCpidentityAndCpIp(shortcode, custid, ipaddr)
                     .map(cpIp -> "1".equals(cpIp.getHlrFlag()))
                     .orElse(false);

@@ -7,8 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CpIpRepository extends JpaRepository<CpIp, Long> {
-    
+public interface CpIpRepository extends JpaRepository<CpIp, String> {
+
     Optional<CpIp> findByShortcodeAndCpidentityAndCpIp(String shortcode, String cpidentity, String cpIp);
+    Optional<CpIp> findByCpidentity(String cpidentity);
 }
 

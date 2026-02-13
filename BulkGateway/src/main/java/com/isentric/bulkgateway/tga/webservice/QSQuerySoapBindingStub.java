@@ -5,6 +5,7 @@
 
 package com.isentric.bulkgateway.tga.webservice;
 
+import com.isentric.bulkgateway.service.TGAService;
 import org.apache.axis.AxisFault;
 import org.apache.axis.NoEndPointException;
 import org.apache.axis.client.Call;
@@ -161,7 +162,18 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
         }
     }
 
+
+    TGAService service;
     public QSResponse queryTGA(String in0) throws RemoteException {
+       return service.queryTGA(in0);
+    }
+
+    public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
+        return service.queryTGASkipFilter(in0);
+    }
+
+
+    /*public QSResponse queryTGA(String in0) throws RemoteException {
         if (super.cachedEndpoint == null) {
             throw new NoEndPointException();
         } else {
@@ -191,9 +203,9 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
                 throw axisFaultException;
             }
         }
-    }
+    }*/
 
-    public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
+    /*public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
         if (super.cachedEndpoint == null) {
             throw new NoEndPointException();
         } else {
@@ -223,5 +235,5 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
                 throw axisFaultException;
             }
         }
-    }
+    }*/
 }

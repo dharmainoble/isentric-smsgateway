@@ -13,23 +13,18 @@ import lombok.NoArgsConstructor;
 public class CpIp {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "row_id")
-    private Long rowId;
-    
-    @Column(name = "shortcode", length = 10)
-    private String shortcode;
-    
     @Column(name = "cpidentity", length = 50)
     private String cpidentity;
     
+    @Column(name = "shortcode", length = 10)
+    private String shortcode;
+
     @Column(name = "cp_ip", length = 50)
     private String cpIp;
     
     @Column(name = "hlr_flag", length = 1)
     private String hlrFlag;
     
-    @Column(name = "active", length = 1)
-    private String active;
+
 }
 

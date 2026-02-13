@@ -52,4 +52,21 @@ public class Constant
     public static final String SIGNAL_ACTION_HIGH = "08";
     public static final String SIGNAL_ACTION_DELETE = "09";
     public static final String KEYSTORE = "C:\\bulk-cert\\MyMaxisKeyStore.jks";
+
+
+    public static String USERID = "isentric";
+    public static String PASSWORD = "isentr1";
+    public static String QS_URL = "http://10.10.200.1/QSWebApp/services/QSSoapService";
+    public static final String HOST_IP_LOCAL = "fermat";
+    //public static final String DEFAULT_DATASOURCE_NAME = "fermat";
+    public static final String EXTMT_DB = "extmt";
+    public static final String TBL_QS_TRANSACTION = "tbl_qs_transaction";
+    public static final String TGA_BASE = "http://localhost:8001/TGA";
+    public static final String QS_WEB_APP_SOAP_SERVICE = "http://192.168.26.162:6669/QSWebApp/services/QSSoapService";
+    public static final String BULK_ENCODE_QUERY = "select key_1 from key_db.key_table where row_id =1";
+    public static final boolean IS_PRODUCTION = true;
+    public static String DEVELOPMENT_QS_URL = "http://tga.isentric.com:10888/api/execute/url";
+    public static String X_API_KEY = "8617b8d5861a4a0b00be492df3458aeb3f5f6183";
+
+
 }

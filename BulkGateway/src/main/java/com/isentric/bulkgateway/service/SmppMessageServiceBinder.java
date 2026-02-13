@@ -57,6 +57,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class SmppMessageServiceBinder {
@@ -68,7 +69,8 @@ public class SmppMessageServiceBinder {
     public static final String PROVIDER_ID = "P-R0Sr4BNJxH3";
     public static final String PROVIDER_PASSWORD = "isentric123";
 
-    MessageServiceDao messageServiceDao;
+    @Autowired
+    private MessageServiceDao messageServiceDao;
 
     //private static final Dao dao = new Dao();
 

@@ -4,10 +4,8 @@ import com.isentric.smsserver.dto.SmsRequestDto;
 import com.isentric.smsserver.dto.SmsResponseDto;
 import com.isentric.smsserver.model.avatar.ExtMtId;
 import com.isentric.smsserver.model.avatar.ExtMtPushReceive;
-import com.isentric.smsserver.model.general.CpIp;
 import com.isentric.smsserver.repository.avatar.ExtMtIdRepository;
 import com.isentric.smsserver.repository.avatar.ExtMtPushReceiveRepository;
-import com.isentric.smsserver.repository.general.CpIpRepository;
 import com.isentric.smsserver.util.SmsUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -24,23 +21,23 @@ public class SmsService {
     
     private final ExtMtPushReceiveRepository extMtPushReceiveRepository;
     private final ExtMtIdRepository extMtIdRepository;
-    private final CpIpRepository cpIpRepository;
     private final ValidationService validationService;
     private final CreditService creditService;
+    private final ExternalApiService externalApiService;
     private final JmsTemplate jmsTemplate;
     
     public SmsService(
             ExtMtPushReceiveRepository extMtPushReceiveRepository,
             ExtMtIdRepository extMtIdRepository,
-            CpIpRepository cpIpRepository,
             ValidationService validationService,
             CreditService creditService,
+            ExternalApiService externalApiService,
             @Autowired(required = false) JmsTemplate jmsTemplate) {
         this.extMtPushReceiveRepository = extMtPushReceiveRepository;
         this.extMtIdRepository = extMtIdRepository;
-        this.cpIpRepository = cpIpRepository;
         this.validationService = validationService;
         this.creditService = creditService;
+        this.externalApiService = externalApiService;
         this.jmsTemplate = jmsTemplate;
     }
 
@@ -113,8 +110,14 @@ public class SmsService {
                 mtId.setCustid(request.getCustid());
                 mtId.setDate(LocalDateTime.now());
                 extMtIdRepository.save(mtId);
-                
-                // Send to JMS queue for processing (if JMS is enabled)
+
+                // Send SMS to BulkGateway API
+                boolean bulkGatewaySuccess = externalApiService.sendSmsToBulkGateway(mtRecord,currentMsisdn);
+                if (!bulkGatewaySuccess) {
+                    log.warn("Failed to send SMS to BulkGateway - MTID: {}, MSISDN: {}", currentMtId, currentMsisdn);
+                }
+
+                // ...existing code...
                 if (jmsTemplate != null) {
                     jmsTemplate.convertAndSend("extmt.send.queue", mtRecord);
                     log.info("SMS queued successfully - MTID: {}, MSISDN: {}", currentMtId, currentMsisdn);
