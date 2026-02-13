@@ -1,0 +1,184 @@
+{
+  "info": {
+    "_postman_id": "extmtpush-api-collection",
+    "name": "ExtMTPush SMS Gateway API",
+    "description": "Collection for testing ExtMTPush SMS Gateway endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "HTML Form",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "ExtMTPush",
+            "extmtpush"
+          ]
+        },
+        "description": "Get the HTML form page"
+      },
+      "response": []
+    },
+    {
+      "name": "GET API - Query Parameters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush/api?shortcode=10086&custid=isentric_demo&rmsisdn=601126141207&smsisdn=62003&mtid=MSG_1707747024000&mtprice=000&productCode=&productType=10&keyword=&dataEncoding=8&dataStr=Test+on+13Feb&dataUrl=&dnRep=0&groupTag=10&urlTitle=&ewigFlag=&cFlag=0",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "ExtMTPush",
+            "extmtpush",
+            "api"
+          ],
+          "query": [
+            {
+              "key": "shortcode",
+              "value": "10086"
+            },
+            {
+              "key": "custid",
+              "value": "isentric_demo"
+            },
+            {
+              "key": "rmsisdn",
+              "value": "601126141207"
+            },
+            {
+              "key": "smsisdn",
+              "value": "62003"
+            },
+            {
+              "key": "mtid",
+              "value": "MSG_1707747024000"
+            },
+            {
+              "key": "mtprice",
+              "value": "000"
+            },
+            {
+              "key": "productCode",
+              "value": ""
+            },
+            {
+              "key": "productType",
+              "value": "10"
+            },
+            {
+              "key": "keyword",
+              "value": ""
+            },
+            {
+              "key": "dataEncoding",
+              "value": "8"
+            },
+            {
+              "key": "dataStr",
+              "value": "Test on 13Feb"
+            },
+            {
+              "key": "dataUrl",
+              "value": ""
+            },
+            {
+              "key": "dnRep",
+              "value": "0"
+            },
+            {
+              "key": "groupTag",
+              "value": "10"
+            },
+            {
+              "key": "urlTitle",
+              "value": ""
+            },
+            {
+              "key": "ewigFlag",
+              "value": ""
+            },
+            {
+              "key": "cFlag",
+              "value": "0"
+            }
+          ]
+        },
+        "description": "Test SMS submission via query parameters"
+      },
+      "response": []
+    },
+    {
+      "name": "POST API - JSON Body",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"10086\",\n  \"custid\": \"isentric_demo\",\n  \"rmsisdn\": \"601126141207\",\n  \"smsisdn\": \"62003\",\n  \"mtid\": \"MSG_1707747024000\",\n  \"mtprice\": \"000\",\n  \"productCode\": \"\",\n  \"productType\": 10,\n  \"keyword\": \"\",\n  \"dataEncoding\": 8,\n  \"dataStr\": \"Test on 13Feb\",\n  \"dataUrl\": \"\",\n  \"dnRep\": 0,\n  \"groupTag\": \"10\",\n  \"urlTitle\": \"\",\n  \"ewigFlag\": \"\",\n  \"cFlag\": \"0\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "ExtMTPush",
+            "extmtpush"
+          ]
+        },
+        "description": "Test SMS submission via JSON POST request"
+      },
+      "response": []
+    },
+    {
+      "name": "POST API - Minimal Required Fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shortcode\": \"10086\",\n  \"custid\": \"isentric_demo\",\n  \"rmsisdn\": \"601126141207\",\n  \"smsisdn\": \"62003\",\n  \"dataStr\": \"Test message\",\n  \"mtid\": \"MSG_1707747024000\",\n  \"mtprice\": \"000\",\n  \"productCode\": \"\",\n  \"productType\": 10,\n  \"keyword\": \"\",\n  \"dataEncoding\": 8,\n  \"dataUrl\": \"\",\n  \"dnRep\": 0,\n  \"groupTag\": \"10\",\n  \"urlTitle\": \"\",\n  \"ewigFlag\": \"\",\n  \"cFlag\": \"0\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8083/ExtMTPush/extmtpush",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "ExtMTPush",
+            "extmtpush"
+          ]
+        },
+        "description": "Test with minimal required fields and default values"
+      },
+      "response": []
+    }
+  ]
+}
+

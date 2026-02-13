@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
-@RestController
+@Controller
 @RequestMapping("/extmtpush")
 @Slf4j
 @RequiredArgsConstructor
@@ -18,10 +20,18 @@ public class SmsController {
     private final SmsService smsService;
     
     /**
-     * Main SMS push endpoint
-     * Handles both GET and POST requests for backward compatibility
+     * Serve the HTML form for SMS submission
      */
     @GetMapping
+    public String showForm(Model model) {
+        return "extmtpush";
+    }
+
+    /**
+     * Handle API GET requests with parameters
+     */
+    @GetMapping("/api")
+    @ResponseBody
     public ResponseEntity<String> handleSmsGet(
             @RequestParam(required = false) String shortcode,
             @RequestParam(required = false) String custid,
@@ -50,8 +60,11 @@ public class SmsController {
         
         return processRequest(smsRequest, request);
     }
+
+
     
     @PostMapping
+    @ResponseBody
     public ResponseEntity<String> handleSmsPost(
             @RequestBody SmsRequestDto smsRequest,
             HttpServletRequest request) {
