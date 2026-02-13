@@ -160,8 +160,9 @@ public class SMSServerSMPP  {
                                     tempTelco = InfobipUtil.getInstance(serverIP).queryTelcoFromInfobid(smsMessageSmpp.getRecipient());
                                 }
                             } else if (serverIP != null && serverIP.equals("161")) {
-                                TGA161Util utl=new TGA161Util();
-                                tempTelco = utl.queryTelcoFromTGA(smsMessageSmpp.getRecipient());
+                                TGA161Util utl=new TGA161Util(smsMessageSmpp.getRecipient());
+                                //tempTelco = utl.queryTelcoFromTGA(smsMessageSmpp.getRecipient());
+                                tempTelco = TGA161Util.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                             } else {
                                 tempTelco = TGAUtil.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                             }
@@ -172,8 +173,9 @@ public class SMSServerSMPP  {
                                 tempTelco = InfobipUtil.getInstance(serverIP).queryTelcoFromInfobidSkipFilter(smsMessageSmpp.getRecipient());
                             }
                         } else if (serverIP != null && serverIP.equals("161")) {
-                            TGA161Util utl=new TGA161Util();
-                            tempTelco = utl.queryTelcoFromTGA(smsMessageSmpp.getRecipient());
+                            TGA161Util utl=new TGA161Util(smsMessageSmpp.getRecipient());
+                           // tempTelco = utl.queryTelcoFromTGA(smsMessageSmpp.getRecipient());
+                            tempTelco = TGA161Util.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                         } else {
                             tempTelco = TGAUtil.getInstance(serverIP).queryTelcoFromTGASkipFilter(smsMessageSmpp.getRecipient());
                         }
