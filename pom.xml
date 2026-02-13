@@ -15,8 +15,6 @@
     <modules>
         <module>BulkGateway</module>
         <module>ExtMTPAPI</module>
-        <module>ExtMTPush</module>
-        <module>tga</module>
     </modules>
 
     <properties>
