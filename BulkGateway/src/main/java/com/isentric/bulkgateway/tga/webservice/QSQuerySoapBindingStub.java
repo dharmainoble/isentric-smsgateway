@@ -5,7 +5,15 @@
 
 package com.isentric.bulkgateway.tga.webservice;
 
-import com.isentric.bulkgateway.service.TGAService;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.Enumeration;
+import java.util.Vector;
+import javax.xml.namespace.QName;
+import javax.xml.rpc.Service;
+import javax.xml.rpc.encoding.SerializerFactory;
+
+
 import org.apache.axis.AxisFault;
 import org.apache.axis.NoEndPointException;
 import org.apache.axis.client.Call;
@@ -15,17 +23,18 @@ import org.apache.axis.constants.Use;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
 import org.apache.axis.encoding.DeserializerFactory;
-import org.apache.axis.encoding.ser.*;
+import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
+import org.apache.axis.encoding.ser.ArraySerializerFactory;
+import org.apache.axis.encoding.ser.BeanDeserializerFactory;
+import org.apache.axis.encoding.ser.BeanSerializerFactory;
+import org.apache.axis.encoding.ser.EnumDeserializerFactory;
+import org.apache.axis.encoding.ser.EnumSerializerFactory;
+import org.apache.axis.encoding.ser.SimpleDeserializerFactory;
+import org.apache.axis.encoding.ser.SimpleListDeserializerFactory;
+import org.apache.axis.encoding.ser.SimpleListSerializerFactory;
+import org.apache.axis.encoding.ser.SimpleSerializerFactory;
 import org.apache.axis.soap.SOAPConstants;
 import org.apache.axis.utils.JavaUtils;
-
-import javax.xml.namespace.QName;
-import javax.xml.rpc.Service;
-import javax.xml.rpc.encoding.SerializerFactory;
-import java.net.URL;
-import java.rmi.RemoteException;
-import java.util.Enumeration;
-import java.util.Vector;
 
 public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
     private Vector cachedSerClasses;
@@ -162,21 +171,7 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
         }
     }
 
-
-
     public QSResponse queryTGA(String in0) throws RemoteException {
-        System.out.println("queryTGA Function Called with msisdn: " + in0);
-        TGAService service=new TGAService();
-       return service.queryTGA(in0);
-    }
-
-    public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
-        TGAService service=new TGAService();
-        return service.queryTGASkipFilter(in0);
-    }
-
-
-    /*public QSResponse queryTGA(String in0) throws RemoteException {
         if (super.cachedEndpoint == null) {
             throw new NoEndPointException();
         } else {
@@ -206,9 +201,9 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
                 throw axisFaultException;
             }
         }
-    }*/
+    }
 
-    /*public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
+    public QSResponse queryTGASkipFilter(String in0) throws RemoteException {
         if (super.cachedEndpoint == null) {
             throw new NoEndPointException();
         } else {
@@ -238,5 +233,5 @@ public class QSQuerySoapBindingStub extends Stub implements QSQuery_PortType {
                 throw axisFaultException;
             }
         }
-    }*/
+    }
 }
