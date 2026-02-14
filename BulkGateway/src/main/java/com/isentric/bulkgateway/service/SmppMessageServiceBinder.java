@@ -76,15 +76,6 @@ public class SmppMessageServiceBinder {
 
     private String void_custid = "";
 
-    /**
-     * Open a configuration file as an InputStream.
-     * Tries (in order):
-     *  - filesystem path (absolute or relative)
-     *  - classpath resource via classloader
-     *  - class resource with a leading '/'
-     *
-     * Throws FileNotFoundException when none found so Properties.load(...) never receives a null stream.
-     */
     private InputStream openConfigStream(String path) throws IOException {
         if (path == null) {
             throw new FileNotFoundException("Configuration path is null");
@@ -800,7 +791,7 @@ public class SmppMessageServiceBinder {
         new HttpClient();
         new GetMethod();
         new PostMethod();
-        System.setProperty("javax.net.ssl.trustStore", "/home/arun/Documents/rec/MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         System.setProperty("https.protocols", "TLSv1.2");
         System.out.println(cFlag);
         if (cFlag.equalsIgnoreCase("1")) {

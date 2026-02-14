@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.ConsoleAppender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +19,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
+@Component
 public class LoggerManager {
+    // Injected from application.properties via @Value annotation
+    @Value("${LOGGER_PRIMARY_PATH:/home/log}")
+    private static String LOGGER_PRIMARY_PATH;
+
+    @Value("${LOGGER_DEFAULT_PATH_PREFIX:${user.home}/logs/bulk-gateway}")
+    private static String LOGGER_DEFAULT_PATH_PREFIX;
+
+    @Value("${LOGGER_MAX_BACKUP_INDEX:10}")
+    private static Integer LOGGER_MAX_BACKUP_INDEX;
+
+    // Keep static reference for backward compatibility
     private static final String DEFAULT_LOG_PATH_PREFIX = System.getProperty("user.home") + "/logs/bulk-gateway";
     private static final int DEFAULT_MAX_BACKUP_INDEX = 10;
     private static final Hashtable<String, Logger> loggerHashtable = new Hashtable();
@@ -67,7 +81,18 @@ public class LoggerManager {
     public static Logger createLoggerPattern(String loggerName, String loggerFileName) {
         Logger logger = Logger.getLogger(loggerName);
         String pattern = ">>  %d{ISO8601} # %l # %m%n";
-        String dirPath = "/home/arun/Desktop/log/" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
+
+        // Determine which path to use - try primary first, fall back to default
+        String logPath = LOGGER_PRIMARY_PATH != null ? LOGGER_PRIMARY_PATH : DEFAULT_LOG_PATH_PREFIX;
+        File pathDir = new File(logPath);
+
+        // If primary path not accessible, use default path
+        if (!pathDir.exists() || !pathDir.canWrite()) {
+            logPath = LOGGER_DEFAULT_PATH_PREFIX != null ? LOGGER_DEFAULT_PATH_PREFIX : DEFAULT_LOG_PATH_PREFIX;
+            System.out.println("LoggerManager: Using fallback log path: " + logPath);
+        }
+
+        String dirPath = logPath + File.separator + getDateToFormattedString(new Date(), "yyyyMMdd") + File.separator;
         String outPath = dirPath + loggerFileName + ".txt";
         boolean dirOk = createLoggerFilePath(dirPath);
         PatternLayout layout = new PatternLayout(pattern);
@@ -75,12 +100,12 @@ public class LoggerManager {
             try {
                 RollingFileAppender appender = new RollingFileAppender(layout, outPath);
                 appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
-                appender.setMaxBackupIndex(10);
+                appender.setMaxBackupIndex(LOGGER_MAX_BACKUP_INDEX != null ? LOGGER_MAX_BACKUP_INDEX : DEFAULT_MAX_BACKUP_INDEX);
                 logger.addAppender(appender);
                 logger.setLevel(Level.ALL);
                 return logger;
             } catch (IOException ioe) {
-                // fall through
+                System.err.println("LoggerManager: failed to create file appender for path=" + outPath + ", falling back to console: " + ioe.getMessage());
             }
         }
 
@@ -101,7 +126,18 @@ public class LoggerManager {
         }
 
         String pattern = "%m%n";
-        String dirPath = "/home/arun/Desktop/log/" + getDateToFormattedString(new Date(), "yyyyMMdd") + "/";
+
+        // Determine which path to use - try primary first, fall back to default
+        String logPath = LOGGER_PRIMARY_PATH != null ? LOGGER_PRIMARY_PATH : DEFAULT_LOG_PATH_PREFIX;
+        File pathDir = new File(logPath);
+
+        // If primary path not accessible, use default path
+        if (!pathDir.exists() || !pathDir.canWrite()) {
+            logPath = LOGGER_DEFAULT_PATH_PREFIX != null ? LOGGER_DEFAULT_PATH_PREFIX : DEFAULT_LOG_PATH_PREFIX;
+            System.out.println("LoggerManager: Using fallback log path for SQL: " + logPath);
+        }
+
+        String dirPath = logPath + File.separator + getDateToFormattedString(new Date(), "yyyyMMdd") + File.separator;
         String outPath = dirPath + loggerFileName + ".sql";
         boolean dirOk = createLoggerFilePath(dirPath);
         PatternLayout layout = new PatternLayout(pattern);
@@ -109,12 +145,12 @@ public class LoggerManager {
             try {
                 RollingFileAppender appender = new RollingFileAppender(layout, outPath);
                 appender.setMaximumFileSize(appender.getMaximumFileSize() * 2L);
-                appender.setMaxBackupIndex(10);
+                appender.setMaxBackupIndex(LOGGER_MAX_BACKUP_INDEX != null ? LOGGER_MAX_BACKUP_INDEX : DEFAULT_MAX_BACKUP_INDEX);
                 logger.addAppender(appender);
                 logger.setLevel(Level.ALL);
                 return logger;
             } catch (IOException ioe) {
-                // fall through
+                System.err.println("LoggerManager: failed to create SQL file appender for path=" + outPath + ", falling back to console: " + ioe.getMessage());
             }
         }
 
