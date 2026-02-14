@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isentric.smsserver.model.avatar.ExtMtPushReceive;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -26,7 +27,8 @@ public class ExternalApiService {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
-    private static final String BULKGATEWAY_MESSAGES_ENDPOINT = "http://localhost:8090/api/v1/messages/send";
+    @Value("${BULKGATEWAY_MESSAGES_ENDPOINT}")
+    private String BULKGATEWAY_MESSAGES_ENDPOINT;
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60); // 60 second timeout
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(30); // 30 second connect timeout
 
