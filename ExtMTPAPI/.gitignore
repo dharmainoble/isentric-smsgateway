@@ -58,11 +58,6 @@ nohup.out
 # Virtual machine crash logs
 hs_err_pid*
 
-# Application specific
-application-local.properties
-application-dev.properties
-/src/main/resources/application-local.properties
-
 # Database
 *.db
 *.sqlite
