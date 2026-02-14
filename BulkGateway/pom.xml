@@ -222,14 +222,13 @@
         <dependency>
             <groupId>com.objectxp</groupId>
             <artifactId>jsmsclasses</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/jsmsclasses.jar</systemPath>
+            <version>1.0</version>
         </dependency>
 
     </dependencies>
 
     <build>
+        <finalName>BulkGateWay</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
