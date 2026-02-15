@@ -96,17 +96,41 @@ public class SMSMessageService {
                             smsMessageSmpp.setDate(LocalDateTime.now());
                             bgEntityManager.persist(smsMessageSmpp);
                         }
-                        //jmsUtil.postQueue("queue/SMPPSMSMessageQueue" + dto.getQueueSequence(), smsMessageResponse);
+
+                        // Send message to ActiveMQ queue
                         smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
-                        SMSServerSMPP queue =new SMSServerSMPP();
-                        queue.onMessage(smsMessageSmpp);
+                       /* if (jmsProducerService != null) {
+                            try {
+                                jmsProducerService.sendSmppMessage(smsMessageSmpp);
+                                smsMessageResponse.setStatus("STATUS_SUCCESS");
+                                System.out.println("Message sent to ActiveMQ queue successfully | GUID: " + smsMessageSmpp.getGuid());
+                            } catch (Exception e) {
+                                System.err.println("Failed to send message to ActiveMQ queue: " + e.getMessage());
+                                e.printStackTrace();
+                                smsMessageResponse.setStatus("STATUS_FAILURE");
+                                smsMessageResponse.setMessage("Failed to queue message for processing".getBytes(StandardCharsets.UTF_8));
+                            }
+                        } else {*/
+                            // Fallback: direct call if JmsProducerService is not available
+                            try {
+                                SMSServerSMPP queue = new SMSServerSMPP();
+                                queue.onMessage(smsMessageSmpp);
+                                smsMessageResponse.setStatus("STATUS_SUCCESS");
+                                System.out.println("Message processed directly | GUID: " + smsMessageSmpp.getGuid());
+                            } catch (Exception e) {
+                                System.err.println("Failed to process message directly: " + e.getMessage());
+                                e.printStackTrace();
+                                smsMessageResponse.setStatus("STATUS_FAILURE");
+                                smsMessageResponse.setMessage("Failed to process message".getBytes(StandardCharsets.UTF_8));
+                            }
+                       // }
+
                         try {
                             byte[] serialized = mapper.writeValueAsBytes(smsMessageResponse);
                             smsMessageResponse.setValue(serialized);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        smsMessageResponse.setStatus("STATUS_SUCCESS");
                     } else {
                         smsMessageResponse.setGuid(StringUtil.trimToEmpty(dto.getGuid()));
                         try {

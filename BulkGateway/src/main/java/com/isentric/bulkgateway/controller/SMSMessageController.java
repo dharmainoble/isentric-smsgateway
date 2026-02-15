@@ -5,6 +5,7 @@ import com.isentric.bulkgateway.bg.model.SMSMessageResponse;
 import com.isentric.bulkgateway.dto.OperationError;
 import com.isentric.bulkgateway.dto.SMSMessageDTO;
 import com.isentric.bulkgateway.service.SMSMessageService;
+import com.isentric.bulkgateway.service.TgaSoapService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,9 @@ public class SMSMessageController {
 
     @Autowired(required = false)
     private SMSMessageService sMSMessageService;
+
+    @Autowired
+    private TgaSoapService tgaSoapService;
 
     /**
      * Send a single SMS message
@@ -79,5 +83,22 @@ public class SMSMessageController {
         OperationError error = new OperationError();
         error.setMessage(message);
         return response;
+    }
+
+
+    @GetMapping("/telco/{msisdn}")
+    public ResponseEntity<String> extractTelco(@PathVariable String msisdn) {
+        try {
+            String response = tgaSoapService.callTga(msisdn);
+            System.out.println("response");
+            System.out.println(response);
+            String telco = tgaSoapService.extractTelcoFromResponse(response);
+            System.out.println("telco");
+            System.out.println(telco);
+            return ResponseEntity.ok("Telco: " + (telco != null ? telco : "Unknown"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("Error: " + e.getMessage());
+        }
     }
 }

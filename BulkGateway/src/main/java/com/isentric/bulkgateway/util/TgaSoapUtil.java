@@ -4,13 +4,15 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Static Utility Class for TGA (Telecom Gateway API) SOAP Service
- * This class provides static methods to call TGA service without Spring dependency injection
+ * Static Utility Class for TGA SOAP Service
+ * Provides static methods to call TGA service without Spring dependency injection
  * Can be used anywhere in the application without Spring context
  */
 public class TgaSoapUtil {
 
-    private static final String DEFAULT_TGA_URL = "http://localhost:8080/TGAService";
+    // Default TGA URL - must be a valid HTTP/HTTPS endpoint
+    // Example: http://tga-service.example.com/soap or https://webservice.qs.mnp.isentric.com/service
+    private static final String DEFAULT_TGA_URL = "http://webservice.qs.mnp.isentric.com/soap";
     private static final RestTemplate restTemplate = new RestTemplate();
 
     private TgaSoapUtil() {
@@ -18,10 +20,10 @@ public class TgaSoapUtil {
     }
 
     /**
-     * Call TGA service with MSISDN using default URL
+     * Call TGA SOAP service with MSISDN using default URL
      *
      * @param msisdn Mobile number to query
-     * @return SOAP response from TGA service
+     * @return SOAP response body
      * @throws Exception if service call fails
      */
     public static String callTga(String msisdn) throws Exception {
@@ -29,11 +31,11 @@ public class TgaSoapUtil {
     }
 
     /**
-     * Call TGA service with MSISDN and custom URL
+     * Call TGA SOAP service with MSISDN and custom URL
      *
      * @param msisdn Mobile number to query
-     * @param tgaUrl TGA service URL
-     * @return SOAP response from TGA service
+     * @param tgaUrl TGA service URL (must be HTTP/HTTPS)
+     * @return SOAP response body
      * @throws Exception if service call fails
      */
     public static String callTga(String msisdn, String tgaUrl) throws Exception {
@@ -45,11 +47,21 @@ public class TgaSoapUtil {
             throw new IllegalArgumentException("TGA URL cannot be null or empty");
         }
 
-        String soapRequest = buildSoapRequest(msisdn);
-        HttpHeaders headers = buildSoapHeaders();
-        HttpEntity<String> request = new HttpEntity<>(soapRequest, headers);
+        // Validate URL format
+        if (!tgaUrl.startsWith("http://") && !tgaUrl.startsWith("https://")) {
+            throw new IllegalArgumentException(
+                    "TGA URL must start with http:// or https://. " +
+                    "Invalid URL: " + tgaUrl + ". " +
+                    "Do NOT use URN format (urn:...). " +
+                    "Example correct format: http://webservice.qs.mnp.isentric.com/soap"
+            );
+        }
 
         try {
+            String soapRequest = buildSoapRequest(msisdn);
+            HttpHeaders headers = buildSoapHeaders();
+            HttpEntity<String> request = new HttpEntity<>(soapRequest, headers);
+
             ResponseEntity<String> response = restTemplate.exchange(
                     tgaUrl,
                     HttpMethod.POST,
@@ -99,7 +111,7 @@ public class TgaSoapUtil {
     private static HttpHeaders buildSoapHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("text/xml; charset=utf-8"));
-        headers.add("SOAPAction", "");
+        headers.add("SOAPAction", ""); // Important for Axis
         return headers;
     }
 
