@@ -1076,7 +1076,7 @@ public class SmppMessageServiceBinder {
         new HttpClient();
         new GetMethod();
         new PostMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Concatenated Message");
         } else {
@@ -1122,6 +1122,7 @@ public class SmppMessageServiceBinder {
                 this.performHTTPCelcomRequest(var69, response, sms, smsMessage, httpName, dnid, sender, credit, 0);
             } else {
                 url = httpSms.getURL();
+                System.out.println(url);
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                 url = url.replace("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", httpSms.getEnText());
@@ -1132,7 +1133,7 @@ public class SmppMessageServiceBinder {
                 if (httpSms.getDynamicTxID().equalsIgnoreCase("y")) {
                     url = url.replace("<TXID>", dnid);
                 }
-
+                System.out.println(url);
                 GetMethod httpGet = new GetMethod(url);
                 logger.debug("2. URL : " + url);
 
@@ -1265,7 +1266,7 @@ public class SmppMessageServiceBinder {
         String dnid = "";
         int code = 0;
         new GetMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Concatenated Message");
         } else {
@@ -1408,7 +1409,7 @@ public class SmppMessageServiceBinder {
         String dnid = "";
         int code = 0;
         new GetMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Concatenated Message");
         } else {
@@ -1950,7 +1951,7 @@ public class SmppMessageServiceBinder {
         String dnid = "";
         int code = 0;
         new GetMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Concatenated Message");
         } else {
@@ -2083,7 +2084,7 @@ public class SmppMessageServiceBinder {
         String dnid = "";
         int code = 0;
         new GetMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (cFlag.equalsIgnoreCase("1")) {
             logger.info("Concatenated Message");
         } else {
@@ -2219,7 +2220,7 @@ public class SmppMessageServiceBinder {
         String dnid = "";
         int code = 0;
         new GetMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (smsMessage.getMessageType() == 0) {
             smsMessage.setMessage(this.checkPriceTag(smsMessage.getMessage()));
             sms.setMessage(smsMessage.getMessage());
@@ -2347,7 +2348,7 @@ public class SmppMessageServiceBinder {
         String dnid = "";
         int code = 0;
         new GetMethod();
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         if (smsMessage.getMessageType() == 0) {
             smsMessage.setMessage(this.checkPriceTag(smsMessage.getMessage()));
             sms.setMessage(smsMessage.getMessage());
@@ -2747,7 +2748,7 @@ public class SmppMessageServiceBinder {
         String url = "";
         String dnid = "";
         int code = 0;
-        System.setProperty("javax.net.ssl.trustStore", "C:\\bulk-cert\\MyMaxisKeyStore.jks");
+        System.setProperty("javax.net.ssl.trustStore", "MyMaxisKeyStore.jks");
         new HttpClient();
         new GetMethod();
         new PostMethod();

@@ -51,7 +51,7 @@ public class Constant
     public static final String SIGNAL_ACTION_MEDIUM = "07";
     public static final String SIGNAL_ACTION_HIGH = "08";
     public static final String SIGNAL_ACTION_DELETE = "09";
-    public static final String KEYSTORE = "C:\\bulk-cert\\MyMaxisKeyStore.jks";
+    public static final String KEYSTORE = "MyMaxisKeyStore.jks";
 
 
     public static String USERID = "isentric";
