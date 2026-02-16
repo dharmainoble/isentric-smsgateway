@@ -9,14 +9,25 @@ import com.isentric.bulkgateway.manager.MessagesManager;
 import com.isentric.bulkgateway.manager.PrefixManager;
 import com.isentric.bulkgateway.manager.SpecificRouteManager;
 import com.isentric.bulkgateway.service.SmppMessageServiceBinder;
+import com.isentric.bulkgateway.service.TgaSoapService;
 import com.isentric.bulkgateway.utility.*;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
+import jakarta.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.naming.NamingException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -24,8 +35,79 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class SMSServerSMPP  {
+@Service
+public class SMSServerSMPP implements ApplicationContextAware {
 
+    // Static context holder for accessing Spring beans
+    private static ApplicationContext applicationContext;
+
+    @Autowired
+    private TgaSoapService tgaSoapService;
+
+    // Constructor to set the application context
+    public SMSServerSMPP(ApplicationContext context) {
+        SMSServerSMPP.applicationContext = context;
+        logger.info("SMSServerSMPP initialized with ApplicationContext");
+    }
+
+    // Default constructor for Spring
+    public SMSServerSMPP() {
+    }
+
+    // Implement ApplicationContextAware interface
+    @Override
+    public void setApplicationContext(ApplicationContext context) {
+        SMSServerSMPP.applicationContext = context;
+        logger.info("ApplicationContext set via ApplicationContextAware");
+    }
+
+    // PostConstruct method to verify initialization
+    @PostConstruct
+    public void init() {
+        logger.info("SMSServerSMPP initialization check: ApplicationContext=" +
+                   (applicationContext != null ? "AVAILABLE" : "NULL") +
+                   ", TgaSoapService=" + (tgaSoapService != null ? "AVAILABLE" : "NULL"));
+
+        // Try to get TgaSoapService early if not autowired
+        if (tgaSoapService == null && applicationContext != null) {
+            try {
+                tgaSoapService = applicationContext.getBean(TgaSoapService.class);
+                logger.info("TgaSoapService successfully retrieved during PostConstruct");
+            } catch (Exception e) {
+                logger.warn("Could not retrieve TgaSoapService during PostConstruct: " + e.getMessage());
+            }
+        }
+    }
+
+    // Method to get TgaSoapService safely
+    private TgaSoapService getTgaSoapService() {
+        // Level 1: Check autowired field
+        if (this.tgaSoapService != null) {
+            logger.debug("TgaSoapService retrieved from autowired field");
+            return this.tgaSoapService;
+        }
+
+        // Level 2: Try to get from ApplicationContext
+        if (applicationContext != null) {
+            try {
+                TgaSoapService service = applicationContext.getBean(TgaSoapService.class);
+                logger.debug("TgaSoapService retrieved from ApplicationContext");
+                return service;
+            } catch (Exception e) {
+                logger.error("Failed to get TgaSoapService from ApplicationContext: " + e.getMessage(), e);
+            }
+        } else {
+            logger.error("ApplicationContext is null - Spring context not properly initialized");
+        }
+
+        // Level 3: Provide detailed error message
+        String errorMsg = "TgaSoapService is not available. " +
+                         "ApplicationContext: " + (applicationContext != null ? "Available" : "NULL") +
+                         ", Autowired Bean: " + (this.tgaSoapService != null ? "Available" : "NULL") +
+                         ". Check if TgaSoapService bean is configured and application context is initialized.";
+        logger.error(errorMsg);
+        throw new RuntimeException(errorMsg);
+    }
 
         private static final long serialVersionUID = -5597886878125332146L;
         private static final Logger logger = LoggerManager.createLoggerPattern(SMSServerSMPP.class);
@@ -164,7 +246,11 @@ public class SMSServerSMPP  {
                                 //tempTelco = utl.queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                                 tempTelco = TGA161Util.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                             } else {
-                                tempTelco = TGAUtil.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
+                                System.out.println("New Tele IS :");
+                                String response = getTgaSoapService().callTga(smsMessageSmpp.getRecipient());
+                                tempTelco =getTelco(response);
+                                System.out.println(tempTelco);
+                               // tempTelco = TGAUtil.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                             }
                         } else if (dipEngine != null && dipEngine.equals("Infobip")) {
                             if (serverIP != null && serverIP.equals("161")) {
@@ -177,7 +263,11 @@ public class SMSServerSMPP  {
                            // tempTelco = utl.queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                             tempTelco = TGA161Util.getInstance(serverIP).queryTelcoFromTGA(smsMessageSmpp.getRecipient());
                         } else {
-                            tempTelco = TGAUtil.getInstance(serverIP).queryTelcoFromTGASkipFilter(smsMessageSmpp.getRecipient());
+                            System.out.println("New Tele IS :");
+                            String response = getTgaSoapService().callTga(smsMessageSmpp.getRecipient());
+                            tempTelco =getTelco(response);
+                            System.out.println(tempTelco);
+                            //tempTelco = TGAUtil.getInstance(serverIP).queryTelcoFromTGASkipFilter(smsMessageSmpp.getRecipient());
                         }
                     } catch (Exception var43) {
                         String tempKeyword = smsMessageSmpp.getKeyword();
@@ -190,7 +280,7 @@ public class SMSServerSMPP  {
                         } else {
                             tempTelco = TGAUtil.manualQueryTelco(smsMessageSmpp.getRecipient());
                         }
-
+                        var43.printStackTrace();
                         logger.debug(tempKeyword + ": TGA-Skip-Filter-Exception' ; Guid = " + smsMessageSmpp.getGuid() + ",tempTelco=" + tempTelco);
                     }
 
@@ -348,7 +438,23 @@ public class SMSServerSMPP  {
     }
 
 
+    public static String getTelco(String xmlResponse) throws Exception {
 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(false);
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(
+                new ByteArrayInputStream(xmlResponse.getBytes()));
+
+        NodeList nodeList = doc.getElementsByTagName("telco");
+
+        if (nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
+        }
+
+        return null;
+    }
 
 
 }

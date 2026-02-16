@@ -6,12 +6,19 @@ import com.isentric.bulkgateway.dto.OperationError;
 import com.isentric.bulkgateway.dto.SMSMessageDTO;
 import com.isentric.bulkgateway.service.SMSMessageService;
 import com.isentric.bulkgateway.service.TgaSoapService;
+import com.isentric.bulkgateway.tga.webservice.QSResponse;
+import com.isentric.bulkgateway.util.XMLUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
@@ -92,13 +99,32 @@ public class SMSMessageController {
             String response = tgaSoapService.callTga(msisdn);
             System.out.println("response");
             System.out.println(response);
-            String telco = tgaSoapService.extractTelcoFromResponse(response);
+            String Tele=getTelco(response);
             System.out.println("telco");
-            System.out.println(telco);
-            return ResponseEntity.ok("Telco: " + (telco != null ? telco : "Unknown"));
+            System.out.println(Tele);
+            return ResponseEntity.ok("Telco: " + ( Tele != null ?  Tele : "Unknown"));
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .body("Error: " + e.getMessage());
         }
+    }
+
+
+    public static String getTelco(String xmlResponse) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(false);
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(
+                new ByteArrayInputStream(xmlResponse.getBytes()));
+
+        NodeList nodeList = doc.getElementsByTagName("telco");
+
+        if (nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
+        }
+
+        return null;
     }
 }
