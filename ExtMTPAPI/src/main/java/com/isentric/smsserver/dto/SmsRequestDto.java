@@ -20,11 +20,11 @@ public class SmsRequestDto implements Serializable {
     
     @NotBlank(message = "Recipient MSISDN is required")
     private String rmsisdn;
-    
-    private String smsisdn;
-    
+
     @NotBlank(message = "Message ID is required")
     private String mtid;
+
+    private String password;
     
     private String mtprice;
     

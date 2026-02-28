@@ -2,6 +2,7 @@ package com.isentric.bulkgateway.service;
 
 import ch.qos.logback.core.net.SyslogOutputStream;
 import com.isentric.bulkgateway.bg.model.SMSMessageSmpp;
+import com.isentric.bulkgateway.config.SmppConfig;
 import com.isentric.bulkgateway.dto.*;
 import com.isentric.bulkgateway.exception.MessageException;
 import com.isentric.bulkgateway.exception.SMSException;
@@ -69,12 +70,16 @@ public class SmppMessageServiceBinder {
     public static final String PROVIDER_ID = "P-R0Sr4BNJxH3";
     public static final String PROVIDER_PASSWORD = "isentric123";
 
+
     @Autowired
     private MessageServiceDao messageServiceDao;
 
     //private static final Dao dao = new Dao();
 
     private String void_custid = "";
+
+
+
 
     private InputStream openConfigStream(String path) throws IOException {
         if (path == null) {
@@ -112,37 +117,26 @@ public class SmppMessageServiceBinder {
         value = inValue;
     }
 
-    public synchronized void setupGSM(String smppName, String smppConfig, boolean receiveFlag) throws SMSException, MessageException, IOException, com.objectxp.msg.MessageException {
-        if (!binderHashtable.containsKey(smppName)) {
-            Properties jSMSPropertiesSmpp = new Properties();
-            try (InputStream is = openConfigStream(smppConfig)) {
-                jSMSPropertiesSmpp.load(is);
-            }
-            GsmSmsService gsmSmsServiceBinder = new GsmSmsService();
-            logger.info("GSM binder initiated. (name=" + smppName + ",config=" + smppConfig + ")");
-            MOListenerSmpp moListenerSmpp = new MOListenerSmpp(smppName);
-            gsmSmsServiceBinder.addMessageEventListener(moListenerSmpp);
-            gsmSmsServiceBinder.connect();
-            if (receiveFlag) {
-                gsmSmsServiceBinder.startReceiving();
-            }
 
-            logger.info("GSM listener connected.  (name=" + smppName + ",config=" + smppConfig + ")");
-            logger.info("- Service Name   : " + gsmSmsServiceBinder.getServiceName());
-            binderHashtable.put(smppName, gsmSmsServiceBinder);
-        } else {
-            logger.info("GSM connection is currently binded and it can be setup once only. (name=" + smppName + ",config=" + smppConfig + ")");
-            throw new SMSException("GSM connection is currently binded and it can be setup once only. (name=" + smppName + ",config=" + smppConfig + ")");
-        }
-    }
 
     public void setupSmpp(String smppName, String smppConfig) throws SMSException, MessageException, IOException, com.objectxp.msg.MessageException {
         if (!binderHashtable.containsKey(smppName)) {
             Properties jSMSPropertiesSmpp = new Properties();
-            System.out.println(smppConfig);
+            System.out.println("=== LOADING SMPP CONFIG ===");
+            System.out.println("smppConfig path: " + smppConfig);
             try (InputStream is = openConfigStream(smppConfig)) {
                 jSMSPropertiesSmpp.load(is);
+
+                // Print all properties loaded
+                System.out.println("\n=== ALL PROPERTIES IN jSMSPropertiesSmpp ===");
+                System.out.println("Total properties loaded: " + jSMSPropertiesSmpp.size());
+                System.out.println("Properties content:");
+                jSMSPropertiesSmpp.forEach((key, value) -> {
+                    System.out.println("  " + key + " = " + value);
+                });
+                System.out.println("=== END OF PROPERTIES ===\n");
             }
+
             SmppSmsService smppSmsServiceBinder = new SmppSmsService();
             // Try to initialize the service if an init/initialize method exists on the implementation (use reflection
             // because the compile-time interface may not declare it). Some objectxp versions require init(Properties).
@@ -196,7 +190,23 @@ public class SmppMessageServiceBinder {
             // Some SmppSmsService implementations require the service to be initialized/connected
             // before addMessageEventListener can be called (otherwise they throw "Service must be initialized first").
             // Connect first, then register the listener and start receiving.
-            System.out.println(jSMSPropertiesSmpp.getProperty("smpp.login") );
+
+            System.out.println("\n=== SMPP CONNECTION DETAILS ===");
+            System.out.println("SMPP Name: " + smppName);
+            System.out.println("SMPP Config: " + smppConfig);
+            System.out.println("\n--- Key SMPP Properties ---");
+            System.out.println("smpp.login: " + jSMSPropertiesSmpp.getProperty("smpp.login") );
+            System.out.println("smpp.password: " + jSMSPropertiesSmpp.getProperty("smpp.password") );
+            System.out.println("smpp.host: " + jSMSPropertiesSmpp.getProperty("smpp.host"));
+            System.out.println("smpp.port: " + jSMSPropertiesSmpp.getProperty("smpp.port"));
+            System.out.println("smpp.systemType: " + jSMSPropertiesSmpp.getProperty("smpp.systemType"));
+            System.out.println("smpp.enquireLinkTimer: " + jSMSPropertiesSmpp.getProperty("smpp.enquireLinkTimer"));
+            System.out.println("smpp.responseTTL: " + jSMSPropertiesSmpp.getProperty("smpp.responseTTL"));
+            System.out.println("\n--- All Properties for " + smppName + " ---");
+            jSMSPropertiesSmpp.forEach((key, value) -> {
+                System.out.println("  [" + smppName + "] " + key + " = " + value);
+            });
+            System.out.println("=== END CONNECTION DETAILS ===\n");
             smppSmsServiceBinder.connect();
             // Attempt to register listener; if the implementation complains the service is not initialized,
             // try a few additional fallback init/initialize signatures via reflection and retry.
@@ -277,7 +287,15 @@ public class SmppMessageServiceBinder {
                 throw new SMSException("Failed to add message listener to SmppSmsService after multiple attempts for " + smppName);
             }
             smppSmsServiceBinder.startReceiving();
-            System.out.println(jSMSPropertiesSmpp.getProperty("smpp.login") );
+
+            System.out.println("\n=== FINAL SMPP STATUS FOR " + smppName + " ===");
+            System.out.println("Config Properties:");
+            System.out.println("smpp.login: " + jSMSPropertiesSmpp.getProperty("smpp.login"));
+            System.out.println("\n--- All Loaded Properties ---");
+            jSMSPropertiesSmpp.forEach((key, value) -> {
+                System.out.println("  " + key + " = " + value);
+            });
+            System.out.println("=== END FINAL STATUS ===\n");
             logger.info("SMPP listener connected.  (name=" + smppName + ",config=" + smppConfig + ")");
             logger.info("- Service Name   : " + smppSmsServiceBinder.getServiceName());
             logger.info("- Window Size    : " + smppSmsServiceBinder.getWindowSize());
@@ -291,28 +309,7 @@ public class SmppMessageServiceBinder {
         }
     }
 
-    public void setupUcp(String ucpName, String ucpConfig) throws SMSException, MessageException, IOException, com.objectxp.msg.MessageException {
-        if (!binderHashtable.containsKey(ucpName)) {
-            Properties jSMSPropertiesSmpp = new Properties();
-            try (InputStream is = openConfigStream(ucpConfig)) {
-                jSMSPropertiesSmpp.load(is);
-            }
-            UcpSmsService ucpSmsServiceBinder = new UcpSmsService();
-            // ucpSmsServiceBinder.init(jSMSPropertiesSmpp); - init() method not available in current objectxp library
-            logger.info("UCP binder initiated. (name=" + ucpName + ",config=" + ucpConfig + ")");
-            MOListenerSmpp moListenerSmpp = new MOListenerSmpp(ucpName);
-            ucpSmsServiceBinder.addMessageEventListener(moListenerSmpp);
-            ucpSmsServiceBinder.connect();
-            ucpSmsServiceBinder.startReceiving();
-            logger.info("UCP listener connected.  (name=" + ucpName + ",config=" + ucpConfig + ")");
-            logger.info("- Service Name   : " + ucpSmsServiceBinder.getServiceName());
-            logger.info("- Window Size    : " + ucpSmsServiceBinder.getWindowSize());
-            logger.info("- Pending Msgs   : " + ucpSmsServiceBinder.getNumberOfPendingMessages());
-            binderHashtable.put(ucpName, ucpSmsServiceBinder);
-        } else {
-            throw new SMSException("SMPP connection is currently binded and it can be setup once only. (name=" + ucpName + ",config=" + ucpConfig + ")");
-        }
-    }
+
 
     public void setupHttp(String Http, String httpConfig, String apiKey) throws SMSException, MessageException, IOException {
         if (binderHashtable.containsKey(Http)) {
@@ -458,6 +455,8 @@ public class SmppMessageServiceBinder {
     }
 
     public void sendSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, com.objectxp.msg.MessageException {
+        System.out.println("sendSmpp-----------");
+
         String sender = smsMessage.getSender();
         String recipient = smsMessage.getRecipient();
 
@@ -491,53 +490,56 @@ public class SmppMessageServiceBinder {
             recipient = smsMessage.getRecipient().substring(1);
         }
 
-        if (smsMessage.getMessageType() == 0) {
+        if (smsMessage.getMessageType() == 0){
             EMSMessage sms = new EMSMessage();
             sms.requestStatusReport(true);
             sms.setSender(sender);
             sms.setRecipient(recipient);
             sms.setID(smsMessage.getGuid());
-            sms.setCodingGroup((short) 0);
+            sms.setCodingGroup((short)0);
             sms.setProperty("SMPP_GUID", smsMessage.getGuid());
             sms.setProperty("SMPP_NAME", smppName);
             sms.setParent(sms);
-            sms.setMessageClass((short) -1);
+            sms.setMessageClass((short)-1);
             smsMessage.setMessage(this.checkPriceTag(smsMessage.getMessage()));
             sms.setMessage(smsMessage.getMessage());
             int MSG_MAX_SIZE = 160;
             int messageLength = smsMessage.getMessage().length();
-            int nMessages = (short) ((int) Math.ceil((double) messageLength / Double.parseDouble(String.valueOf(MSG_MAX_SIZE))));
+            int nMessages = (short)((int)Math.ceil((double)messageLength / Double.parseDouble(String.valueOf(MSG_MAX_SIZE))));
             if (smppName.trim().toUpperCase().startsWith("SMPP_TUNETALK") && messageLength > MSG_MAX_SIZE) {
                 String fullMessage = smsMessage.getMessage();
 
-                for (int i = 0; i < nMessages; ++i) {
+                for(int i = 0; i < nMessages; ++i) {
                     String messagePart = getContentPart(fullMessage, i, MSG_MAX_SIZE);
                     sms = new EMSMessage();
                     sms.requestStatusReport(true);
                     sms.setSender(sender);
                     sms.setRecipient(recipient);
                     sms.setID(smsMessage.getGuid());
-                    sms.setCodingGroup((short) 0);
+                    sms.setCodingGroup((short)0);
                     sms.setProperty("SMPP_GUID", smsMessage.getGuid());
                     sms.setProperty("SMPP_NAME", smppName);
                     sms.setParent(sms);
-                    sms.setMessageClass((short) -1);
+                    sms.setMessageClass((short)-1);
                     sms.setMessage(this.checkPriceTag(messagePart));
                     System.out.println("Message Part [" + i + "] : " + sms.getMessage());
-                    ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
-
-                    for (int j = 0; j < sms.getParts().length; ++j) {
-                        this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessage()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
+                    ((SmsService)binderHashtable.get(smppName)).sendMessage(sms);
+                    for(int j = 0; j < sms.getParts().length; ++j) {
+                        this.messageServiceDao.insertSmppSent2((String)sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String)(StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
                     }
                 }
             } else {
-                ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
-
-                for (int i = 0; i < sms.getParts().length; ++i) {
-                    this.messageServiceDao.insertSmppSent2((String) sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName,  sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String) (StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessage()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), i, credit);
-                }
+                ((SmsService)binderHashtable.get(smppName)).sendMessage(sms);
+                System.out.println(sms.getMessageId());
+                System.out.println(sms.getParts().length);
+                System.out.println(sms.getParts());
+                System.out.println(sms.getProperties());
+                System.out.println(sms.getContent());
+                //for(int i = 0; i < sms.getParts().length; ++i) {
+                    this.messageServiceDao.insertSmppSent2((String)sms.getProperty("SMPP_GUID"), smsMessage.getGroupId(), smsMessage.getTelco(), smppName, sms.getID(), smsMessage.getMoid(), sender, smsMessage.getRecipient(), smsMessage.getMessageType(), (String)(StringUtil.isNotBlank(smsMessage.getMessage()) ? StringUtil.replaceSingleQuote(StringUtil.trimToEmpty(smsMessage.getMessage())) : smsMessage.getMessageBytes()), smsMessage.getShortcode(), smsMessage.getUserGroup(), smsMessage.getKeyword(), 1, credit);
+                //}
             }
-        } else if (smsMessage.getMessageType() == 6) {
+    }else if (smsMessage.getMessageType() == 6) {
             EMSMessage sms = new EMSMessage();
             sms.requestStatusReport(true);
             sms.setSender(smsMessage.getSender());
@@ -825,6 +827,10 @@ public class SmppMessageServiceBinder {
                     response = "";
                     dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                     url = httpSms.getURL();
+                    String username = SmppConfig.getUsername(httpName, sms.getSender());
+                    String password = SmppConfig.getPassword(httpName, sms.getSender());
+                    url = url.replace("<username>",username );
+                    url = url.replace("<Password>",password );
                     url = url.replace("<msisdn>", sms.getRecipient());
                     url = url.replace("<msgType>", httpSms.getEnText());
                     url = url.replace("<masking>", sms.getSender());
@@ -868,8 +874,16 @@ public class SmppMessageServiceBinder {
                     this.performHTTPRequest(var74, response, sms, smsMessage, httpName, dnid, sender, credit, i);
                 }
             } else {
+
                 url = httpSms.getURL();
+                System.out.println(url);
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
+                System.out.println(smsMessage.getTelco());
+                System.out.println(sms.getSender());
+                String username = SmppConfig.getUsername(httpName, sms.getSender());
+                String password = SmppConfig.getPassword(httpName, sms.getSender());
+                url = url.replace("<username>",username );
+                url = url.replace("<Password>",password );
                 url = url.replace("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", httpSms.getEnText());
                 url = url.replace("<masking>", sms.getSender());
@@ -880,7 +894,7 @@ public class SmppMessageServiceBinder {
                     dnid = sms.getRecipient().substring(sms.getRecipient().length() - 4, sms.getRecipient().length()) + dnid.substring(0, 3);
                     url = url.replace("<TXID>", dnid);
                 }
-
+                System.out.println(url);
                 try {
                     MaxisDNStatusManager maxisCache = MaxisDNStatusManager.getInstance();
                     String oriCust = smsMessage.getKeyword().replace("extmt_", "").trim();
@@ -941,6 +955,10 @@ public class SmppMessageServiceBinder {
                     response = "";
                     dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                     url = httpSms.getURL();
+                    String username = SmppConfig.getUsername(httpName, sms.getSender());
+                    String password = SmppConfig.getPassword(httpName, sms.getSender());
+                    url = url.replace("<username>",username );
+                    url = url.replace("<Password>",password );
                     url = url.replace("<msisdn>", sms.getRecipient());
                     url = url.replace("<msgType>", httpSms.getChText());
                     url = url.replace("<masking>", sms.getSender());
@@ -986,6 +1004,10 @@ public class SmppMessageServiceBinder {
             } else {
                 url = httpSms.getURL();
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
+                String username = SmppConfig.getUsername(httpName, sms.getSender());
+                String password = SmppConfig.getPassword(httpName, sms.getSender());
+                url = url.replace("<username>",username );
+                url = url.replace("<Password>",password );
                 url = url.replace("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", httpSms.getChText());
                 url = url.replace("<masking>", sms.getSender());
@@ -1033,6 +1055,10 @@ public class SmppMessageServiceBinder {
         } else if (smsMessage.getMessageType() == 1) {
             url = httpSms.getURL();
             dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
+            String username = SmppConfig.getUsername(httpName, sms.getSender());
+            String password = SmppConfig.getPassword(httpName, sms.getSender());
+            url = url.replace("<username>",username );
+            url = url.replace("<Password>",password );
             url = url.replaceAll("<msisdn>", sms.getRecipient());
             url = url.replaceAll("<msgType>", httpSms.getBinary());
             url = url.replaceAll("<masking>", sms.getSender());
@@ -1309,9 +1335,10 @@ public class SmppMessageServiceBinder {
                 if (messageLength > 160 && cFlag.equalsIgnoreCase("1")) {
                     url = url + "&type=LongSMS";
                 }
-
+                System.out.println("2. URL : " + url);
                 GetMethod httpGet = new GetMethod(url);
                 logger.debug("2. URL : " + url);
+
 
                 try {
                     if (messageLength > 153 && cFlag.equalsIgnoreCase("1")) {
@@ -1400,6 +1427,8 @@ public class SmppMessageServiceBinder {
         sms.setSender(sender);
         sms.setRecipient(recipient);
         sms.setID(smsMessage.getGuid());
+        String username = SmppConfig.getUsername(httpName, sms.getSender());
+        String password = SmppConfig.getPassword(httpName, sms.getSender());
         sms.setProperty("SMPP_GUID", smsMessage.getGuid());
         sms.setProperty("SMPP_NAME", httpName);
         sms.setParent(sms);
@@ -1430,6 +1459,9 @@ public class SmppMessageServiceBinder {
                     response = "";
                     dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                     url = httpSms.getURL();
+                    url = url.replace("<username>",username);
+                    url = url.replace("<password>",password );
+                    url = url.replace("<shortcode>",sender );
                     url = url.replace("<msisdn>", sms.getRecipient());
                     url = url.replace("<msgType>", "1");
                     String checkPriceTagMsg = getContentPart(smsMessage.getMessage(), i, 153);
@@ -1442,6 +1474,9 @@ public class SmppMessageServiceBinder {
             } else {
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                 url = httpSms.getURL();
+                url = url.replace("<username>",username);
+                url = url.replace("<password>",password );
+                url = url.replace("<shortcode>",sender );
                 url = url.replace("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", "1");
                 String checkPriceTagMsg = smsMessage.getMessage();
@@ -1480,6 +1515,9 @@ public class SmppMessageServiceBinder {
                     response = "";
                     url = httpSms.getURL();
                     dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
+                    url = url.replace("<username>",username);
+                    url = url.replace("<password>",password );
+                    url = url.replace("<shortcode>",sender );
                     url = url.replaceAll("<msisdn>", sms.getRecipient());
                     url = url.replace("<msgType>", "3");
                     url = url.replace("<msg>", URLEncoder.encode(getContentPart(smsMessage.getMessage(), i, 256)));
@@ -1490,6 +1528,9 @@ public class SmppMessageServiceBinder {
             } else {
                 url = httpSms.getURL();
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
+                url = url.replace("<username>",username);
+                url = url.replace("<password>",password );
+                url = url.replace("<shortcode>",sender );
                 url = url.replaceAll("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", "1");
                 String checkPriceTagMsg = smsMessage.getMessage();
@@ -1508,6 +1549,9 @@ public class SmppMessageServiceBinder {
         } else if (smsMessage.getMessageType() == 1) {
             url = httpSms.getURL();
             dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
+            url = url.replace("<username>",username);
+            url = url.replace("<password>",password );
+            url = url.replace("<shortcode>",sender );
             url = url.replaceAll("<msisdn>", sms.getRecipient());
             url = url.replace("<sendType>", "Bookmark");
             url = url.replaceAll("<masking>", sms.getSender());
@@ -2461,9 +2505,11 @@ public class SmppMessageServiceBinder {
         new DESProcessor();
         String cFlag = "" + smsMessage.getcFlag();
         UUIDGenerator uuid = UUIDGenerator.getInstance();
+        String user = SmppConfig.getUsername(httpName, sender);
+        String password = SmppConfig.getPassword(httpName, sender);
         String company = "isentric";
-        String user = "isentric";
-        String password = "95Hn28TqG";
+        //String user = "isentric";
+        //String password = "isentric2@14";
         String signature = "";
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
@@ -2500,6 +2546,9 @@ public class SmppMessageServiceBinder {
                     dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                     signature = "##" + company + "##" + user + "##" + password + "##" + dnid + "##";
                     url = httpSms.getURL();
+                    url = url.replace("<username>",user);
+                    url = url.replace("<password>",password );
+                    url = url.replace("<shortcode>",sender );
                     url = url.replace("<msisdn>", sms.getRecipient());
                     url = url.replace("<msgType>", httpSms.getEnText());
                     url = url.replace("<refid>", dnid);
@@ -2507,6 +2556,7 @@ public class SmppMessageServiceBinder {
                     url = url.replace("<msg>", URLEncoder.encode(getContentPart(smsMessage.getMessage(), i, 153).trim(), "UTF-8"));
                     logger.debug("1. URL : " + url);
                     logger.info("1. URL : " + url);
+                    System.out.println(url);
                     GetMethod httpGet = new GetMethod(url);
                     this.performHTTPRequest(httpGet, response, sms, smsMessage, httpName, dnid, sender, credit, i);
                 }
@@ -2514,6 +2564,9 @@ public class SmppMessageServiceBinder {
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                 signature = "##" + company + "##" + user + "##" + password + "##" + dnid + "##";
                 url = httpSms.getURL();
+                url = url.replace("<username>",user);
+                url = url.replace("<password>",password );
+                url = url.replace("<shortcode>",sender );
                 url = url.replace("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", httpSms.getEnText());
                 url = url.replace("<refid>", dnid);
@@ -2553,6 +2606,9 @@ public class SmppMessageServiceBinder {
                     dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                     signature = "##" + company + "##" + user + "##" + password + "##" + dnid + "##";
                     url = httpSms.getURL();
+                    url = url.replace("<username>",user);
+                    url = url.replace("<password>",password );
+                    url = url.replace("<shortcode>",sender );
                     url = url.replace("<msisdn>", sms.getRecipient());
                     url = url.replace("<msgType>", httpSms.getChText());
                     url = url.replace("<refid>", dnid);
@@ -2575,6 +2631,9 @@ public class SmppMessageServiceBinder {
                 dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                 signature = "##" + company + "##" + user + "##" + password + "##" + dnid + "##";
                 url = httpSms.getURL();
+                url = url.replace("<username>",user);
+                url = url.replace("<password>",password );
+                url = url.replace("<shortcode>",sender );
                 url = url.replace("<msisdn>", sms.getRecipient());
                 url = url.replace("<msgType>", httpSms.getChText());
                 url = url.replace("<refid>", dnid);
@@ -2863,6 +2922,8 @@ public class SmppMessageServiceBinder {
         String recipient = smsMessage.getRecipient();
         short nMessages = 1;
         String cFlag = "" + smsMessage.getcFlag();
+        String username = SmppConfig.getUsername(httpName, sender);
+        String password = SmppConfig.getPassword(httpName, sender);
         EMSMessage sms = new EMSMessage();
         sms.requestStatusReport(true);
         sms.setSender(sender);
@@ -2879,27 +2940,28 @@ public class SmppMessageServiceBinder {
         } else {
             logger.info("Normal Message");
         }
-
+        System.out.println("sendHttpUmobile");
         if (smsMessage.getMessageType() == 0) {
             logger.info("=========================================normal text=========================================");
             smsMessage.setMessage(this.checkPriceTag(smsMessage.getMessage()));
             double messageLength = (double) smsMessage.getMessage().length();
             dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
             StringBuffer URLBuffer = null;
-            logger.info("[userID] isentric");
-            logger.info("[pass] isentric2@13");
+            logger.info("[userID] "+username);
+            logger.info("[pass]"+password);
             logger.info("[shortcode] 66399");
             logger.info("[msisdn] " + sms.getRecipient());
             logger.info("[msgtype] 1");
             logger.info("[msg] " + nMessages);
             logger.info("[msgID] " + dnid);
             URLBuffer = new StringBuffer(url);
-            URLBuffer.append("?userID=" + URLEncoder.encode("isentric", "UTF-8"));
-            URLBuffer.append("&pass=" + URLEncoder.encode("isentric2@13", "UTF-8"));
-            URLBuffer.append("&shortcode=" + URLEncoder.encode("66399", "UTF-8"));
+            URLBuffer.append("?userID=" + URLEncoder.encode(username, "UTF-8"));
+            URLBuffer.append("&pass=" + URLEncoder.encode(password, "UTF-8"));
+            URLBuffer.append("&shortcode=" + URLEncoder.encode(sms.getSender(), "UTF-8"));
             URLBuffer.append("&msisdn=" + URLEncoder.encode(sms.getRecipient(), "UTF-8"));
             URLBuffer.append("&msgtype=" + URLEncoder.encode("1", "UTF-8"));
             URLBuffer.append("&msg=" + URLEncoder.encode(smsMessage.getMessage(), "UTF-8"));
+            System.out.println(URLBuffer);
             this.performHTTPUmobile(URLBuffer.toString(), sms, smsMessage, httpName, dnid, sender, credit, 0);
         } else if (smsMessage.getMessageType() == 6) {
             logger.info("=========================================CHINESE=========================================");
@@ -2916,17 +2978,17 @@ public class SmppMessageServiceBinder {
             logger.info("1.\tsms getType =" + sms.getType());
             dnid = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
             StringBuffer URLBuffer = null;
-            logger.info("[userID] isentric");
-            logger.info("[pass] isentric2@13");
-            logger.info("[shortcode] 66399");
+            logger.info("[userID] "+username);
+            logger.info("[pass] "+password);
+            logger.info("[shortcode] "+sender);
             logger.info("[msisdn] " + sms.getRecipient());
             logger.info("[msgtype] 3");
             logger.info("[msg] " + nMessages);
             logger.info("[msgID] " + dnid);
             URLBuffer = new StringBuffer(url);
-            URLBuffer.append("?userID=" + URLEncoder.encode("isentric", "UTF-8"));
-            URLBuffer.append("&pass=" + URLEncoder.encode("isentric2@13", "UTF-8"));
-            URLBuffer.append("&shortcode=" + URLEncoder.encode("66399", "UTF-8"));
+            URLBuffer.append("?userID=" + URLEncoder.encode(username, "UTF-8"));
+            URLBuffer.append("&pass=" + URLEncoder.encode(password, "UTF-8"));
+            URLBuffer.append("&shortcode=" + URLEncoder.encode(sender, "UTF-8"));
             URLBuffer.append("&msisdn=" + URLEncoder.encode(sms.getRecipient(), "UTF-8"));
             URLBuffer.append("&msgtype=" + URLEncoder.encode("3", "UTF-8"));
             URLBuffer.append("&msg=" + URLEncoder.encode(smsMessage.getMessage(), "UTF-8"));
@@ -3163,6 +3225,8 @@ public class SmppMessageServiceBinder {
         sms.setSender(sender);
         sms.setRecipient(recipient);
         sms.setID(smsMessage.getGuid());
+        String username = SmppConfig.getUsername(httpName, sms.getSender());
+        String password = SmppConfig.getPassword(httpName, sms.getSender());
         sms.setProperty("SMPP_GUID", smsMessage.getGuid());
         sms.setProperty("SMPP_NAME", httpName);
         sms.setParent(sms);
@@ -3189,9 +3253,9 @@ public class SmppMessageServiceBinder {
             logger.info("[msg] " + nMessages);
             logger.info("[msgID] " + dnid);
             URLBuffer = new StringBuffer(url);
-            URLBuffer.append("?userID=" + URLEncoder.encode("Isentric", "UTF-8"));
-            URLBuffer.append("&pass=" + URLEncoder.encode("Isentric2@18", "UTF-8"));
-            URLBuffer.append("&shortcode=" + URLEncoder.encode("66399", "UTF-8"));
+            URLBuffer.append("?userID=" + URLEncoder.encode(username, "UTF-8"));
+            URLBuffer.append("&pass=" + URLEncoder.encode(password, "UTF-8"));
+            URLBuffer.append("&shortcode=" + URLEncoder.encode(sender, "UTF-8"));
             URLBuffer.append("&msisdn=" + URLEncoder.encode(sms.getRecipient(), "UTF-8"));
             URLBuffer.append("&msgtype=" + URLEncoder.encode("1", "UTF-8"));
             URLBuffer.append("&msg=" + URLEncoder.encode(smsMessage.getMessage(), "UTF-8"));
@@ -3219,9 +3283,9 @@ public class SmppMessageServiceBinder {
             logger.info("[msg] " + nMessages);
             logger.info("[msgID] " + dnid);
             URLBuffer = new StringBuffer(url);
-            URLBuffer.append("?userID=" + URLEncoder.encode("isentric", "UTF-8"));
-            URLBuffer.append("&pass=" + URLEncoder.encode("isentric2@13", "UTF-8"));
-            URLBuffer.append("&shortcode=" + URLEncoder.encode("66399", "UTF-8"));
+            URLBuffer.append("?userID=" + URLEncoder.encode(username, "UTF-8"));
+            URLBuffer.append("&pass=" + URLEncoder.encode(password, "UTF-8"));
+            URLBuffer.append("&shortcode=" + URLEncoder.encode(sender, "UTF-8"));
             URLBuffer.append("&msisdn=" + URLEncoder.encode(sms.getRecipient(), "UTF-8"));
             URLBuffer.append("&msgtype=" + URLEncoder.encode("3", "UTF-8"));
             URLBuffer.append("&msg=" + URLEncoder.encode(smsMessage.getMessage(), "UTF-8"));
@@ -3651,6 +3715,9 @@ public class SmppMessageServiceBinder {
                 url = wsdlSms.getURL();
                 System.out.println("sendWsdl: (multipart) URL=" + url);
                 System.out.println("");
+
+
+
                 String password = wsdlSms.getPassword();
                 String login_name = des.encrypt(wsdlSms.getLoginName(), password);
                 String service_id = des.encrypt(wsdlSms.getServiceId(), password);
@@ -3708,10 +3775,21 @@ public class SmppMessageServiceBinder {
             } else {
                 url = wsdlSms.getURL();
                 System.out.println("sendWsdl111: (single) URL=" + url);
-                System.out.println("");
-                String password = wsdlSms.getPassword();
-                String login_name = des.encrypt(wsdlSms.getLoginName(), password);
-                String service_id = des.encrypt(wsdlSms.getServiceId(), password);
+                System.out.println(smsMessage.getSender());
+
+
+                String username = SmppConfig.getUsername(wsdlName, smsMessage.getSender());
+                String password = SmppConfig.getPassword(wsdlName, smsMessage.getSender());
+                String serviceid = SmppConfig.getServiceId(wsdlName, smsMessage.getSender());
+
+
+                System.out.println(username);
+                System.out.println(password);
+                System.out.println(serviceid);
+
+                //String password = wsdlSms.getPassword();
+                String login_name = des.encrypt(username, password);
+                String service_id = des.encrypt(serviceid, password);
                 String cp_id = wsdlSms.getCpId();
                 String ref_id = String.valueOf(encrypt(generateUniqueNumber(), generateUniqueKey()));
                 String response_url = wsdlSms.getResponseURL();
@@ -3733,15 +3811,21 @@ public class SmppMessageServiceBinder {
                     URL portAddress = new URL(url);
                     System.out.println("portAddress" +portAddress);
                     System.out.println("sendWsdl: invoking WSDL endpoint URL=" + url + " ref_id=" + ref_id);
-                    System.out.println("");
-                    SDPServices service = new SDPServicesLocator();
-                    SDPServicesInterface port = service.getSDPServicesHttpPort(portAddress);
-                    SDPResult result = port.smsBulk(login_name, service_id, cp_id, recipient, sender, ref_id, notification_ind, response_url, sms_contents, array_of_info);
-                    code = result.getError_code();
-                    System.out.println("result.getTransaction_id()"+result.getTransaction_id());
-                    if (!result.getTransaction_id().equals("")) {
-                        transactionId = result.getTransaction_id();
-                    } else if (result.getTransaction_id().equalsIgnoreCase("")) {
+                    System.out.println("WsdlService.smsBulk");
+                    System.out.println(recipient);
+                    System.out.println(sender);
+                    System.out.println(cp_id);
+                    System.out.println(service_id);
+                    System.out.println(login_name);
+                    SmsGatewayResult result= WsdlService.smsBulk(login_name, service_id, cp_id, recipient, sender, ref_id, notification_ind, response_url,checkPriceTagMsg);
+                    //SDPServices service = new SDPServicesLocator();
+                    //SDPServicesInterface port = service.getSDPServicesHttpPort(portAddress);
+                    //SDPResult result = port.smsBulk(login_name, service_id, cp_id, recipient, sender, ref_id, notification_ind, response_url, sms_contents, array_of_info);
+                    code = result.getErrorCode();
+                   System.out.println("result.getTransaction_id()"+result.getTransactionId());
+                    if (!result.getTransactionId().equals("")) {
+                        transactionId = result.getTransactionId();
+                    } else if (result.getTransactionId().equalsIgnoreCase("")) {
                         boolean checkSkipAutoResends = this.checkSkipAutoResend(smsMessage.getKeyword());
                         if (checkSkipAutoResends) {
                             this.messageServiceDao.updateSmppSent(sms, "UNDELIVERED");
@@ -3771,6 +3855,9 @@ public class SmppMessageServiceBinder {
                 } catch (javax.xml.rpc.ServiceException e) {
                     throw new RuntimeException(e);
                 } catch (com.objectxp.msg.MessageException e) {
+                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             }
@@ -3941,6 +4028,9 @@ public class SmppMessageServiceBinder {
         logger.info("=========================================END sendWsdl=========================================");
     }
 
+
+
+
     public void sendChargeService(String chargeName, String credit, SMSMessageSmpp smsMessage) {
         try {
             String sender = validateDigiRecipient(smsMessage.getRecipient());
@@ -4013,10 +4103,7 @@ public class SmppMessageServiceBinder {
 
     public  void sendSmsMessageSmpp(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, com.objectxp.msg.MessageException {
         this.void_custid = smsMessage.getKeyword();
-        if (binderHashtable.get(smppName) instanceof GsmSmsService) {
-           System.out.println("sendSmsMessageSmpp-1");
-            this.sendGSM(smppName, credit, smsMessage);
-        } else if (binderHashtable.get(smppName) instanceof SmsService) {
+        if (binderHashtable.get(smppName) instanceof SmsService) {
             System.out.println("sendSmsMessageSmpp-2");
             if (smppName.equalsIgnoreCase("SMPP_RED_PREMIO")) {
                 this.sendRedPremioSmpp(smppName, credit, smsMessage);
@@ -4024,7 +4111,6 @@ public class SmppMessageServiceBinder {
                 this.sendSmpp(smppName, credit, smsMessage);
             }
         } else if (binderHashtable.get(smppName) instanceof HttpObj) {
-            System.out.println("sendSmsMessageSmpp-3");
             if (!smppName.equalsIgnoreCase("HTTP_INFOBIP") && !smppName.equalsIgnoreCase("HTTP_INFOBIP_MULTROUTE") && !smppName.equalsIgnoreCase("HTTP_INFOBIP_INTERNATIONAL")) {
                 if (smppName.equalsIgnoreCase("HTTP_ISENTRIC_MODEM")) {
                     this.sendHttpIsentricModem(smppName, credit, smsMessage);
@@ -4080,29 +4166,7 @@ public class SmppMessageServiceBinder {
 
     }
 
-    public void sendGSM(String smppName, String credit, SMSMessageSmpp smsMessage) throws MessageException, SQLException, com.objectxp.msg.MessageException {
-        String sender = smsMessage.getSender();
-        String recipient = smsMessage.getRecipient();
-        if (smsMessage.getMessageType() == 0) {
-            SmsMessage sms = new SmsMessage();
-            sms.setRecipient("+" + recipient);
-            sms.setMessage(smsMessage.getMessage());
-            sms.requestStatusReport(true);
-            sms.setProperty("SMPP_GUID", smsMessage.getGuid());
 
-            try {
-                this.wait(1000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            ((SmsService) binderHashtable.get(smppName)).sendMessage(sms);
-        } else {
-            logger.info("Message of Type : " + smsMessage.getMessageType());
-            logger.info("Logo Message not sent to " + smsMessage.getRecipient());
-        }
-
-    }
 
     public boolean isInitialized(String smppName) {
         if (binderHashtable.get(smppName) instanceof SmsService) {
@@ -5054,7 +5118,8 @@ public class SmppMessageServiceBinder {
                     break;
                 }
             }
-
+           System.out.println("CUST ID >>>" + smsMessage.getKeyword() + ", Response Code >>>" + retCode);
+            System.out.println("CUST ID >>>" + smsMessage.getKeyword() + ", Response >>>" + response);
             logger.info("CUST ID >>>" + smsMessage.getKeyword() + ", Response Code >>>" + retCode);
             logger.info("CUST ID >>>" + smsMessage.getKeyword() + ", Response >>>" + response);
             buff.close();
@@ -5486,19 +5551,9 @@ public class SmppMessageServiceBinder {
 
                     try {
                         this.sendSmsMessageSmpp(smppName, credit, smsMessage);
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeySpecException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (IllegalBlockSizeException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    } catch (MessageException e) {
+                    } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException |
+                             NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
+                             MessageException e) {
                         e.printStackTrace();
                     } catch (com.objectxp.msg.MessageException e) {
                         throw new RuntimeException(e);

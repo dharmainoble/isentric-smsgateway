@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -47,7 +48,7 @@ public class SMSMessageSent {
     private Integer senderType;
 
     @Column(name = "date")
-    private LocalDateTime date;
+    private Date date= new Date();
 
     @Lob
     @Column(name = "message")
@@ -72,13 +73,13 @@ public class SMSMessageSent {
     private String price;
 
     @Column(name = "smppType", length = 50)
-    private String smppType;
+    private String smppType="";
 
     @Column(name = "smppStatus", length = 50)
-    private String smppStatus;
+    private String smppStatus="";
 
     @Column(name = "timestamp", length = 50)
-    private String timestamp;
+    private String timestamp="";
 
     @Lob
     @Column(name = "bytes")
@@ -88,7 +89,7 @@ public class SMSMessageSent {
     private String transactionId;
 
     @Column(name = "error", length = 200)
-    private String error;
+    private String error="";
 
 }
 

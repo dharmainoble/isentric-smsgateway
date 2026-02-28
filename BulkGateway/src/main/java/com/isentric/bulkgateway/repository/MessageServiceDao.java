@@ -6,6 +6,7 @@ import com.isentric.bulkgateway.dto.extMTObject;
 import com.isentric.bulkgateway.utility.DateUtil;
 import com.isentric.bulkgateway.utility.SmsUtil;
 import com.isentric.bulkgateway.utility.StringUtil;
+import com.objectxp.msg.SmsMessage;
 import msg.ems.EMSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -77,6 +78,27 @@ public class MessageServiceDao {
         }
     }
 
+    public int updateSmppSentMO(SmsMessage smsMessage, String eventStatus) throws SQLException {
+        System.out.println("updateSmppSentMO for message with GUID: " + smsMessage.getProperty("SMPP_GUID") + " and eventStatus: " + eventStatus);
+        System.out.println(SmsUtil.getSmppStatusType(smsMessage.getType()));
+
+        String sql = "UPDATE bulk_gateway.tbl_smpp_sent SET smppType='" + SmsUtil.getSmppStatusType(smsMessage.getType()) + "', smppStatus='" + StringUtil.trimToEmpty(eventStatus) + "', timestamp='" + StringUtil.trimToEmpty(DateUtil.getDateYYYYMMDDHHMMSS(smsMessage.getTimestamp())) + "', bytes='" + StringUtil.replaceSingleQuote(StringUtil.replaceBackSlash(StringUtil.byteToString(smsMessage.getBytes()))) + "' " + "WHERE guid='" + smsMessage.getProperty("SMPP_GUID") + "';";
+        int updateResult = 0;
+        try {
+            try {
+                Thread.sleep(1000L);
+                System.out.println(sql);
+                updateResult = this.update(sql);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return updateResult;
+        } finally {
+            ;
+        }
+    }
+
     // helper: save SMSMessageSmpp using repository if available, otherwise use EntityManager
     private void saveSMSMessageSmpp(SMSMessageSmpp in) throws SQLException {
         if (in == null) return;
@@ -114,7 +136,7 @@ public class MessageServiceDao {
     }
 
     // Insert sent SMPP record (tbl_smpp_sent) - save into SMSMessageSent entity
-    public int insertSmppSent(SMSMessageSmpp smsMessageSmpp) throws SQLException {
+    public int insertSmppSent(SMSMessageSmpp smsMessageSmpp,String Status) throws SQLException {
         if (smsMessageSmpp != null) {
             SMSMessageSent sent = new SMSMessageSent();
             sent.setGuid(smsMessageSmpp.getGuid());
@@ -125,10 +147,11 @@ public class MessageServiceDao {
             sent.setSender(smsMessageSmpp.getSender());
             sent.setRecipient(smsMessageSmpp.getRecipient());
             sent.setMessage(smsMessageSmpp.getMessage());
-            //sent.setShortcode(smsMessageSmpp.getShortcode());
+            sent.setShortcode(smsMessageSmpp.getShortcode());
             sent.setUserGroup(smsMessageSmpp.getUserGroup());
             sent.setKeyword(smsMessageSmpp.getKeyword());
             sent.setCredit(smsMessageSmpp.getCredit());
+            sent.setSmppStatus(Status);
             saveSMSMessageSent(sent);
             return 1;
         }
@@ -157,6 +180,7 @@ public class MessageServiceDao {
         saveSMSMessageSent(sent);
         return 1;
     }
+
 
     public int insertSmppSent3(String Guid, String GroupId, String Telco, String SmppName, String SmppId, String Moid, String Sender, String Recipient, int SenderType, String Message, String Shortcode, String UserGroup, String Keyword, int sequence, String credit, String mtPrice) throws SQLException {
         SMSMessageSent sent = new SMSMessageSent();

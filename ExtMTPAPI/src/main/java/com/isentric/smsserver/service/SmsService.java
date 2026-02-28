@@ -96,7 +96,9 @@ public class SmsService {
                 }
                 
                 // Check masking ID
-                if (!validationService.checkMaskingId(request.getCustid(), request.getSmsisdn())) {
+                if (!validationService.checkMaskingId(request.getCustid(), request.getShortcode())) {
+                    System.out.println(request.getCustid());
+                    System.out.println(request.getShortcode());
                     return new SmsResponseDto(7, "Invalid masking ID");
                 }
                 
@@ -158,7 +160,7 @@ public class SmsService {
         record.setShortcode(request.getShortcode());
         record.setCustid(request.getCustid());
         record.setRmsisdn(msisdn);
-        record.setSmsisdn(request.getSmsisdn());
+        record.setSmsisdn(request.getShortcode());
         record.setMtid(mtid);
         record.setMtprice(request.getMtprice());
         record.setProductType(request.getProductType());

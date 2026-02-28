@@ -323,6 +323,7 @@ public class SMSServerSMPP implements ApplicationContextAware {
                 } else {
                     for(int attemptCount = 0; attemptCount < 3 && !smppMessageServiceBinder.isAlive(smppName) && !smppMessageServiceBinder.isConnected(smppName); ++attemptCount) {
                         logger.info("[" + attemptCount++ + "] SMPP connection is not alive or connected, restarting ...");
+                        System.out.println("[" + attemptCount++ + "] SMPP connection is not alive or connected, restarting ...");
                         smppMessageServiceBinder.destroySmpp(smppName);
                         Thread.sleep(5000L);
 
@@ -354,27 +355,21 @@ public class SMSServerSMPP implements ApplicationContextAware {
                                         String configType = cols[1] != null ? cols[1].toString() : null;
                                         String config = cols[2] != null ? cols[2].toString() : null;
                                         String apiKey = cols[3] != null ? cols[3].toString() : null;
+                                        System.out.println("configType - "+configType);
+                                        System.out.println("routeName - "+routeName);
                                         if ("smpp".equals(configType)) {
                                             smppMessageServiceBinder.setupSmpp(smppName, config);
                                             logger.info("SMPP " + routeName + " initiation status: " + smppMessageServiceBinder.isInitialized(routeName));
                                             logger.info("SMPP " + routeName + " connection status: " + smppMessageServiceBinder.isConnected(routeName));
-                                        } else if ("ucp".equals(configType)) {
-                                            smppMessageServiceBinder.setupUcp(smppName, config);
-                                            logger.info("UCP " + routeName + " initiation status: " + smppMessageServiceBinder.isInitialized(routeName));
-                                            logger.info("UCP " + routeName + " connection status: " + smppMessageServiceBinder.isConnected(routeName));
-                                        } else if ("http".equals(configType)) {
+                                        }  else if ("http".equals(configType)) {
                                             smppMessageServiceBinder.setupHttp(routeName, config, apiKey);
                                             logger.info("Http " + routeName + " initiation status: Successful");
                                             logger.info("Http " + routeName + " connection status: Successful");
-                                        } else if ("gsm".equals(configType)) {
-                                            smppMessageServiceBinder.setupGSM(routeName, config, false);
-                                            logger.info("GSM " + routeName + " initiation status: Successful");
-                                            logger.info("GSM " + routeName + " connection status: Successful");
                                         } else if ("wsdl".equals(configType)) {
                                             smppMessageServiceBinder.setupWsdl(routeName, config);
                                             logger.info("WSDL " + routeName + " initiation status : Sucessful");
                                             logger.info("WSDL " + routeName + " connection status : Successful");
-                                        } else if ("charge".equals(configType)) {
+                                            } else if ("charge".equals(configType)) {
                                             smppMessageServiceBinder.setupChargeService(routeName, config);
                                             logger.info("Charge Service " + routeName + " initiation status : Sucessful");
                                             logger.info("Charge Service " + routeName + " connection status : Successful");
@@ -396,35 +391,8 @@ public class SMSServerSMPP implements ApplicationContextAware {
                     }
                 }
 
-        } catch (MessageException msgExp) {
-            logger.fatal(msgExp.getMessage());
-            this.exception = msgExp;
-        } catch (CacheException e) {
-            throw new RuntimeException(e);
-        } catch (com.objectxp.msg.MessageException e) {
-            throw new RuntimeException(e);
-        } catch (SMSException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchPaddingException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalBlockSizeException e) {
-            throw new RuntimeException(e);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        } catch (BadPaddingException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception ee) {
+            ee.printStackTrace();
         } finally {
             if (this.exception != null) {
                 SmsUtil.logExceptionSmppServer(this.exception);

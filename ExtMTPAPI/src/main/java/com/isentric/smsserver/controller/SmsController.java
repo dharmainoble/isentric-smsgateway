@@ -49,15 +49,15 @@ public class SmsController {
             @RequestParam(required = false) String groupTag,
             @RequestParam(required = false) String urlTitle,
             @RequestParam(required = false) String ewigFlag,
+            @RequestParam(required = false) String password,
             @RequestParam(required = false, defaultValue = "0") String cFlag,
             HttpServletRequest request) {
         
         SmsRequestDto smsRequest = new SmsRequestDto(
-            shortcode, custid, rmsisdn, smsisdn, mtid, mtprice,
+            shortcode, custid, rmsisdn, mtid, password ,mtprice,
             productCode, productType, keyword, dataEncoding, dataStr,
             dataUrl, dnRep, groupTag, urlTitle, ewigFlag, cFlag
         );
-        
         return processRequest(smsRequest, request);
     }
 

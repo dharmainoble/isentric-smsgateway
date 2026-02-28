@@ -121,7 +121,9 @@ public class ValidationService {
             
             String sql = "SELECT COUNT(*) FROM bulk_config.masking_id " +
                         "WHERE custid = ? AND masking_id = ? AND active = '1'";
+            System.out.println(sql);
             Integer count = jdbcTemplate.queryForObject(sql, Integer.class, custid, maskingId);
+            System.out.println(count);
             
             return count != null && count > 0;
             
